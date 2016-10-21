@@ -1,0 +1,16 @@
+.DS_Store
+npm-debug.log
+trash.rb
+
+/node_modules/
+/client/js/
+/client/img/
+/tmp
+/log
+/source
+
+*.eot
+*.svg
+*.ttf
+*.woff
+*.woff2
