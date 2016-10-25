@@ -1,0 +1,45 @@
+.white-glyphicon {
+
+  color: #fff;
+}
+
+.light-text {
+
+  color: #999;
+  font-family: 'gotham_bookregular';
+}
+
+#header-group {
+
+  position: relative;
+  width: 100%;
+  height: 90px;
+}
+
+#left-column-group {
+
+  float: left;
+  width: 100px;
+}
+
+.logo-group {
+
+  position: absolute;
+  top:10px;
+  left:10px;
+  width: 80px;
+  height: 80px;
+}
+
+.logo-group img {
+
+  width: 80px;
+  height: 80px;
+}
+
+#listing-group {
+
+  margin-left: 10px;
+  margin-right: 10px;
+  overflow: auto;
+}
