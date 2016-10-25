@@ -3,8 +3,12 @@
 
 class ClientController
 
-  def initialize(request, action)
+  # The psql_service is not required here but it comes along for the ride since
+  # we have to implement three args in the other controllers.
+  def initialize(psql_service, request, action)
 
+
+    @psql_service = psql_service
     @request = request
     @action = action
   end
@@ -15,7 +19,7 @@ class ClientController
   end
 
   def index()
-
+    
     template = File.read('./server/views/index.html')
     Rack::Response.new(template)
   end

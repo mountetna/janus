@@ -6,7 +6,8 @@ class Janus
   def initialize()
 
     @routes = {}
-    @request = {}\
+    @request = {}
+    @psql_service = PostgresService.new()
   end
 
   def call(env)
@@ -35,6 +36,6 @@ class Janus
 
     controller, action = route.split('#')
     controller_class = Kernel.const_get(controller)
-    controller_class.new(@request, action).run()
+    controller_class.new(@psql_service, @request, action).run()
   end
 end
