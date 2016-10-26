@@ -121,8 +121,6 @@ class PostgresService
       .and(:user_id=> user_id)
       .order(:token_create_stamp)
 
-    puts tokens.all
-
     # Loop the tokens and invalidate by setting the expiration to 'now'.
     tokens.each do |token|
 

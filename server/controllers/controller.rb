@@ -8,13 +8,14 @@ class Controller
     @psql_service = psql_service
     @request = request
     @action = action
+    @email_regex = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/
   end
 
   def run()  
 
     send(@action)
   end
-
+  
   def start_log()
 
     # get the params out of the POST
@@ -22,11 +23,19 @@ class Controller
 
     if params.key?('email') && params.key?('pass')
 
+      # Quick check that the email is in a somewhat valid format.
+      if params['email'] !~ @email_regex || params['email'].to_s.length > 64
+
+        return Rack::Response.new({ success: false, error: 'wrong form' }.to_json())
+      end
+
+      # Check that the user and a valid pass is set.
       if !@psql_service.check_pass_exsists(params['email'], params['pass'])
 
         return send_bad_login()
       end
 
+      # Verify the password.
       if !check_pass(params['email'], params['pass'])
 
         return send_bad_login()
