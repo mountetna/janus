@@ -9,8 +9,8 @@ class PostgresService
       :adapter=> 'postgres',
       :host=> 'localhost', 
       :database=> 'janus',
-      :user=> 'postgres',
-      :password=> 'abc123'
+      :user=> Conf::PSQL_USER,
+      :password=> Conf::PSQL_PASS
     }
 
     @postgres = Sequel.connect(db_config)
@@ -67,27 +67,28 @@ class PostgresService
     end
   end
 
-  def get_pass_hash(email)
-
-    user = @postgres[:users].where(:email=> email).all
-    user[0][:pass_hash]
-  end
-
   def get_token(email)
 
-    user = @postgres[:users].where(:email=> email).all
-    user_id = user[0][:user_id]
+    now = Time.now
+    user_id = get_user_id(email)
+    tokens = pull_tokens_for_user(user_id)
 
-    tokens = @postgres[:tokens]
-      .where(:user_id=> user_id)
-      .order(:token_create_stamp)
+    token = 0
+    if tokens.count > 0
 
-    if tokens.count == 0
+      # Select the token with the longest expiration time left and expire 
+      # all others for the user.
+      token = tokens.all[0][:token]
 
-      return 0
+      tokens.drop(1).each do |tkn|
+
+        tokens
+          .where(:token_id=> tkn[:token_id])
+          .update(:token_expire_stamp=> now)
+      end
     end
 
-    return 0
+    return token
   end
 
   def set_token(email, token)
@@ -100,26 +101,19 @@ class PostgresService
 
       :token=> token, 
       :user_id=> user_id, 
-      :token_expire_stamp=> expires # Time is in seconds, 0 = no expiration
+      :token_expire_stamp=> expires # Time is in seconds, nil = no expiration
     }
 
     tokens = @postgres[:tokens]
     tokens.insert(row)
   end
 
+  # Expire all the tokens for a user.
   def invalidate_token(email)
 
-    # Get the user id and the current timestamp.
-    user = @postgres[:users].where(:email=> email).all
-    user_id = user[0][:user_id]
     now = Time.now
-
-    # Get the tokens for user that could still be valid.
-    tokens = @postgres[:tokens]
-      .where('token_expire_stamp > ?', now)
-      .or('token_expire_stamp IS NULL')
-      .and(:user_id=> user_id)
-      .order(:token_create_stamp)
+    user_id = get_user_id(email)
+    tokens = pull_tokens_for_user(user_id)
 
     # Loop the tokens and invalidate by setting the expiration to 'now'.
     tokens.each do |token|
@@ -128,5 +122,65 @@ class PostgresService
         .where(:token_id=> token[:token_id])
         .update(:token_expire_stamp=> now)
     end
+  end
+
+  # Get the user's password hash.
+  def get_pass_hash(email)
+
+    user = @postgres[:users].where(:email=> email).all
+    user[0][:pass_hash]
+  end
+
+  # Get the user id from the user's email.
+  def get_user_id(email)
+
+    user = @postgres[:users].where(:email=> email).all
+    user_id = user[0][:user_id]
+  end
+
+  def get_user_name(email)
+
+    user = @postgres[:users].where(:email=> email).all
+    first_name = user[0][:first_name]
+    last_name = user[0][:last_name]
+
+    { first_name: first_name, last_name: last_name }
+  end
+
+  def check_log(auth_token)
+
+    now = Time.now
+    tokens = @postgres[:tokens]
+      .where('token_expire_stamp > ?', now)
+      .or('token_expire_stamp IS NULL')
+      .and(:token=> auth_token)
+
+    if tokens.count < 1
+
+      return 0
+    end
+
+    token = tokens.all[0]
+    user_id = token[:user_id]
+    user = @postgres[:users].where(:user_id=> user_id).all[0]
+
+    {
+
+      email: user[:email],
+      first_name: user[:first_name],
+      last_name: user[:last_name]
+    }
+  end
+
+  # Get a list of all valid tokens by the user id. Put the last issued token
+  # at the top.
+  def pull_tokens_for_user(user_id)
+
+    now = Time.now
+    tokens = @postgres[:tokens]
+      .where('token_expire_stamp > ?', now)
+      .or('token_expire_stamp IS NULL')
+      .and(:user_id=> user_id)
+      .order(Sequel.desc(:token_expire_stamp))
   end
 end

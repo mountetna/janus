@@ -16,17 +16,18 @@ class Controller
     send(@action)
   end
   
-  def start_log()
+  def log_in()
 
-    # get the params out of the POST
+    # Get the params out of the POST
     params = @request.POST()
 
+    # Check for the correct parameters.
     if params.key?('email') && params.key?('pass')
 
       # Quick check that the email is in a somewhat valid format.
       if params['email'] !~ @email_regex || params['email'].to_s.length > 64
 
-        return Rack::Response.new({ success: false, error: 'wrong form' }.to_json())
+        return send_bad_login()
       end
 
       # Check that the user and a valid pass is set.
@@ -48,11 +49,76 @@ class Controller
         @psql_service.set_token(params['email'], token)
       end
 
-      Rack::Response.new({ success: true, session_token: token }.to_json())
+      user_info = @psql_service.get_user_name(params['email'])
+      user_info['auth_token'] = token
+      user_info['email'] = params['email']
+      #user_info['user_email'] = params['email']
+      Rack::Response.new({ success: true, user_info: user_info }.to_json())
     else
 
       return send_bad_request()
     end    
+  end
+
+  def log_out()
+
+    # Get the params out of the POST
+    params = @request.POST()
+
+    # Check for the correct parameters.
+    if params.key?('email') && params.key?('token')
+
+      # Check the validity of the token
+      token = @psql_service.check_log(params['token'])
+
+      # If the token is valid and the email matches the user that owns the token
+      # then invalidate any token for that user.
+      if token != 0 && token[:email] == params['email']
+
+        @psql_service.invalidate_token(params['email'])
+      end
+
+      Rack::Response.new({ success: true, logged: false }.to_json())
+    else
+
+      return send_bad_request()
+    end
+  end
+
+  def check_log()
+
+    # Get the params out of the POST
+    params = @request.POST()
+
+    # Check for the correct parameters.
+    if params.key?('token')
+
+      user_info = @psql_service.check_log(params['token'])
+
+      if user_info == 0
+
+        repsonse = { 
+
+          success: true, 
+          message: 'Invalid token.',
+          logged: false
+        }
+      else
+
+        user_info['auth_token'] = params['token']
+        repsonse = { 
+
+          success: true, 
+          user_info: user_info,
+          logged: true
+        }
+      end
+
+      Rack::Response.new(repsonse.to_json())
+    else
+
+      return send_bad_request()
+    end
   end
 
   def generate_token(email)

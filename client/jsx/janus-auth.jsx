@@ -12,6 +12,7 @@ class JanusAuth{
     this['model'] = null;
 
     this.initDataStore();
+    this.checkLog();
     this.buildUI();
   }
 
@@ -52,9 +53,14 @@ class JanusAuth{
 
     switch(action['type']){
 
-      case 'START_LOGIN':
+      case 'LOG_IN':
 
-        this.startLogin(action['data']['email'], action['data']['pass']);
+        this.logIn(action['data']['email'], action['data']['pass']);
+        break;
+
+      case 'LOG_OUT':
+
+        this.logOut()
         break;
       default:
 
@@ -63,10 +69,38 @@ class JanusAuth{
     }
   }
 
-  startLogin(email, pass){
+  checkLog(){
+
+    if(COOKIES.hasItem(TOKEN_NAME)){
+
+      //Serialize the request for POST
+      var logItems = 'token='+ COOKIES.getItem(TOKEN_NAME);
+
+      AJAX({
+
+        url: './checklog',
+        method: 'POST',
+        sendType: 'serial',
+        returnType: 'json',
+        data: logItems,
+        success: this['checkLogResponse'].bind(this),
+        error: this['ajaxError'].bind(this)
+      });
+    }
+  }
+
+  checkLogResponse(response){
+
+    if(response['success'] && response['logged']){
+
+      this.logInResponse(response);
+    }
+  }
+
+  logIn(email, pass){
 
     //Serialize the request for POST
-    var logItems = 'email='+ email +"&pass="+ pass;
+    var logItems = 'email='+ email +'&pass='+ pass;
 
     AJAX({
 
@@ -75,20 +109,26 @@ class JanusAuth{
       sendType: 'serial',
       returnType: 'json',
       data: logItems,
-      success: this['authorizationResponse'].bind(this),
+      success: this['logInResponse'].bind(this),
       error: this['ajaxError'].bind(this)
     });
   }
 
-  authorizationResponse(response){
+  logInResponse(response){
 
     if(response['success']){
 
       //Set the token to the cookies so it may be used by multiple UI programs.
-      COOKIES.setItem(TOKEN_NAME, response['token']);
+      COOKIES.setItem(TOKEN_NAME, response['user_info']['auth_token']);
 
       //Set the token to the local Redux store.
-      var data = { authToken: response['token'] };
+      var data = { 
+        
+        userEmail: response['user_info']['email'],
+        authToken: response['user_info']['auth_token'],
+        firstName: response['user_info']['first_name'],
+        lastName: response['user_info']['last_name'],
+      };
       var action = { type: 'LOGGED_IN', data: data };
     }
     else{
@@ -98,6 +138,42 @@ class JanusAuth{
     }
 
     this['model']['store'].dispatch(action);
+  }
+
+  logOut(){
+
+    var state = this['model']['store'].getState();
+    var email = state['janusState']['userInfo']['userEmail'];
+    var authToken = state['janusState']['userInfo']['authToken'];
+
+    //Serialize the request for POST
+    var logItems = 'email='+ email +'&token='+ authToken;
+
+    AJAX({
+
+      url: './logout',
+      method: 'POST',
+      sendType: 'serial',
+      returnType: 'json',
+      data: logItems,
+      success: this['logOutResponse'].bind(this),
+      error: this['ajaxError'].bind(this)
+    });
+  }
+
+  logOutResponse(response){
+
+    if(response['success'] && !response['logged']){
+
+      COOKIES.removeItem(TOKEN_NAME);
+      var action = { type: 'LOGGED_OUT' };
+      this['model']['store'].dispatch(action);
+    }
+    else{
+
+      var action = { type: 'LOG_ERROR' };
+      console.log(response);
+    }
   }
 
   ajaxError(xhr, config, error){

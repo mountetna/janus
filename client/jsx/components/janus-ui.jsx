@@ -1,9 +1,10 @@
-import * as React from 'react'
+import * as React from 'react';
 
 import TitleBar  from './nav/title-bar';
 import MenuBar   from './nav/menu-bar';
 
-import LoginPanelContainer from './auth/login-panel-container'
+import LoginPanelContainer from './auth/login-panel-container';
+import UserPanelContainer from './user/user-panel-container';
 
 export default class JanusUI extends React.Component{
 
@@ -16,7 +17,7 @@ export default class JanusUI extends React.Component{
 
     if(this['props']['janusState']['loginStatus']){
 
-      return <div>sup</div>;
+      return <UserPanelContainer />;
     }
     else{
 

@@ -19,11 +19,11 @@ export default class LoginPanel extends React.Component{
     }
   }
 
-  startLogin(){
+  logIn(){
 
     var userEmail = document.getElementById('email-input').value;
     var userPass = document.getElementById('pass-input').value;
-    this['props'].startLogin(userEmail, userPass);
+    this['props'].logIn(userEmail, userPass);
   }
 
   render(){
@@ -40,7 +40,7 @@ export default class LoginPanel extends React.Component{
 
           Invalid sign in.
         </div>
-        <button className='login-button' onClick={ this['startLogin'].bind(this) }>
+        <button className='login-button' onClick={ this['logIn'].bind(this) }>
 
           SIGN IN
         </button>

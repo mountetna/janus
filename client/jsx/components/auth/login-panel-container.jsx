@@ -14,9 +14,9 @@ const mapDispatchToProps = (dispatch, ownProps)=>{
 
   return {
 
-    startLogin: (email, pass)=>{
+    logIn: (email, pass)=>{
 
-      var action = { type: 'START_LOGIN', data: { email: email, pass: pass} };
+      var action = { type: 'LOG_IN', data: { email: email, pass: pass} };
       dispatch(action);
     }
   };

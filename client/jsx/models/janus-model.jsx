@@ -22,7 +22,9 @@ export default class JanusModel{
         userInfo: {
 
           userEmail: '',
-          authToken: ''
+          authToken: '',
+          firstName: '',
+          lastName: ''
         },
 
         loginStatus: false,
