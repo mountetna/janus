@@ -42,17 +42,28 @@ class Controller
         return send_bad_login()
       end
 
+      # Get or generate a valid token.
       token = @psql_service.get_token(params['email'])
       if token == 0 
 
         token = generate_token(params['email'])
+        if token == 0
+
+          return send_server_error()
+        end
+
         @psql_service.set_token(params['email'], token)
       end
 
+      # Get the user information.
       user_info = @psql_service.get_user_name(params['email'])
+      if user_info == 0
+
+        return send_server_error()
+      end
+
       user_info['auth_token'] = token
       user_info['email'] = params['email']
-      #user_info['user_email'] = params['email']
       Rack::Response.new({ success: true, user_info: user_info }.to_json())
     else
 
@@ -78,7 +89,7 @@ class Controller
         @psql_service.invalidate_token(params['email'])
       end
 
-      Rack::Response.new({ success: true, logged: false }.to_json())
+      return Rack::Response.new({ success: true, logged: false }.to_json())
     else
 
       return send_bad_request()
@@ -124,14 +135,24 @@ class Controller
   def generate_token(email)
 
     pass_hash = @psql_service.get_pass_hash(email)
+    
+    if pass_hash == 0
+
+      return 0
+    end
+
     time = Time.now.getutc.to_s
     params = [time, pass_hash, Conf::TOKEN_SALT]
-    SignService::hash_password(params, Conf::TOKEN_ALGO)
+    return SignService::hash_password(params, Conf::TOKEN_ALGO)
   end
 
   def check_pass(email, pass)
 
     db_pass_hash = @psql_service.get_pass_hash(email)
+    if db_pass_hash == 0
+
+      return false
+    end
 
     ordered_params = SignService::order_params(pass)
     pass_hash = SignService::hash_password(ordered_params, Conf::PASS_ALGO)
@@ -153,5 +174,11 @@ class Controller
   def send_bad_request()
 
     Rack::Response.new({ success: false, error: 'Bad request.' }.to_json())
+  end
+
+  def send_server_error()
+
+    error_message = 'There was a server error.'
+    Rack::Response.new({ success: false, error: error_message }.to_json())
   end
 end
