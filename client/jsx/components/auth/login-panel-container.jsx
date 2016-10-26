@@ -1,0 +1,31 @@
+import * as ReactRedux from 'react-redux';
+import LoginPanel from './login-panel';
+
+const mapStateToProps = (state, ownProps)=>{
+
+  // state == redux store
+  return {
+
+    janusState: state['janusState']
+  };
+}
+
+const mapDispatchToProps = (dispatch, ownProps)=>{
+
+  return {
+
+    startLogin: (email, pass)=>{
+
+      var action = { type: 'START_LOGIN', data: { email: email, pass: pass} };
+      dispatch(action);
+    }
+  };
+}
+
+const LoginPanelContainer = ReactRedux.connect(
+
+  mapStateToProps,
+  mapDispatchToProps,
+)(LoginPanel);
+
+export default LoginPanelContainer;

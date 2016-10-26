@@ -2,10 +2,10 @@
 
   position: absolute;
   width: 240px;
-  height: 148px;
   left: -120px;
   margin-left: 50%;
   margin-top: 20px;
+  padding-bottom: 10px;
   border: 1px solid #999;
 }
 
@@ -17,7 +17,7 @@
   margin-top: 10px;
   margin-left: 20px;
   text-indent: 5px;
-  font-family: 'robotolight_italic';
+  font-family: 'gotham_bookregular';
   outline: none;
 }
 
@@ -35,15 +35,15 @@
 
 .login-button { 
   
-  float: right;
   position: relative;
   padding: 5px;
   border: 1px solid #666;
   border-radius: 1px;
   background: #999;
   cursor: pointer;
-  margin-top:15px;
-  margin-right:20px;
+  margin-top: 15px;
+  margin-left: 20px;
+  width: 200px;
 
   color: #fff;
   font-family: 'gotham_bookregular';
@@ -54,4 +54,16 @@
 .login-button:focus {
     
   outline:none;
+}
+
+.log-error-message {
+
+  display: none;
+  width: 200px;
+  height: 20px;
+  margin-left: 20px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 1em;
+  font-family: 'gotham_bookregular';
 }

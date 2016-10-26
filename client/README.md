@@ -26,6 +26,8 @@
   ```
   $ npm install --save react
   $ npm install --save react-dom
+  $ npm install --save react-redux
+  $ npm install --save redux
   $ npm install --save babel-preset-es2015
   $ npm install --save babel-preset-react
   ```
