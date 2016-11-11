@@ -59,7 +59,7 @@
 
   `$ webpack --watch ./client/js/janus-auth.js ./client/js/main.bundle.js`
 
-## NPM scripted tasks. 
+### NPM scripted tasks. 
 
   In the 'package.json' file there are 'tasks' that can be run, which are just short cuts for commands.
   
