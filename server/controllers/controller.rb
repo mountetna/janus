@@ -135,7 +135,6 @@ class Controller
   def generate_token(email)
 
     pass_hash = @psql_service.get_pass_hash(email)
-    
     if pass_hash == 0
 
       return 0
@@ -156,7 +155,7 @@ class Controller
 
     ordered_params = SignService::order_params(pass)
     pass_hash = SignService::hash_password(ordered_params, Conf::PASS_ALGO)
-    
+
     if db_pass_hash == pass_hash
 
       return true

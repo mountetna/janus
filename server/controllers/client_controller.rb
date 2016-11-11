@@ -7,7 +7,6 @@ class ClientController
   # we have to implement three args in the other controllers.
   def initialize(psql_service, request, action)
 
-
     @psql_service = psql_service
     @request = request
     @action = action
@@ -19,7 +18,7 @@ class ClientController
   end
 
   def index()
-    
+
     template = File.read('./server/views/index.html')
     Rack::Response.new(template)
   end

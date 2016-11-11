@@ -9,8 +9,10 @@ class PostgresService
       :adapter=> 'postgres',
       :host=> 'localhost', 
       :database=> 'janus',
+
       :user=> Conf::PSQL_USER,
-      :password=> Conf::PSQL_PASS
+      :password=> Conf::PSQL_PASS,
+      :search_path=>['private']
     }
 
     @postgres = Sequel.connect(db_config)
@@ -69,7 +71,7 @@ class PostgresService
       end
     rescue Sequel::Error => error
 
-      # log error.message
+      #puts error.message
       return false
     end
   end

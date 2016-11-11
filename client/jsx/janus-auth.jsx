@@ -78,7 +78,7 @@ class JanusAuth{
 
       AJAX({
 
-        url: './checklog',
+        url: '/check',
         method: 'POST',
         sendType: 'serial',
         returnType: 'json',

@@ -1,4 +1,4 @@
-export default class MetisReducer{
+export default class JanusReducer{
 
   reducer(){
 
