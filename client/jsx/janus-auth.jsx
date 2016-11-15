@@ -119,7 +119,7 @@ class JanusAuth{
     if(response['success']){
 
       //Set the token to the cookies so it may be used by multiple UI programs.
-      COOKIES.setItem(TOKEN_NAME, response['user_info']['auth_token']);
+      COOKIES.setItem(TOKEN_NAME, response['user_info']['auth_token'], Infinity, '/', 'uscf.edu');
 
       //Set the token to the local Redux store.
       var data = { 
