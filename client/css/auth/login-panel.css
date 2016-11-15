@@ -54,6 +54,8 @@
 .login-button:focus {
     
   outline:none;
+  border:1px solid #24a684;
+  background: #ccc;
 }
 
 .log-error-message {
