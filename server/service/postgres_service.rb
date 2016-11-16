@@ -94,8 +94,8 @@ class PostgresService
         tokens.drop(1).each do |tkn|
 
           tokens
-            .where(:token_id=> tkn[:token_id])
-            .update(:token_expire_stamp=> now)
+            .where(:id=> tkn[:id])
+            .update(:token_logout_stamp=> now)
         end
       end
 
@@ -113,14 +113,16 @@ class PostgresService
 
       user = @postgres[:users].where(:email=> email).all
 
-      user_id = user[0][:user_id]
+      user_id = user[0][:id]
       expires = Time.now + Conf::TOKEN_EXP
 
       row = {
 
         :token=> token, 
-        :user_id=> user_id, 
-        :token_expire_stamp=> expires # Time is in seconds, nil = no expiration
+        :user_id=> user_id,
+        :token_login_stamp=> Time.now,
+        :token_expire_stamp=> expires, # Time is in seconds, nil = no expiration
+        :token_logout_stamp=> expires
       }
 
       tokens = @postgres[:tokens]
@@ -144,8 +146,8 @@ class PostgresService
       tokens.each do |token|
 
         @postgres[:tokens]
-          .where(:token_id=> token[:token_id])
-          .update(:token_expire_stamp=> now)
+          .where(:id=> token[:id])
+          .update(:token_logout_stamp=> now)
       end
     rescue Sequel::Error => error
 
@@ -173,7 +175,7 @@ class PostgresService
     begin
       
       user = @postgres[:users].where(:email=> email).all
-      return user_id = user[0][:user_id]
+      return user_id = user[0][:id]
     rescue Sequel::Error => error
 
       # log error.message
@@ -202,9 +204,10 @@ class PostgresService
     begin
 
       now = Time.now
+
       tokens = @postgres[:tokens]
         .where('token_expire_stamp > ?', now)
-        .or('token_expire_stamp IS NULL')
+        .where('token_logout_stamp > ?', now)
         .and(:token=> auth_token)
 
       if tokens.count < 1
@@ -214,7 +217,7 @@ class PostgresService
 
       token = tokens.all[0]
       user_id = token[:user_id]
-      user = @postgres[:users].where(:user_id=> user_id).all[0]
+      user = @postgres[:users].where(:id=> user_id).all[0]
 
       return {
 
@@ -229,6 +232,24 @@ class PostgresService
     end
   end
 
+  # Check if the application requesting the check is registered.
+  def app_valid?(app_key)
+
+    apps = @postgres[:apps].where(:app_key=> app_key).all
+
+    if apps.length == 1
+
+      return true
+    end
+
+    if apps.length > 1
+        
+      # log error! There should only be one application per key!
+    end
+
+    return false
+  end
+
   # Get a list of all valid tokens by the user id. Put the last issued token
   # at the top.
   def pull_tokens_for_user(user_id)
@@ -238,7 +259,7 @@ class PostgresService
       now = Time.now
       tokens = @postgres[:tokens]
         .where('token_expire_stamp > ?', now)
-        .or('token_expire_stamp IS NULL')
+        .where('token_logout_stamp > ?', now)
         .and(:user_id=> user_id)
         .order(Sequel.desc(:token_expire_stamp))
 

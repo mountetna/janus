@@ -73,8 +73,11 @@ class JanusAuth{
 
     if(COOKIES.hasItem(TOKEN_NAME)){
 
-      //Serialize the request for POST
-      var logItems = 'token='+ COOKIES.getItem(TOKEN_NAME);
+      var logItems = [
+
+        'token='+ COOKIES.getItem(TOKEN_NAME),
+        'app_key='+ APP_KEY
+      ];
 
       AJAX({
 
@@ -82,7 +85,7 @@ class JanusAuth{
         method: 'POST',
         sendType: 'serial',
         returnType: 'json',
-        data: logItems,
+        data: logItems.join('&'),
         success: this['checkLogResponse'].bind(this),
         error: this['ajaxError'].bind(this)
       });
@@ -95,12 +98,22 @@ class JanusAuth{
 
       this.logInResponse(response);
     }
+    else{
+
+      // We are reusing the logout function to clear away old tokens.
+      var dummyResponse = { success: true, logged: false };
+      this.logOutResponse(dummyResponse);
+    }
   }
 
   logIn(email, pass){
 
-    //Serialize the request for POST
-    var logItems = 'email='+ email +'&pass='+ pass;
+    var logItems = [
+
+      'email='+ email,
+      'app_key='+ APP_KEY,
+      'pass='+ pass
+    ];
 
     AJAX({
 
@@ -108,7 +121,7 @@ class JanusAuth{
       method: 'POST',
       sendType: 'serial',
       returnType: 'json',
-      data: logItems,
+      data: logItems.join('&'),
       success: this['logInResponse'].bind(this),
       error: this['ajaxError'].bind(this)
     });
@@ -146,8 +159,12 @@ class JanusAuth{
     var email = state['janusState']['userInfo']['userEmail'];
     var authToken = state['janusState']['userInfo']['authToken'];
 
-    //Serialize the request for POST
-    var logItems = 'email='+ email +'&token='+ authToken;
+    var logItems = [
+
+      'email='+ email,
+      'token='+ COOKIES.getItem(TOKEN_NAME),
+      'app_key='+ APP_KEY
+    ];
 
     AJAX({
 
@@ -155,7 +172,7 @@ class JanusAuth{
       method: 'POST',
       sendType: 'serial',
       returnType: 'json',
-      data: logItems,
+      data: logItems.join('&'),
       success: this['logOutResponse'].bind(this),
       error: this['ajaxError'].bind(this)
     });
@@ -165,7 +182,7 @@ class JanusAuth{
 
     if(response['success'] && !response['logged']){
 
-      COOKIES.removeItem(TOKEN_NAME);
+      COOKIES.removeItem(TOKEN_NAME, '/', 'ucsf.edu');
       var action = { type: 'LOGGED_OUT' };
       this['model']['store'].dispatch(action);
     }

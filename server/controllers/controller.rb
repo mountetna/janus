@@ -22,7 +22,13 @@ class Controller
     params = @request.POST()
 
     # Check for the correct parameters.
-    if params.key?('email') && params.key?('pass')
+    if params.key?('email') && params.key?('pass') && params.key?('app_key')
+
+      # Check to see if the client is registered with an app.
+      if !@psql_service.app_valid?(params['app_key'])
+
+        return send_bad_request()
+      end
 
       # Quick check that the email is in a somewhat valid format.
       if params['email'] !~ @email_regex || params['email'].to_s.length > 64
@@ -45,13 +51,13 @@ class Controller
       # Get or generate a valid token.
       token = @psql_service.get_token(params['email'])
       if token == 0 
-
+ 
         token = generate_token(params['email'])
         if token == 0
-
+ 
           return send_server_error()
         end
-
+ 
         @psql_service.set_token(params['email'], token)
       end
 
@@ -77,7 +83,13 @@ class Controller
     params = @request.POST()
 
     # Check for the correct parameters.
-    if params.key?('email') && params.key?('token')
+    if params.key?('email') && params.key?('token') && params.key?('app_key')
+
+      # Check to see if the client is registered with an app.
+      if !@psql_service.app_valid?(params['app_key'])
+
+        return send_bad_request()
+      end
 
       # Check the validity of the token
       token = @psql_service.check_log(params['token'])
@@ -102,7 +114,13 @@ class Controller
     params = @request.POST()
 
     # Check for the correct parameters.
-    if params.key?('token')
+    if params.key?('token') && params.key?('app_key')
+
+      # Check to see if the client is registered with an app.
+      if !@psql_service.app_valid?(params['app_key'])
+
+        return send_bad_request()
+      end
 
       user_info = @psql_service.check_log(params['token'])
 
@@ -133,13 +151,13 @@ class Controller
   end
 
   def generate_token(email)
-
+  
     pass_hash = @psql_service.get_pass_hash(email)
     if pass_hash == 0
-
+  
       return 0
     end
-
+  
     time = Time.now.getutc.to_s
     params = [time, pass_hash, Conf::TOKEN_SALT]
     return SignService::hash_password(params, Conf::TOKEN_ALGO)
