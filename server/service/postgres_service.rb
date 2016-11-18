@@ -183,15 +183,43 @@ class PostgresService
     end
   end
 
-  def get_user_name(email)
+  def get_user_info(email)
 
     begin
 
       user = @postgres[:users].where(:email=> email).all
+      user_id = user[0][:id]
       first_name = user[0][:first_name]
       last_name = user[0][:last_name]
 
-      return { first_name: first_name, last_name: last_name }
+      permissions = @postgres[:permissions].where(:id=> user_id).all
+  
+      # Map postgres rows to objects, using the primary key 'id' as the 
+      # object key.
+      prjkts = @postgres[:projects].all
+      projects = {}
+      prjkts.each do |prjkt|
+
+        projects[prjkt[:id]] = prjkt[:project_name]
+      end
+      # Add the project name to the permissions.
+      permissions.each do |permission|
+
+        permission[:project_name] = projects[permission[:project_id]]
+        
+        # Remove any information not required by the client.
+        permission.delete(:id)
+        permission.delete(:user_id)
+      end
+
+      return { 
+
+        :email=> email,
+        :first_name=> first_name, 
+        :last_name=> last_name, 
+        :permissions=>  permissions
+      }
+
     rescue Sequel::Error => error
 
       # log error.message
@@ -218,13 +246,10 @@ class PostgresService
       token = tokens.all[0]
       user_id = token[:user_id]
       user = @postgres[:users].where(:id=> user_id).all[0]
+      user_info = get_user_info(user[:email])
 
-      return {
+      return user_info
 
-        email: user[:email],
-        first_name: user[:first_name],
-        last_name: user[:last_name]
-      }
     rescue Sequel::Error => error
 
       # log error.message

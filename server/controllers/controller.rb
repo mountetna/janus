@@ -62,14 +62,13 @@ class Controller
       end
 
       # Get the user information.
-      user_info = @psql_service.get_user_name(params['email'])
+      user_info = @psql_service.get_user_info(params['email'])
       if user_info == 0
 
         return send_server_error()
       end
 
       user_info['auth_token'] = token
-      user_info['email'] = params['email']
       Rack::Response.new({ success: true, user_info: user_info }.to_json())
     else
 

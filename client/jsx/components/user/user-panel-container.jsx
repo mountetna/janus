@@ -6,20 +6,13 @@ const mapStateToProps = (state, ownProps)=>{
   // state == redux store
   return {
 
-    janusState: state['janusState']
+    appState: state['appState']
   };
 }
 
 const mapDispatchToProps = (dispatch, ownProps)=>{
 
-  return {
-
-    logOut: ()=>{
-
-      var action = { type: 'LOG_OUT' };
-      dispatch(action);
-    }
-  };
+  return {};
 }
 
 const UserPanelContainer = ReactRedux.connect(

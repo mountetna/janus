@@ -6,7 +6,7 @@ const mapStateToProps = (state, ownProps)=>{
   // state == redux store
   return {
 
-    janusState: state['janusState']
+    appState: state['appState']
   };
 }
 

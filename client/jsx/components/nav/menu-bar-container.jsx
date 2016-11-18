@@ -1,5 +1,5 @@
 import * as ReactRedux from 'react-redux';
-import LoginPanel from './login-panel';
+import MenuBar from './menu-bar';
 
 const mapStateToProps = (state, ownProps)=>{
 
@@ -14,18 +14,18 @@ const mapDispatchToProps = (dispatch, ownProps)=>{
 
   return {
 
-    logIn: (email, pass)=>{
+    logOut: ()=>{
 
-      var action = { type: 'LOG_IN', data: { email: email, pass: pass} };
+      var action = { type: 'LOG_OUT' };
       dispatch(action);
     }
   };
 }
 
-const LoginPanelContainer = ReactRedux.connect(
+const MenuBarContainer = ReactRedux.connect(
 
   mapStateToProps,
   mapDispatchToProps,
-)(LoginPanel);
+)(MenuBar);
 
-export default LoginPanelContainer;
+export default MenuBarContainer;

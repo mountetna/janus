@@ -7,17 +7,17 @@ export default class JanusModel{
 
   constructor(){
 
-    var janusState = new JanusReducer();
+    var appState = new JanusReducer();
     var lastAction = new LastActionReducer();
     var reducer = Redux.combineReducers({
 
-      janusState: janusState.reducer(),
+      appState: appState.reducer(),
       lastAction: lastAction.reducer()
     });
 
     var defaultState = {
 
-      janusState: {
+      appState: {
 
         userInfo: {
 

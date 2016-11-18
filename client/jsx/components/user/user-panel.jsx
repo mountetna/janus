@@ -20,29 +20,23 @@ export default class UserPanel extends React.Component{
 
         <div>
 
-          { 'User Email : '} { this['props']['janusState']['userInfo']['userEmail'] }
+          { 'User Email : '} { this['props']['appState']['userInfo']['userEmail'] }
         </div>
         <br />
         <div>
 
-          { 'First Name : '} { this['props']['janusState']['userInfo']['firstName'] }
+          { 'First Name : '} { this['props']['appState']['userInfo']['firstName'] }
         </div>
         <br />
         <div>
 
-          { 'Last Name  : '} { this['props']['janusState']['userInfo']['lastName'] }
+          { 'Last Name  : '} { this['props']['appState']['userInfo']['lastName'] }
         </div>
         <br />
         <div>
 
-          { 'Auth Token : '} { this['props']['janusState']['userInfo']['authToken'] }
+          { 'Auth Token : '} { this['props']['appState']['userInfo']['authToken'] }
         </div>
-        <br />
-
-        <button className='login-button' onClick={ this['logOut'].bind(this) }>
-
-          SIGN OUT
-        </button>
       </div>
     );
   }

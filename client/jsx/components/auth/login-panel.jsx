@@ -9,7 +9,7 @@ export default class LoginPanel extends React.Component{
 
   parseError(){
 
-    if(this['props']['janusState']['loginError']){
+    if(this['props']['appState']['loginError']){
 
       return { display: 'block' };
     }
