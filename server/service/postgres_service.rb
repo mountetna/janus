@@ -192,11 +192,12 @@ class PostgresService
       first_name = user[0][:first_name]
       last_name = user[0][:last_name]
 
-      permissions = @postgres[:permissions].where(:id=> user_id).all
+      permissions = @postgres[:permissions].where(:user_id=> user_id).all
   
       # Map postgres rows to objects, using the primary key 'id' as the 
       # object key.
       prjkts = @postgres[:projects].all
+
       projects = {}
       prjkts.each do |prjkt|
 
