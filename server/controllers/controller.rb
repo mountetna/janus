@@ -69,7 +69,7 @@ class Controller
       end
 
       user_info['auth_token'] = token
-      Rack::Response.new({ success: true, user_info: user_info }.to_json())
+      Rack::Response.new({ :success=> true, :user_info=> user_info }.to_json())
     else
 
       return send_bad_request()
@@ -100,7 +100,7 @@ class Controller
         @psql_service.invalidate_token(params['email'])
       end
 
-      return Rack::Response.new({ success: true, logged: false }.to_json())
+      return Rack::Response.new({ :success=> true, :logged=> false }.to_json())
     else
 
       return send_bad_request()
@@ -127,18 +127,18 @@ class Controller
 
         repsonse = { 
 
-          success: true, 
-          message: 'Invalid token.',
-          logged: false
+          :success=> true, 
+          :message=> 'Invalid token.',
+          :logged=> false
         }
       else
 
         user_info['auth_token'] = params['token']
         repsonse = { 
 
-          success: true, 
-          user_info: user_info,
-          logged: true
+          :success=> true, 
+          :user_info=> user_info,
+          :logged=> true
         }
       end
 
@@ -184,17 +184,17 @@ class Controller
 
   def send_bad_login()
 
-    Rack::Response.new({ success: false, error: 'Invalid login.' }.to_json())
+    Rack::Response.new({ :success=> false, :error=> 'Invalid login.' }.to_json())
   end
 
   def send_bad_request()
 
-    Rack::Response.new({ success: false, error: 'Bad request.' }.to_json())
+    Rack::Response.new({ :success=> false, :error=> 'Bad request.' }.to_json())
   end
 
   def send_server_error()
 
     error_message = 'There was a server error.'
-    Rack::Response.new({ success: false, error: error_message }.to_json())
+    Rack::Response.new({ :success=> false, :error=> error_message }.to_json())
   end
 end

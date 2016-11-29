@@ -48,7 +48,7 @@ class PostgresService
 
     begin
       
-      count = @postgres[:users].where(:email=>email).count
+      count = @postgres[:users].where(:email=> email).count
       if count == 0
 
         # The email doesn't exist.
@@ -218,7 +218,8 @@ class PostgresService
         :email=> email,
         :first_name=> first_name, 
         :last_name=> last_name, 
-        :permissions=>  permissions
+        :permissions=>  permissions,
+        :user_id=> user_id
       }
 
     rescue Sequel::Error => error

@@ -11,24 +11,25 @@ export default class JanusModel{
     var lastAction = new LastActionReducer();
     var reducer = Redux.combineReducers({
 
-      appState: appState.reducer(),
-      lastAction: lastAction.reducer()
+      'appState': appState.reducer(),
+      'lastAction': lastAction.reducer()
     });
 
     var defaultState = {
 
-      appState: {
+      'appState': {
 
-        userInfo: {
+        'userInfo': {
 
-          userEmail: '',
-          authToken: '',
-          firstName: '',
-          lastName: ''
+          'userEmail': '',
+          'authToken': '',
+          'firstName': '',
+          'lastName': '',
+          'userId': ''
         },
 
-        loginStatus: false,
-        loginError: false
+        'loginStatus': false,
+        'loginError': false
       }
     };
 
