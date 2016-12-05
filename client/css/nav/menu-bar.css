@@ -7,22 +7,22 @@
   height: 30px;
   
   /* fallback DIY*/
-  background: #22a778;
+  background: #333366;
 
   /* Safari 4-5, Chrome 1-9 */
-  background: -webkit-gradient(linear, left top, right top, from(#a9d58e), color-stop(0.25, #24a684), color-stop(0.5, #24a684), color-stop(0.75, #24a684), to(#24a684));
+  background: -webkit-gradient(linear, left top, right top, from(#666699), color-stop(0.25, #333366), color-stop(0.5, #333366), color-stop(0.75, #333366), to(#333366));
 
   /* Safari 5.1+, Chrome 10+ */
-  background: -webkit-linear-gradient(left, #a9d58e, #24a684, #24a684, #24a684, #24a684);
+  background: -webkit-linear-gradient(left, #666699, #333366, #333366, #333366, #333366);
 
   /* Firefox 3.6+ */
-  background: -moz-linear-gradient(left, #a9d58e, #24a684, #24a684, #24a684, #24a684);
+  background: -moz-linear-gradient(left, #666699, #333366, #333366, #333366, #333366);
 
   /* IE 10 */
-  background: -ms-linear-gradient(left, #a9d58e, #24a684, #24a684, #24a684, #24a684);
+  background: -ms-linear-gradient(left, #666699, #333366, #333366, #333366, #333366);
 
   /* Opera 11.10+ */
-  background: -o-linear-gradient(left, #a9d58e, #24a684, #24a684, #24a684, #24a684);
+  background: -o-linear-gradient(left, #666699, #333366, #333366, #333366, #333366);
 }
 
 .nav-menu-btn {
@@ -86,8 +86,9 @@
   outline: 0px;
   background: none;
   height: 30px;
-  background: #a9d58e;
-  border-left: 1px solid #1d8267;
+  background: #666699;
+  border-left: 1px solid #9999cc;
+  color: #fff;
 }
 
 .user-dropdown-menu {
@@ -109,9 +110,9 @@
 
 .user-dropdown-menu-item:hover {
 
-  background: #a9d58e;
+  background: #666699;
   text-decoration: none;
-  color: #333;
+  color: #fff;
 }
 
 .user-menu-arrow-group {

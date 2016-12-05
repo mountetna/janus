@@ -30,7 +30,7 @@
 
 .log-input:focus {
 
-  border: 1px solid #24a684;
+  border: 1px solid #333366;
 }
 
 .login-button { 
@@ -54,7 +54,7 @@
 .login-button:focus {
     
   outline:none;
-  border:1px solid #24a684;
+  border:1px solid #333366;
   background: #ccc;
 }
 

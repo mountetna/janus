@@ -46,14 +46,6 @@ export default class MenuBar extends React.Component{
           </button>
           <div className='user-dropdown-menu'>
 
-            <a href='/user' className='user-dropdown-menu-item'>
-              
-              { 'user settings' }
-            </a>
-            <a href='/admin' className='user-dropdown-menu-item'>
-
-              { 'admin settings' }
-            </a>
             <div className='user-dropdown-menu-item' onClick={ this['logOut'].bind(this) }>
 
               { 'log out' }
@@ -73,32 +65,6 @@ export default class MenuBar extends React.Component{
     return (
 
       <div id='nav-menu'>
-
-        {/*
-        <div id='master-search-group'>
-
-          <button id='master-search-button'>
-
-            <span className='glyphicon glyphicon-search white-glyphicon'></span>
-          </button>
-        </div>
-        <button className='nav-menu-btn'>
-
-          { 'ACTIVITY' }
-        </button>
-        <button className='nav-menu-btn'>
-
-          { 'DOCS' }
-        </button>
-        <button className='nav-menu-btn'>
-
-          { 'PLOT' }
-        </button>
-        <a className='nav-menu-btn' href='./experiments.html'>
-
-          { 'EXPERIMENTS' }
-        </a>
-        */}
 
         { this.renderUserMenu() }
       </div>
