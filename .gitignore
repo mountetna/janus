@@ -16,5 +16,5 @@ trash.rb
 *.woff
 *.woff2
 
-./db/migrations/002_add_base_data.rb
-./db/migrations/003_add_dummy_data.rb
+db/migrations/002_add_base_data.rb
+db/migrations/003_add_dummy_data.rb
