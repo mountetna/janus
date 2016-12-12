@@ -37,7 +37,7 @@ class PostgresService
 
         return false
       end
-    rescue Sequel::Error => error
+    rescue Sequel::Error=> error
 
       # log error.message
       return false
@@ -69,7 +69,7 @@ class PostgresService
         # Send and error message/alert and log.
         return false
       end
-    rescue Sequel::Error => error
+    rescue Sequel::Error=> error
 
       #puts error.message
       return false
@@ -100,7 +100,7 @@ class PostgresService
       end
 
       return token
-    rescue Sequel::Error => error
+    rescue Sequel::Error=> error
 
       # log error.message
       return 0
@@ -127,7 +127,7 @@ class PostgresService
 
       tokens = @postgres[:tokens]
       tokens.insert(row)
-    rescue Sequel::Error => error
+    rescue Sequel::Error=> error
 
       # log error.message
     end
@@ -149,7 +149,7 @@ class PostgresService
           .where(:id=> token[:id])
           .update(:token_logout_stamp=> now)
       end
-    rescue Sequel::Error => error
+    rescue Sequel::Error=> error
 
       # log error.message
     end
@@ -162,7 +162,7 @@ class PostgresService
       
       user = @postgres[:users].where(:email=> email).all
       return user[0][:pass_hash]
-    rescue Sequel::Error => error
+    rescue Sequel::Error=> error
 
       # log error.message
       return 0
@@ -175,8 +175,14 @@ class PostgresService
     begin
       
       user = @postgres[:users].where(:email=> email).all
-      return user_id = user[0][:id]
-    rescue Sequel::Error => error
+      if user.length == 0
+
+        return 0
+      else
+
+        return user_id = user[0][:id]
+      end
+    rescue Sequel::Error=> error
 
       # log error.message
       return 0
@@ -222,7 +228,7 @@ class PostgresService
         :user_id=> user_id
       }
 
-    rescue Sequel::Error => error
+    rescue Sequel::Error=> error
 
       # log error.message
       return 0
@@ -252,7 +258,7 @@ class PostgresService
 
       return user_info
 
-    rescue Sequel::Error => error
+    rescue Sequel::Error=> error
 
       # log error.message
       return 0
@@ -272,6 +278,7 @@ class PostgresService
     if apps.length > 1
         
       # log error! There should only be one application per key!
+      return false
     end
 
     return false
@@ -291,7 +298,50 @@ class PostgresService
         .order(Sequel.desc(:token_expire_stamp))
 
       return tokens
-    rescue Sequel::Error => error
+    rescue Sequel::Error=> error
+
+      # log error.message
+    end
+  end
+
+  def fetch_all_users()
+
+    begin
+
+      users = @postgres[:users].select(:id, :email, :first_name, :last_name).all
+    rescue Sequel::Error=> error
+
+      # log error.message
+    end
+  end
+
+  def fetch_all_groups()
+
+    begin
+
+    rescue Sequel::Error=> error
+
+      # log error.message
+    end
+  end
+
+  def fetch_all_projects()
+
+    begin
+
+      @postgres[:projects].all
+    rescue Sequel::Error=> error
+
+      # log error.message
+    end
+  end
+
+  def fetch_all_permissions()
+
+    begin
+
+      @postgres[:permissions].all
+    rescue Sequel::Error=> error
 
       # log error.message
     end

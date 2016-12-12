@@ -93,13 +93,19 @@ class Controller
       # Check the validity of the token
       token = @psql_service.check_log(params['token'])
 
-      # If the token is valid and the email matches the user that owns the token
-      # then invalidate any token for that user.
-      if token != 0 && token[:email] == params['email']
+      # If the token is invalid or if the email doesn't match the token, then
+      # bounce back 'invalid'.
+      if token == 0
 
-        @psql_service.invalidate_token(params['email'])
+        return send_bad_request()
       end
 
+      if token[:email] != params['email']
+
+        return send_bad_request()
+      end
+
+      @psql_service.invalidate_token(params['email'])
       return Rack::Response.new({ :success=> true, :logged=> false }.to_json())
     else
 

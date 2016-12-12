@@ -5,9 +5,16 @@ Sequel.migration do
     extension(:constraint_validations)
     create_constraint_validations_table
 
+    create_table(:groups) do
+
+      primary_key :id
+      String :group_name, :null=>false
+    end
+
     create_table(:projects) do
 
       primary_key :id
+      foreign_key :group_id, :groups
       String :project_name, :null=>false
     end
 
