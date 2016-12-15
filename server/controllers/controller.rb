@@ -37,7 +37,7 @@ class Controller
       end
 
       # Check that the user and a valid pass is set.
-      if !@psql_service.check_pass_exsists(params['email'], params['pass'])
+      if !@psql_service.pass_exsists?(params['email'], params['pass'])
 
         return send_bad_login()
       end
@@ -119,40 +119,39 @@ class Controller
     params = @request.POST()
 
     # Check for the correct parameters.
-    if params.key?('token') && params.key?('app_key')
-
-      # Check to see if the client is registered with an app.
-      if !@psql_service.app_valid?(params['app_key'])
-
-        return send_bad_request()
-      end
-
-      user_info = @psql_service.check_log(params['token'])
-
-      if user_info == 0
-
-        repsonse = { 
-
-          :success=> true, 
-          :message=> 'Invalid token.',
-          :logged=> false
-        }
-      else
-
-        user_info['auth_token'] = params['token']
-        repsonse = { 
-
-          :success=> true, 
-          :user_info=> user_info,
-          :logged=> true
-        }
-      end
-
-      Rack::Response.new(repsonse.to_json())
-    else
+    if !params.key?('token') || !params.key?('app_key')
 
       return send_bad_request()
     end
+
+    # Check to see if the client is registered with an app.
+    if !@psql_service.app_valid?(params['app_key'])
+
+      return send_bad_request()
+    end
+
+    user_info = @psql_service.check_log(params['token'])
+
+    if user_info == 0
+
+      repsonse = { 
+
+        :success=> true, 
+        :message=> 'Invalid token.',
+        :logged=> false
+      }
+    else
+
+      user_info['auth_token'] = params['token']
+      repsonse = { 
+
+        :success=> true, 
+        :user_info=> user_info,
+        :logged=> true
+      }
+    end
+
+    Rack::Response.new(repsonse.to_json())
   end
 
   def generate_token(email)
