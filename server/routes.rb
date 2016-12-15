@@ -7,3 +7,7 @@ Janus.add_route('GET', '/', 'ClientController#index')
 Janus.add_route('POST', '/login', 'Controller#log_in')
 Janus.add_route('POST', '/logout', 'Controller#log_out')
 Janus.add_route('POST', '/check', 'Controller#check_log')
+
+Janus.add_route('POST', '/get-users', 'AdminController#get_users')
+Janus.add_route('POST', '/get-projects', 'AdminController#get_projects')
+Janus.add_route('POST', '/get-permissions', 'AdminController#get_permissions')

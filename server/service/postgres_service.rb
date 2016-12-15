@@ -18,11 +18,11 @@ class PostgresService
     @postgres = Sequel.connect(db_config)
   end
 
-  def check_pass_exsists(email, pass)
+  def pass_exsists?(email, pass)
 
     begin
 
-      if check_user_exsists(email)
+      if user_exsists?(email)
 
         user = @postgres[:users].where(:email=>email).all
         if user[0][:pass_hash].nil? || pass == ''
@@ -44,7 +44,7 @@ class PostgresService
     end
   end
 
-  def check_user_exsists(email)
+  def user_exsists?(email)
 
     begin
       
@@ -308,10 +308,11 @@ class PostgresService
 
     begin
 
-      users = @postgres[:users].select(:id, :email, :first_name, :last_name).all
+      return @postgres[:users].select(:id, :email, :first_name, :last_name).all
     rescue Sequel::Error=> error
 
       # log error.message
+      return 0
     end
   end
 
@@ -329,10 +330,11 @@ class PostgresService
 
     begin
 
-      @postgres[:projects].all
+      return @postgres[:projects].all
     rescue Sequel::Error=> error
 
       # log error.message
+      return 0
     end
   end
 
@@ -344,6 +346,7 @@ class PostgresService
     rescue Sequel::Error=> error
 
       # log error.message
+      return 0
     end
   end
 end
