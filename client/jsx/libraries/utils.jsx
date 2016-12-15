@@ -2,7 +2,7 @@
  * Global Variables
  */
 var TOKEN_NAME = 'UCSF_ETNA_AUTH_TOKEN';
-var APP_KEY = 'DGk8Of4gVY3LJy5r8SEwJzDnIUWXw4afa9b7sS6T29Q';
+var APP_KEY = 'fEeumA19x2v9Afv5sE64hV6f8aGcF7gYrI5CihIs8Oc';
 
 /*
  * Barebones XHR/AJAX wrapper
