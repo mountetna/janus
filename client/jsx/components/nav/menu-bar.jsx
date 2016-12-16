@@ -5,11 +5,10 @@ export default class MenuBar extends React.Component{
   constructor(props){
 
     super(props);
-
     this['state'] = {
 
       open: false
-    }
+    };
   }
 
   toggle(event){
@@ -26,9 +25,8 @@ export default class MenuBar extends React.Component{
 
   renderUserMenu(){
 
-    var appState = this['props']['appState'];
-    var userInfo = appState['userInfo'];
-    if(appState['loginStatus'] && !appState['loginError']){
+    var userInfo = this['props']['userInfo'];
+    if(userInfo['loginStatus'] && !userInfo['loginError']){
 
       var height = (this['state']['open']) ? 'auto' : '100%';
       return (

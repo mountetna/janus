@@ -7,11 +7,6 @@ export default class UserPanel extends React.Component{
     super();
   }
 
-  logOut(){
-
-    this['props'].logOut();
-  }
-
   render(){
 
     return (
@@ -20,22 +15,22 @@ export default class UserPanel extends React.Component{
 
         <div>
 
-          { 'User Email : '} { this['props']['appState']['userInfo']['userEmail'] }
+          { 'User Email : '} { this['props']['userInfo']['userEmail'] }
         </div>
         <br />
         <div>
 
-          { 'First Name : '} { this['props']['appState']['userInfo']['firstName'] }
+          { 'First Name : '} { this['props']['userInfo']['firstName'] }
         </div>
         <br />
         <div>
 
-          { 'Last Name  : '} { this['props']['appState']['userInfo']['lastName'] }
+          { 'Last Name  : '} { this['props']['userInfo']['lastName'] }
         </div>
         <br />
         <div>
 
-          { 'Auth Token : '} { this['props']['appState']['userInfo']['authToken'] }
+          { 'Auth Token : '} { this['props']['userInfo']['authToken'] }
         </div>
       </div>
     );

@@ -8,42 +8,42 @@ export default class JanusReducer{
 
         case 'LOG_IN':
 
-          var nextState = Object.assign({}, state);
-          nextState['userInfo']['userEmail'] = action['data']['email'];
-          return nextState;
+          var userInfo = Object.assign({}, state);
+          userInfo['userEmail'] = action['data']['email'];
+          return userInfo;
         case 'LOGGED_IN':
 
-          var nextState = Object.assign({}, state);
-
+          var userInfo = Object.assign({}, state);
+          
           // Copy the new data from the auth server to the local Redux store.
           for(var key in action['data']){
 
-            nextState['userInfo'][key] = action['data'][key];
+            userInfo[key] = action['data'][key];
           }
 
-          nextState['loginStatus'] = true;
-          nextState['loginError'] = false;
-          return nextState;
+          userInfo['loginStatus'] = true;
+          userInfo['loginError'] = false;
+          return userInfo;
         case 'LOGGED_OUT':
 
-          var nextState = Object.assign({}, state);
+          var userInfo = Object.assign({}, state);
 
-          for(var key in nextState['userInfo']){
+          // Clear the local data.
+          for(var key in userInfo){
 
-            nextState['userInfo'][key] = '';
+            userInfo[key] = '';
           }
 
-          nextState['loginStatus'] = false;
-          nextState['logError'] = false;
-
-          return nextState;
+          userInfo['loginStatus'] = false;
+          userInfo['logError'] = false;
+          userInfo['loginErrorMsg'] = 'Invalid sign in.';
+          return userInfo;
         case 'LOG_ERROR':
 
-          var nextState = Object.assign({}, state);
-          nextState['loginStatus'] = false;
-          nextState['loginError'] = true;
-          nextState['loginErrorMsg'] = 'Invalid sign in.';
-          return nextState;
+          var userInfo = Object.assign({}, state);
+          userInfo['loginStatus'] = false;
+          userInfo['loginError'] = true;
+          return userInfo;
         default:
 
           var nextState = Object.assign({}, state);

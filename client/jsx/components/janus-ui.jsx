@@ -19,7 +19,7 @@ export default class JanusUI extends React.Component{
 
   renderLoginView(){
 
-    if(this['props']['appState']['loginStatus']){
+    if(this['props']['userInfo']['loginStatus']){
 
       return this.routeUI();
     }

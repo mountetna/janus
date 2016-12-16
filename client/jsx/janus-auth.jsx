@@ -158,8 +158,8 @@ class JanusAuth{
   logOut(){
 
     var state = this['model']['store'].getState();
-    var email = state['appState']['userInfo']['userEmail'];
-    var authToken = state['appState']['userInfo']['authToken'];
+    var email = state['userInfo']['userEmail'];
+    var authToken = state['userInfo']['authToken'];
 
     var logItems = [
 

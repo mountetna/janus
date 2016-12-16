@@ -7,29 +7,26 @@ export default class JanusModel{
 
   constructor(){
 
-    var appState = new JanusReducer();
+    var janusReducer = new JanusReducer();
     var lastAction = new LastActionReducer();
     var reducer = Redux.combineReducers({
 
-      'appState': appState.reducer(),
+      'userInfo': janusReducer.reducer(),
       'lastAction': lastAction.reducer()
     });
 
     var defaultState = {
 
-      'appState': {
+      'userInfo': {
 
-        'userInfo': {
-
-          'userEmail': '',
-          'authToken': '',
-          'firstName': '',
-          'lastName': '',
-          'userId': ''
-        },
-
+        'userEmail': '',
+        'authToken': '',
+        'firstName': '',
+        'lastName': '',
+        'userId': '',
         'loginStatus': false,
-        'loginError': false
+        'loginError': false,
+        'loginErrorMsg': 'Invalid sign in.'
       }
     };
 

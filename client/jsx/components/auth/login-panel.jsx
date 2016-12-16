@@ -9,7 +9,7 @@ export default class LoginPanel extends React.Component{
 
   parseError(){
 
-    if(this['props']['appState']['loginError']){
+    if(this['props']['userInfo']['loginError']){
 
       return { display: 'block' };
     }
@@ -25,8 +25,8 @@ export default class LoginPanel extends React.Component{
 
     if(!VALIDATE_EMAIL(userEmail)){
 
-      this['props']['appState']['loginError'] = true;
-      this['props']['appState']['loginErrorMsg'] = 'Bad email.'
+      this['props']['userInfo']['loginError'] = true;
+      this['props']['userInfo']['loginErrorMsg'] = 'Bad email.'
       this.forceUpdate()
       return;
     }
@@ -56,17 +56,35 @@ export default class LoginPanel extends React.Component{
 
   render(){
 
+    var emailInputProps = {
+
+      'id': 'email-input',
+      'className': 'log-input',
+      'type': 'text',
+      'placeholder': 'Enter your email',
+      'onKeyPress': this.runOnEnter.bind(this)
+    };
+
+    var passwordInputProps = {
+
+      'id': 'pass-input',
+      'className': 'log-input',
+      'type': 'password',
+      'placeholder': 'Enter your password',
+      'onKeyPress': this.runOnEnter.bind(this)
+    };
+
     return (
 
       <div id='login-group'>
 
-        <input id='email-input' className='log-input' type='text' placeholder='Enter your email' onKeyPress={ this.runOnEnter.bind(this) }/>
+        <input { ...emailInputProps } />
         <br />
-        <input id='pass-input' className='log-input' type='password' placeholder='Enter your password' onKeyPress={ this.runOnEnter.bind(this) }/>
+        <input { ...passwordInputProps } />
         <br />
         <div className='log-error-message' style={ this.parseError() }>
 
-          { this['props']['appState']['loginErrorMsg'] }
+          { this['props']['userInfo']['loginErrorMsg'] }
         </div>
         <button className='login-button' onClick={ this['logIn'].bind(this) }>
 
