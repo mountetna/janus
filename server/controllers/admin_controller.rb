@@ -134,6 +134,83 @@ class AdminController
     return Rack::Response.new({ :success=> true, :permissions=> permissions }.to_json())
   end
 
+  def upload_permissions()
+
+    if !@params.key?('permissions')
+
+      return send_bad_request()
+    end
+
+    begin
+
+      permissions = JSON.parse(URI.unescape(@params['permissions']))
+      a = 0
+      permissions.each do |permission|
+
+        if(permission_valid?(permission))
+
+          permissions[a] = save_permission(permission)
+        else
+
+          permissions[a] = {}
+        end
+        a += 1
+      end
+
+      repsonse = { :success=> true, :permissions=> permissions }
+      return Rack::Response.new(repsonse.to_json())
+    rescue JSON::ParserError=> error
+
+      # log error.message
+      return send_bad_request()
+    end
+  end
+
+  def permission_valid?(permission)
+
+    valid = true
+
+    if !permission.key?('id')           then valid = false end
+    if !permission.key?('project_id')   then valid = false end
+    if !permission.key?('project_name') then valid = false end
+    if !permission.key?('role')         then valid = false end
+    if !permission.key?('user_email')   then valid = false end
+    if !permission.key?('user_id')      then valid = false end
+
+    return valid
+  end
+
+  def save_permission(permission)
+
+    # 1. Check if the user and project are existant and singular.
+    project_id = @psql_service.get_project_id(permission['project_name'])
+    if project_id == 0 || project_id <= -1
+
+      return {}
+    end
+
+    user_id = @psql_service.get_user_id(permission['user_email'])
+    if user_id == 0 || user_id <= -1
+
+      return {}
+    end
+
+    # 2. Check if there is currently a permission with the user and project.
+    perm_id = @psql_service.check_permission(user_id, project_id)
+    if perm_id == 0
+
+      permission['user_id'] = user_id
+      permission['project_id'] = project_id
+      return @psql_service.create_new_permission(permission)
+    elsif perm_id <= -1
+
+      return {}
+    else
+
+      return @psql_service.update_permission(permission)
+    end
+  end
+
   def send_bad_request()
 
     Rack::Response.new({ :success=> false, :error=> 'Bad request.' }.to_json())

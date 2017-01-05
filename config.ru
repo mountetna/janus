@@ -11,6 +11,7 @@ require './server/conf'
 
 require './server/controllers/controller'
 require './server/controllers/client_controller'
+require './server/controllers/admin_controller'
 
 require './server/service/sign_service'
 require './server/service/postgres_service'

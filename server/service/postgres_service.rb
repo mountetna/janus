@@ -49,29 +49,65 @@ class PostgresService
     begin
       
       count = @postgres[:users].where(:email=> email).count
-      if count == 0
-
-        # The email doesn't exist.
-        return false
-      elsif count > 1
-
-        # There are multiple copies of the email which should not be since the 
-        # DB column should be set to "UNIQUE". Send an error message/alert and
-        # log.
-        return false
-      elsif count == 1
-
-        # The email exists, so continue.
-        return true
-      else
-
-        # Some other condition was met that is out of the integer domain. 
-        # Send and error message/alert and log.
-        return false
-      end
+      return check_return_count(count)
     rescue Sequel::Error=> error
 
       #puts error.message
+      return false
+    end
+  end
+
+  def project_exsists?(project_name)
+
+    begin
+      
+      count = @postgres[:projects].where(:project_name=> project_name).count
+      return check_return_count(count)
+    rescue Sequel::Error=> error
+
+      #puts error.message
+      return false
+    end
+  end
+
+  def permission_exists?(user_id, project_id, role)
+
+    begin
+
+      count = @postgres[:permissions]
+        .where(:user_id=> user_id)
+        .and(:project_id=> project_id)
+        .and(:role=> role)
+        .count
+
+      return check_return_count(count)
+    rescue Sequel::Error=> error
+
+      #puts error.message
+      return false
+    end
+  end
+
+  def check_return_count(count)
+
+    if count == 0
+
+      # The item doesn't exist.
+      return false
+    elsif count > 1
+
+      # There are multiple copies of the item which should not be since the 
+      # DB column should be set to "UNIQUE". Send an error message/alert and
+      # log.
+      return false
+    elsif count == 1
+
+      # The item exists, so continue.
+      return true
+    else
+
+      # Some other condition was met that is out of the integer domain. 
+      # Send and error message/alert and log.
       return false
     end
   end
@@ -178,14 +214,17 @@ class PostgresService
       if user.length == 0
 
         return 0
+      elsif user.length == 1
+
+        return user[0][:id]
       else
 
-        return user_id = user[0][:id]
+        return -1
       end
     rescue Sequel::Error=> error
 
       # log error.message
-      return 0
+      return -1
     end
   end
 
@@ -347,6 +386,92 @@ class PostgresService
 
       # log error.message
       return 0
+    end
+  end
+
+  def get_project_id(project_name)
+
+    begin
+
+      projects = @postgres[:projects].where(:project_name=> project_name).all
+      if projects.count == 0
+
+        return 0
+      elsif projects.count == 1
+
+        return projects[0][:id]
+      else
+
+        return -1
+      end
+    rescue Sequel::Error=> error
+
+      # log error.message
+      return -1
+    end
+  end
+
+  def check_permission(user_id, project_id)
+
+    begin
+
+      permissions = @postgres[:permissions]
+        .where(:user_id=> user_id)
+        .and(:project_id=> project_id)
+        .all
+
+      if permissions.count == 0
+
+        return 0
+      elsif permissions.count == 1
+
+        return permissions[0][:id]
+      else
+
+        return -1
+      end
+    rescue Sequel::Error=> error
+
+      # log error.message
+      return -1
+    end
+  end
+
+  def create_new_permission(permission)
+    
+    begin
+
+      row = {
+
+        :user_id=> permission['user_id'],
+        :project_id=> permission['project_id'],
+        :role=> permission['role']
+      }
+
+      permission['id'] = @postgres[:permissions].insert(row)
+      permission['persisted'] = true
+      return permission
+    rescue Sequel::Error=> error
+
+      # log error.message
+      return {}
+    end
+  end
+
+  def update_permission(permission)
+
+    begin
+
+      result = @postgres[:permissions]
+        .where(:id=> permission['id'])
+        .update(:role=> permission['role'])
+
+      permission['persisted'] = true
+      return permission
+    rescue Sequel::Error=> error
+
+      # log error.message
+      return {}
     end
   end
 end
