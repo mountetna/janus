@@ -62,6 +62,10 @@ class JanusAuth{
 
         this.logOut()
         break;
+      case 'LOGGED_OUT':
+
+        window.location = '/';
+        break;
       default:
 
         //none
