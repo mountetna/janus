@@ -37,11 +37,13 @@ export default class JanusReducer{
           var userInfo = Object.assign({}, state);
 
           // Clear the local data.
-          for(var key in nextState['userInfo']){
+          for(var key in userInfo){
 
             userInfo[key] = '';
           }
 
+          userInfo['permissions'] = [];
+          userInfo['masterPerms'] = false;
           userInfo['loginStatus'] = false;
           userInfo['logError'] = false;
           userInfo['loginErrorMsg'] = 'Invalid sign in.';

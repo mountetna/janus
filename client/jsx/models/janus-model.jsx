@@ -23,7 +23,10 @@ export default class JanusModel{
         'authToken': '',
         'firstName': '',
         'lastName': '',
-        'userId': '',
+        'permissions': [],
+
+        'masterPerms': false,
+
         'loginStatus': false,
         'loginError': false,
         'loginErrorMsg': 'Invalid sign in.'
