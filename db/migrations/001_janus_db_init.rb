@@ -15,13 +15,13 @@ Sequel.migration do
 
       primary_key :id
       foreign_key :group_id, :groups
-      String :project_name, :null=>false
+      String :project_name, :null=>false, :unique=>true
     end
 
     create_table(:users) do
 
       primary_key :id
-      String :email, :null=>false
+      String :email, :null=>false, :unique=>true
       String :first_name
       String :last_name
       String :pass_hash, :null=>false
