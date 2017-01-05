@@ -19,6 +19,7 @@ export default class JanusModel{
 
       'userInfo': {
 
+        'userId': null,
         'userEmail': '',
         'authToken': '',
         'firstName': '',
