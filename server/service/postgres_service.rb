@@ -252,10 +252,6 @@ class PostgresService
       permissions.each do |permission|
 
         permission[:project_name] = projects[permission[:project_id]]
-        
-        # Remove any information not required by the client.
-        permission.delete(:id)
-        permission.delete(:user_id)
       end
 
       return { 
