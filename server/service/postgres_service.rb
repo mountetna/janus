@@ -238,20 +238,21 @@ class PostgresService
       last_name = user[0][:last_name]
 
       permissions = @postgres[:permissions].where(:user_id=> user_id).all
-  
+      projects = @postgres[:projects].all
+
       # Map postgres rows to objects, using the primary key 'id' as the 
       # object key.
-      prjkts = @postgres[:projects].all
+      for permission in permissions
 
-      projects = {}
-      prjkts.each do |prjkt|
+        for project in projects
 
-        projects[prjkt[:id]] = prjkt[:project_name]
-      end
-      # Add the project name to the permissions.
-      permissions.each do |permission|
+          if permission[:project_id] == project[:id]
 
-        permission[:project_name] = projects[permission[:project_id]]
+            permission[:project_name] = project[:project_name]
+            permission[:group_id] = project[:group_id]
+            break
+          end
+        end
       end
 
       return { 
@@ -355,9 +356,11 @@ class PostgresService
 
     begin
 
+      return @postgres[:groups].all
     rescue Sequel::Error=> error
 
       # log error.message
+      return 0
     end
   end
 

@@ -211,6 +211,24 @@ class AdminController
     end
   end
 
+  def get_groups()
+
+    groups = @psql_service.fetch_all_groups()
+    if groups == 0
+
+      return send_server_error()
+    else
+
+      response = { 
+
+        :success=> true,
+        :groups=> groups
+      }
+
+      Rack::Response.new(response.to_json())
+    end
+  end
+
   def send_bad_request()
 
     Rack::Response.new({ :success=> false, :error=> 'Bad request.' }.to_json())
