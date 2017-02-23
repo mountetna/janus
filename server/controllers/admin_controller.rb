@@ -144,6 +144,7 @@ class AdminController
     begin
 
       permissions = JSON.parse(URI.unescape(@params['permissions']))
+
       a = 0
       permissions.each do |permission|
 
@@ -184,13 +185,13 @@ class AdminController
 
     # 1. Check if the user and project are existant and singular.
     project_id = @psql_service.get_project_id(permission['project_name'])
-    if project_id == 0 || project_id <= -1
+    if project_id <= 0
 
       return {}
     end
 
     user_id = @psql_service.get_user_id(permission['user_email'])
-    if user_id == 0 || user_id <= -1
+    if user_id <= 0
 
       return {}
     end
