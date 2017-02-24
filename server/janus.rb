@@ -40,6 +40,6 @@ class Janus
 
     controller, action = route.split('#')
     controller_class = Kernel.const_get(controller)
-    controller_class.new(@psql_service, @request, action,  @app_logger).run()
+    controller_class.new(@request, action,  @app_logger).run()
   end
 end
