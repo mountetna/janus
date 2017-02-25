@@ -7,9 +7,10 @@ class Janus
 
     @routes = {}
     @request = {}
-    @psql_service = PostgresService.new()
 
-    log_file = ::File.join(::File.dirname(::File.expand_path(__FILE__)),'..','log','app.log')
+    # Log file details
+    path = ::File.dirname(::File.expand_path(__FILE__))
+    log_file = ::File.join(path,'..','log','app.log')
     @app_logger = ::Logger.new(log_file, 5, 1048576)
     @app_logger.level = Logger::WARN
   end
@@ -22,7 +23,7 @@ class Janus
 
     if route
 
-      call_action_for(route)
+      Rack::Response.new(call_action_for(route).to_json())
     else
 
       Rack::Response.new('File not found.', 404)
@@ -40,6 +41,6 @@ class Janus
 
     controller, action = route.split('#')
     controller_class = Kernel.const_get(controller)
-    controller_class.new(@request, action,  @app_logger).run()
+    controller_class.new(@request, action, @app_logger).run()
   end
 end

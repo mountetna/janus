@@ -5,13 +5,13 @@ module SignService
 
   # Creates an ordered array of items (which includes a password and salt) for
   # hashing
-  def SignService.order_params(pass)
+  def self.order_params(pass)
 
     params = [pass, Conf::PASS_SALT]
   end
 
   # Takes an ordered array of request values and returns a signed hash.
-  def SignService.hash_password(params, algo)
+  def self.hash_password(params, algo)
 
     signature = case algo.downcase
     when 'md5'    then sign_with_MD5(params)
@@ -22,7 +22,7 @@ module SignService
 
   # Takes an ordered array of request values, strigifies it, concatenates a
   # secret and hashes the resultant string with MD5.
-  def SignService.sign_with_MD5(params)
+  def self.sign_with_MD5(params)
 
     param_str = stringify_params(params)
     md5 = Digest::MD5.new
@@ -32,7 +32,7 @@ module SignService
 
   # Takes an ordered array of request values, strigifies it, concatenates a
   # secret and hashes the resultant string with SHA256.
-  def SignService.sign_with_SHA256(params)
+  def self.sign_with_SHA256(params)
 
     param_str = stringify_params(params)
     sha256 = Digest::SHA256.new
@@ -41,7 +41,7 @@ module SignService
   end
 
   # Takes an ordered array of request vaules and strigifies it. 
-  def SignService.stringify_params(ordered_params)
+  def self.stringify_params(ordered_params)
 
     ordered_params.join
   end

@@ -1,8 +1,6 @@
-# postgres_service.rb
+module PostgresService
 
-class PostgresService
-
-  def initialize()
+  def self.connect()
 
     db_config = {
 
@@ -15,6 +13,6 @@ class PostgresService
       :search_path=>['private']
     }
 
-    @postgres = Sequel.connect(db_config)
+    Sequel.connect(db_config)
   end
 end
