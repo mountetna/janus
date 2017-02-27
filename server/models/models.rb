@@ -16,19 +16,8 @@ module Models
 
     def valid?()
 
-    end
-
-    def user()
-
-    end
-
-    def hash()
-
-      return token
-    end
-
-    def invalidate!()
-
+      now = Time.now
+      (token_expire_stamp > now && token_logout_stamp > now) ? true : false
     end
   end
 

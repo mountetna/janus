@@ -48,6 +48,30 @@ class Controller
     end
   end
 
+  def check_log()
+
+    m = __method__
+
+    if @params.key?('token')
+
+      token = Models::Token[:token=> @params['token']]
+      if !token || !token.valid?() then return send_err(:BAD_REQ, 3, m) end
+
+      user = Models::User[:id=> token.user_id]
+      if !user then return send_err(:SERVER_ERR, 0, m) end
+
+      # On success return the user info.
+      return { :success=> true, :user_info=> user.to_hash() }
+    else
+
+      return send_err(:BAD_REQ, 0, m)
+    end
+  end
+
+  def log_out()
+
+  end
+
   # Quick check that the email is in a somewhat valid format.
   def email_valid?(eml)
 
@@ -58,14 +82,6 @@ class Controller
   def app_valid?(app_key)
 
     return (Models::App[:app_key=> app_key]) ? true : false
-  end
-
-  def log_out()
-
-  end
-
-  def check_log()
-
   end
 
   def send_err(type, id, method)
