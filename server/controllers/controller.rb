@@ -1,4 +1,3 @@
-# controller.rb
 # The generic controller that handles validations and common processing tasks.
 
 # Whatever you return from this class, make sure it's a hash that can be turned
@@ -38,6 +37,9 @@ class Controller
       pass = @params['pass']
       if !user || !user.authorized?(pass) then return send_err(:BAD_LOG,2,m) end
 
+      # Create a new token for the user.
+      PostgresService::create_new_token!(user)
+
       # On success return the user info.
       return { :success=> true, :user_info=> user.to_hash() }
     else
@@ -66,15 +68,11 @@ class Controller
 
   end
 
-  def generate_token(email)
-
-  end
-
   def send_err(type, id, method)
 
     ip = @request.env['HTTP_X_FORWARDED_FOR'].to_s
     ref_id = SecureRandom.hex(4).to_s
-    response = {:success=> false,:ref=> ref_id}
+    response = { :success=> false, :ref=> ref_id }
 
     case type
     when :SERVER_ERR

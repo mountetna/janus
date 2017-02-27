@@ -1,6 +1,4 @@
-# sign_service.rb
 # General signing/hashing utilities.
-
 module SignService
 
   # Creates an ordered array of items (which includes a password and salt) for

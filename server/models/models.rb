@@ -12,9 +12,36 @@ module Models
   class Group < Sequel::Model
   end
 
+  class Token < Sequel::Model
+
+    def valid?()
+
+    end
+
+    def user()
+
+    end
+
+    def hash()
+
+      return token
+    end
+
+    def invalidate!()
+
+    end
+  end
+
   class User < Sequel::Model
 
     one_to_many :permissions
+
+    def authorized?(pass)
+
+      ordered_params = SignService::order_params(pass)
+      client_hash = SignService::hash_password(ordered_params, Conf::PASS_ALGO)
+      return (pass_hash == client_hash) ? true : false
+    end
 
     def to_hash()
 
@@ -24,6 +51,7 @@ module Models
         :first_name=> first_name, 
         :last_name=> last_name, 
         :user_id=> id,
+        :token=> get_token(),
 
         :permissions=>  permissions.map do |permission|
 
@@ -44,11 +72,9 @@ module Models
       return user_hash
     end
 
-    def authorized?(pass)
+    def get_token()
 
-      ordered_params = SignService::order_params(pass)
-      client_hash = SignService::hash_password(ordered_params, Conf::PASS_ALGO)
-      return (pass_hash == client_hash) ? true : false
+      return PostgresService::valid_tokens(id)[0][:token]
     end
   end
 end
