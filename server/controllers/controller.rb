@@ -70,6 +70,22 @@ class Controller
 
   def log_out()
 
+    m = __method__
+
+    if @params.key?('token')
+
+      token = Models::Token[:token=> @params['token']]
+      if !token || !token.valid?() then return send_err(:BAD_REQ, 3, m) end
+
+      # Invalidate the token
+      token.token_logout_stamp = Time.now
+      token.save_changes()
+
+      return { :success=> true, :logged=> false }
+    else
+
+      return send_err(:BAD_REQ, 0, m)
+    end
   end
 
   # Quick check that the email is in a somewhat valid format.
