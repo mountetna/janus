@@ -5,7 +5,7 @@ module SignService
   # hashing
   def self.order_params(pass)
 
-    params = [pass, Conf::PASS_SALT]
+    params = [pass, Secrets::PASS_SALT]
   end
 
   # Takes an ordered array of request values and returns a signed hash.

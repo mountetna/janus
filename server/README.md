@@ -1,25 +1,21 @@
-## Some notes about this server.
+## Some notes about setting up.
 
-You are going to need a `conf.rb` file which will contain your app secrets and
-configurations, and it should look like so...
+You are going to need a `secrets.rb` file which will contain your app secrets 
+and it should look like so...
 
-./janus/server/conf.rb
+./janus/server/secrets.rb
+
 
 ```
-# conf.rb
-# Configuration for Janus.
+module Secrets
 
-module Conf
-
-  PASS_SALT = [A LONG SALT]
   PASS_ALGO = 'sha256'
+  PASS_SALT = [A LONG SALT]
 
-  TOKEN_SALT = [ANOTHER LONG SALT]
   TOKEN_ALGO = 'sha256'
-  TOKEN_EXP = 60*60 # Tokens expire in 'n' seconds.
+  TOKEN_SALT = [ANOTHER LONG SALT]
 
   PSQL_USER = [POSTGRES USER]
   PSQL_PASS = [POSTGRES PASSWORD]
 end
-
 ```

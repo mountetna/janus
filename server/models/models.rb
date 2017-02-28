@@ -28,7 +28,7 @@ module Models
     def authorized?(pass)
 
       ordered_params = SignService::order_params(pass)
-      client_hash = SignService::hash_password(ordered_params, Conf::PASS_ALGO)
+      client_hash = SignService::hash_password(ordered_params, Secrets::PASS_ALGO)
       return (pass_hash == client_hash) ? true : false
     end
 

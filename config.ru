@@ -8,6 +8,7 @@ require 'logger'
 
 # The details
 require './server/conf'
+require './server/secrets'
 require './server/service/sign_service'
 
 # The database

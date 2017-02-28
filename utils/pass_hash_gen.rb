@@ -20,4 +20,4 @@ if ARGV[0].nil? || ARGV.length != 1 || ARGV[0].to_s.length == 0
   exit 1
 end
 
-puts SignService::hash_password([ARGV[0].to_s, Conf::PASS_SALT], Conf::PASS_ALGO)
+puts SignService::hash_password([ARGV[0].to_s, Secrets::PASS_SALT], Secrets::PASS_ALGO)

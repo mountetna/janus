@@ -8,8 +8,8 @@ module PostgresService
       :host=> 'localhost', 
       :database=> 'janus',
 
-      :user=> Conf::PSQL_USER,
-      :password=> Conf::PSQL_PASS,
+      :user=> Secrets::PSQL_USER,
+      :password=> Secrets::PSQL_PASS,
       :search_path=>['private']
     }
 
@@ -34,8 +34,8 @@ module PostgresService
 
   def self.generate_token(pass_hash)
 
-    params = [Time.now.getutc.to_s, pass_hash, Conf::TOKEN_SALT]
-    return SignService::hash_password(params, Conf::TOKEN_ALGO)
+    params = [Time.now.getutc.to_s, pass_hash, Secrets::TOKEN_SALT]
+    return SignService::hash_password(params, Secrets::TOKEN_ALGO)
   end
 
   def self.expire_tokens!(user_id)
