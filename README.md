@@ -12,7 +12,7 @@ $ thin start -d
 
 ```
 $ cd /var/www/janus
-$ kill \`cat tmp/pids/thin.pid\`
+$ kill `cat tmp/pids/thin.pid`
 ```
 
 ### Notes for local development.
