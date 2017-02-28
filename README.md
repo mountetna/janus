@@ -3,21 +3,27 @@ This is a simple authentication server written in Ruby/Rack/Thin
 
 ### To start the Thin server.
 
-  `$ cd /var/www/janus`
-  `$ thin start -d`
+```
+$ cd /var/www/janus
+$ thin start -d
+```
 
 ### To stop the Thin server.
 
-  `$ cd /var/www/janus`
-  `$ kill \`cat tmp/pids/thin.pid\``
+```
+$ cd /var/www/janus
+$ kill \`cat tmp/pids/thin.pid\`
+```
 
 ### Notes for local development.
 When I initially developed this application I was using a Linux VM under virtual box. Here are a few commands I needed to get going.
 
 #### Install the Virtual Box Guest Tools in Debian
 
-  `$ sudo apt-get install virtualbox-guest-additions-iso`
-  `$ sudo apt-get install virtualbox-guest-utils`
+```
+$ sudo apt-get install virtualbox-guest-additions-iso
+$ sudo apt-get install virtualbox-guest-utils
+```
 
 #### Mount Janus folder in the VM
 I was using a shared folder on the VM, here is how to mount that folder in the VM.
