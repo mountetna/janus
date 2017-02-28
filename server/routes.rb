@@ -3,6 +3,6 @@
 
 Janus = Janus.new()
 
-Janus.add_route('POST', '/login', 'Controller#log_in')
-Janus.add_route('POST', '/logout', 'Controller#log_out')
-Janus.add_route('POST', '/check', 'Controller#check_log')
+Janus.add_route('POST', '/login', 'UserLogController#log_in')
+Janus.add_route('POST', '/logout', 'UserLogController#log_out')
+Janus.add_route('POST', '/check', 'UserLogController#check_log')

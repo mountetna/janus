@@ -2,7 +2,7 @@
 
 # Whatever you return from this class, make sure it's a hash that can be turned
 # into JSON
-class Controller
+class UserLogController
 
   def initialize(request, action, logger)
 
