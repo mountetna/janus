@@ -19,7 +19,7 @@ class UserLogController
     # Check that an 'app_key' is present and valid
     if !@params.key?('app_key') then return send_err(:BAD_REQ, 0, m) end
     if !app_valid?(@params['app_key']) then return send_err(:BAD_REQ, 1, m) end
-    return send(@action)
+    return send(@action).to_json()
   end
 
   def log_in()

@@ -21,7 +21,7 @@ class Janus
 
     if route
 
-      Rack::Response.new(call_action_for(route).to_json())
+      Rack::Response.new(call_action_for(route))
     else
 
       Rack::Response.new('File not found.', 404)

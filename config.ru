@@ -19,6 +19,7 @@ require './server/models/models'
 # The application
 require './server/janus'
 require './server/routes'
+require './server/controllers/client_controller'
 require './server/controllers/user_log_controller'
 use Rack::Static, urls: ['/css', '/js', '/fonts', '/img'], root: 'client'
 run(Janus)
