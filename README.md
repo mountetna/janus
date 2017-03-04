@@ -5,7 +5,7 @@ This is a simple authentication server written in Ruby/Rack/Thin
 
 ```
 $ cd /var/www/janus
-$ thin start -d
+$ thin start -d -a 127.0.0.1 -p 3000
 ```
 
 ### To stop the Thin server.
