@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 require 'digest'
-require '../server/conf'
+require '../server/secrets'
 require '../server/service/sign_service'
 
 def print_help
