@@ -25,13 +25,6 @@ module Models
 
     one_to_many :permissions
 
-    def authorized?(pass)
-
-      ordered_params = SignService::order_params(pass)
-      client_hash = SignService::hash_password(ordered_params, Secrets::PASS_ALGO)
-      return (pass_hash == client_hash) ? true : false
-    end
-
     def to_hash()
 
       user_hash = {
@@ -64,6 +57,30 @@ module Models
     def get_token()
 
       return PostgresService::valid_tokens(id)[0][:token]
+    end
+
+    def authorized?(pass)
+
+      ordered_params = SignService::order_params(pass)
+      client_hash = SignService::hash_password(ordered_params, Secrets::PASS_ALGO)
+      return (pass_hash == client_hash) ? true : false
+    end
+
+    def administrator?()
+
+      admin = false
+      permissions.map do |permission|
+
+        project = Models::Project[:id=> permission.project_id]
+        if project.project_name == 'administration'
+
+          if permission.role == 'administrator'
+
+            admin = true
+          end
+        end
+      end
+      return admin
     end
   end
 end
