@@ -64,4 +64,33 @@ module PostgresService
         .update(:token_logout_stamp=> Time.now)
     end
   end
+
+  def self.fetch_all_users()
+
+    Models::User.all.map do |user|
+
+      user.to_hash()
+    end
+  end
+
+  def self.fetch_all_projects()
+
+    Models::Project.all.map do |project|
+
+      project.to_hash()
+    end
+  end
+
+  def self.fetch_all_permissions()
+
+    Models::Permission.all.map do |permission|
+
+      permission.to_hash()
+    end
+  end
+
+  def self.fetch_all_groups()
+
+    @postgres[:groups].all
+  end
 end

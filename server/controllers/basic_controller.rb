@@ -6,16 +6,31 @@ class BasicController
     @params = request.POST()
     @action = action
     @logger = logger
+
+    @token = nil
   end
 
-  def run()
+  # Checks for the user email and password. This is used before a user token is
+  # generated.
+  def prelog_valid?()
 
-    m = __method__
+    if !@params.key?('email') || !@params.key?('pass') then return false end
+    if !email_valid?(@params['email']) then return false end
+    return true
+  end
 
-    # Check that an 'app_key' is present and valid
-    if !@params.key?('app_key') then return send_err(:BAD_REQ, 0, m) end
-    if !app_valid?(@params['app_key']) then return send_err(:BAD_REQ, 1, m) end
-    return send(@action).to_json()
+  # Checks for the user token and makes sure that the user token is valid.
+  def postlog_valid?()
+
+    if !@params.key?('token') then return false end
+    token = Models::Token[:token=> @params['token']]
+    if !token || !token.valid?() then return false end
+    return true
+  end
+
+  def set_token()
+
+    @token = Models::Token[:token=> @params['token']]
   end
 
   # Quick check that the email is in a somewhat valid format.
@@ -58,6 +73,6 @@ class BasicController
       response[:error] = 'Unknown error.'
     end
 
-    return response
+    return response.to_json()
   end
 end
