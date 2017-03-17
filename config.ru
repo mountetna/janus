@@ -17,6 +17,7 @@ PostgresService::connect()
 require './server/models/models'
 
 # The application
+require './server/errors/janus_error'
 require './server/janus'
 require './server/routes'
 require './server/controllers/basic_controller'
