@@ -70,4 +70,45 @@ class AdminController < BasicController
 
     { :success=> true, :permissions=> PostgresService::fetch_all_permissions() }
   end
+
+  def upload_permissions()
+
+    m = __method__
+    if !@params.key?('permissions') then return send_err(:BAD_REQ, 0, m) end
+
+    # Catch if the permissions are malformed
+    begin
+
+      perms = JSON.parse(URI.unescape(@params['permissions']))
+
+      # If a perm save is successful then return it, if not, return nil.
+      perms = perms.map{|perm| if save_permission(perm) then perm else nil end }
+      return { :success=> true, :permissions=> perms }
+    rescue JSON::ParserError=> error
+
+      send_err(:BAD_REQ, 1, m)
+    end
+  end
+
+  def save_permission(perm)
+
+    # 1. Check if the user and project are existant.
+    user = Models::User[:id=> perm['user_id']]
+    pjkt = Models::Project[:id=> perm['project_id']]
+    if !user || !pjkt then return false end
+
+    # 2. Check if there is currently a permission with the user and project.
+    permission = Models::Permission[:user_id=>user[:id],:project_id=>pjkt[:id]]
+    if permission
+
+      # Update permission
+      permission.update(:role=> perm['role'])
+    else
+
+      # Create new permission
+      PostgresService::create_new_permission(perm)
+    end
+
+    return true
+  end
 end
