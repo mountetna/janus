@@ -73,6 +73,6 @@ class BasicController
       response[:error] = 'Unknown error.'
     end
 
-    return response.to_json()
+    return response
   end
 end
