@@ -73,24 +73,22 @@ class AdminController < BasicController
 
   def upload_permissions()
 
-#    m = __method__
-#    if !@params.key?('permissions') then raise_err(:BAD_REQ, 0, m) end
-#
-#    perms = parse_permissions(perms)
-#    if !perms then raise_err(:BAD_REQ, 0, m) end
+    if !@params.key?('permissions') then raise_err(:BAD_REQ, 0, __method__) end
+    perms = parse_permissions(@params['permissions'])
+    if !perms then raise_err(:BAD_REQ, 0, __method__) end
 
     perms = perms.map { |perm| if save_perm(perm) then perm else nil end }
+    { :success=> true, :permissions=> perms }
   end
 
   def remove_permissions()
 
-#    m = __method__
-#    if !@params.key?('permissions') then raise_err(:BAD_REQ, 0, m) end
-#
-#    perms = parse_permissions(perms)
-#    if !perms then raise_err(:BAD_REQ, 0, m) end
+    if !@params.key?('permissions') then raise_err(:BAD_REQ, 0, __method__) end
+    perms = parse_permissions(@params['permissions'])
+    if !perms then raise_err(:BAD_REQ, 0, __method__) end
 
     perms = perms.map { |perm| if del_perm(perm) then perm else nil end }
+    { :success=> true, :permissions=> perms }
   end
 
   def parse_permissions(perms)
@@ -106,12 +104,12 @@ class AdminController < BasicController
 
   def save_perm(perm)
 
-    # 1. Check if the user and project are existant.
+    # Check if the user and project are existant.
     user = Models::User[:id=> perm['user_id']]
     pjkt = Models::Project[:id=> perm['project_id']]
     if !user || !pjkt then return false end
 
-    # 2. Check if there is currently a permission with the user and project.
+    # Check if there is currently a permission with the user and project.
     permission = Models::Permission[:user_id=>user[:id],:project_id=>pjkt[:id]]
     if permission
 
