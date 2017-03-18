@@ -54,6 +54,6 @@ class BasicController
   # Proxy the exception.
   def raise_err(type, id, method)
 
-    raise JanusError.new(type, id, method)
+    raise BasicError.new(type, id, method)
   end
 end

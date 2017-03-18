@@ -1,4 +1,4 @@
-class JanusError < StandardError
+class BasicError < StandardError
 
   attr_reader :type
   attr_reader :id

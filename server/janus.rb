@@ -24,7 +24,7 @@ class Janus
       begin
 
         Rack::Response.new(call_action_for(route))
-      rescue JanusError=> err
+      rescue BasicError=> err
 
         Rack::Response.new(send_err(err).to_json)
       end
@@ -48,27 +48,27 @@ class Janus
     controller_class.new(@request, action).run()
   end
 
-  def send_err(janus_err)
+  def send_err(err)
 
     ip = @request.env['HTTP_X_FORWARDED_FOR'].to_s
     ref_id = SecureRandom.hex(4).to_s
     response = { :success=> false, :ref=> ref_id }
-    m = janus_err.method.to_s
+    m = err.method.to_s
 
-    case janus_err.type
+    case err.type
     when :SERVER_ERR
 
-      code = Conf::ERRORS[janus_err.id].to_s
+      code = Conf::ERRORS[err.id].to_s
       @app_logger.error(ref_id+' - '+code+', '+m+', '+ip)
       response[:error] = 'Server error.'
     when :BAD_REQ
 
-      code = Conf::WARNS[janus_err.id].to_s
+      code = Conf::WARNS[err.id].to_s
       @app_logger.warn(ref_id+' - '+code+', '+m+', '+ip)
       response[:error] = 'Bad request.'
     when :BAD_LOG
 
-      code = Conf::WARNS[janus_err.id].to_s
+      code = Conf::WARNS[err.id].to_s
       @app_logger.warn(ref_id+' - '+code+', '+m+', '+ip)
       response[:error] = 'Invalid login.'
     else
