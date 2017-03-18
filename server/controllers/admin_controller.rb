@@ -73,21 +73,21 @@ class AdminController < BasicController
 
   def upload_permissions()
 
-    if !@params.key?('permissions') then raise_err(:BAD_REQ, 0, __method__) end
-    perms = parse_permissions(@params['permissions'])
-    if !perms then raise_err(:BAD_REQ, 0, __method__) end
-
-    perms = perms.map { |perm| if save_perm(perm) then perm else nil end }
-    { :success=> true, :permissions=> perms }
+    set_unset_perms(){|perm| save_perm(perm)}
   end
 
   def remove_permissions()
 
+    set_unset_perms(){|perm| del_perm(perm)}
+  end
+
+  def set_unset_perms()
+
     if !@params.key?('permissions') then raise_err(:BAD_REQ, 0, __method__) end
     perms = parse_permissions(@params['permissions'])
     if !perms then raise_err(:BAD_REQ, 0, __method__) end
 
-    perms = perms.map { |perm| if del_perm(perm) then perm else nil end }
+    perms = perms.map { |perm| if yield(perm) then perm else nil end }
     { :success=> true, :permissions=> perms }
   end
 
@@ -141,13 +141,6 @@ class AdminController < BasicController
     permission.delete
 
     return true
-  end
-
-  def perm_valid?(perm)
-
-    user = Models::User[:id=> perm['user_id']]
-    pjkt = Models::Project[:id=> perm['project_id']]
-    return (!user || !pjkt) ? false : true
   end
 
   def master_perm?(perm)
