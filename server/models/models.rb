@@ -106,7 +106,7 @@ module Models
       return (pass_hash == client_hash) ? true : false
     end
 
-    def administrator?()
+    def admin?()
 
       admin = false
       permissions.map do |permission|

@@ -9,6 +9,13 @@ class BasicController
     @token = nil
   end
 
+  def check_app_key()
+
+    m = __method__
+    if !@params.key?('app_key') then raise_err(:BAD_REQ, 0, m) end
+    if !app_valid?(@params['app_key']) then raise_err(:BAD_REQ, 1, m) end
+  end
+
   # Checks for the user email and password. This is used before a user token is
   # generated.
   def prelog_valid?()

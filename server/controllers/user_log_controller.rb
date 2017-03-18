@@ -2,23 +2,20 @@ class UserLogController < BasicController
 
   def run()
 
-    m = __method__
-
     # Check that an 'app_key' is present and valid
-    if !@params.key?('app_key') then raise_err(:BAD_REQ, 0, m) end
-    if !app_valid?(@params['app_key']) then raise_err(:BAD_REQ, 1, m) end
+    check_app_key()
 
     # Depending on whether we get token or email/pass combo we perform different
     # checks.
     unless @action == 'log_in'
 
       # Check that a token is present and valid.
-      if !postlog_valid?() then raise_err(:BAD_REQ, 1, m) end
+      if !postlog_valid?() then raise_err(:BAD_REQ, 1, __method__) end
       set_token()
     else
 
       # Check that the email/pass is valid.
-      if !prelog_valid?() then raise_err(:BAD_REQ, 1, m) end
+      if !prelog_valid?() then raise_err(:BAD_REQ, 1, __method__) end
     end
 
     # Execute the path that was requested

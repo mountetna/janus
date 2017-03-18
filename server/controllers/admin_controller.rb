@@ -2,36 +2,30 @@ class AdminController < BasicController
 
   def run()
 
-    m = __method__
-
     # Check that an 'app_key' is present and valid
-    if !@params.key?('app_key') then raise_err(:BAD_REQ, 0, m) end
-    if !app_valid?(@params['app_key']) then raise_err(:BAD_REQ, 1, m) end
+    check_app_key()
 
     # Depending on whether we get token or email/pass combo we perform different
     # checks.
     unless @action == 'check_admin'
 
       # Check if a token is present and valid.
-      if !postlog_valid?() then raise_err(:BAD_REQ, 1, m) end
+      if !postlog_valid?() then raise_err(:BAD_REQ, 1, __method__) end
       set_token()
 
       # Get and check user and then check the token.
       user = Models::User[:id=> @token.user_id]
-      if !user || !user.administrator?()
-
-        raise_err(:BAD_REQ, 2, m)
-      end
+      if !user || !user.admin?() then raise_err(:BAD_REQ, 2, __method__) end
     else
 
       # Check that the email/pass is valid.
-      if !prelog_valid?() then raise_err(:BAD_REQ, 1, m) end
+      if !prelog_valid?() then raise_err(:BAD_REQ, 1, __method__) end
 
       # Get and check user and then check the password.
       user = Models::User[:email=> @params['email']]
-      if !user || !user.authorized?(@params['pass']) || !user.administrator?()
+      if !user || !user.authorized?(@params['pass']) || !user.admin?()
 
-        raise_err(:BAD_REQ, 2, m) 
+        raise_err(:BAD_REQ, 2, __method__) 
       end
     end
 
@@ -81,6 +75,7 @@ class AdminController < BasicController
     set_unset_perms(){|perm| del_perm(perm)}
   end
 
+  private
   def set_unset_perms()
 
     if !@params.key?('permissions') then raise_err(:BAD_REQ, 0, __method__) end
