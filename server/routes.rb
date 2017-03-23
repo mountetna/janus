@@ -19,3 +19,7 @@ Janus.add_route('POST', '/get-permissions', 'AdminController#get_permissions')
 Janus.add_route('POST', '/get-groups', 'AdminController#get_groups')
 Janus.add_route('POST', '/upload-permissions', 'AdminController#upload_permissions')
 Janus.add_route('POST', '/remove-permissions', 'AdminController#remove_permissions')
+
+# Invalidate all tokens in the system.
+# This could cause problems with Metis if there are active uploads.
+Janus.add_route('POST', '/logout-all', 'AdminController#logout_all')

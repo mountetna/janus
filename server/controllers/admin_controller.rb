@@ -75,6 +75,11 @@ class AdminController < BasicController
     set_unset_perms(){|perm| del_perm(perm)}
   end
 
+  def logout_all()
+
+    { :success=> true, :logout_count=> PostgresService::expire_all_tokens!() }
+  end
+
   private
   def set_unset_perms()
 
