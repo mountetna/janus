@@ -10,16 +10,16 @@ class AdminController < BasicController
     unless @action == 'check_admin'
 
       # Check if a token is present and valid.
-      if !postlog_valid?() then raise_err(:BAD_REQ, 1, __method__) end
+      raise_err(:BAD_REQ, 1, __method__) if !postlog_valid?()
       set_token()
 
       # Get and check user and then check the token.
       user = Models::User[:id=> @token.user_id]
-      if !user || !user.admin?() then raise_err(:BAD_REQ, 2, __method__) end
+      raise_err(:BAD_REQ, 2, __method__) if !user || !user.admin?()
     else
 
       # Check that the email/pass is valid.
-      if !prelog_valid?() then raise_err(:BAD_REQ, 1, __method__) end
+      raise_err(:BAD_REQ, 1, __method__) if !prelog_valid?()
 
       # Get and check user and then check the password.
       user = Models::User[:email=> @params['email']]
@@ -78,9 +78,9 @@ class AdminController < BasicController
   private
   def set_unset_perms()
 
-    if !@params.key?('permissions') then raise_err(:BAD_REQ, 0, __method__) end
+    raise_err(:BAD_REQ, 0, __method__) if !@params.key?('permissions')
     perms = parse_permissions(@params['permissions'])
-    if !perms then raise_err(:BAD_REQ, 0, __method__) end
+    raise_err(:BAD_REQ, 0, __method__) if !perms
 
     perms = perms.map { |perm| if yield(perm) then perm else nil end }
     { :success=> true, :permissions=> perms }

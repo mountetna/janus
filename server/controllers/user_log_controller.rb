@@ -10,12 +10,12 @@ class UserLogController < BasicController
     unless @action == 'log_in'
 
       # Check that a token is present and valid.
-      if !postlog_valid?() then raise_err(:BAD_REQ, 1, __method__) end
+      raise_err(:BAD_REQ, 1, __method__) if !postlog_valid?()
       set_token()
     else
 
       # Check that the email/pass is valid.
-      if !prelog_valid?() then raise_err(:BAD_REQ, 1, __method__) end
+      raise_err(:BAD_REQ, 1, __method__) if !prelog_valid?()
     end
 
     # Execute the path that was requested
@@ -29,7 +29,7 @@ class UserLogController < BasicController
     # Get and check user and then check the password.
     user = Models::User[:email=> @params['email']]
     pass = @params['pass']
-    if !user || !user.authorized?(pass) then raise_err(:BAD_LOG,2,m) end
+    raise_err(:BAD_LOG,2,m) if !user || !user.authorized?(pass)
 
     # Create a new token for the user.
     PostgresService::create_new_token!(user)
@@ -42,7 +42,7 @@ class UserLogController < BasicController
 
     # Pull the user info for the token.
     user = Models::User[:id=> @token.user_id]
-    if !user then raise_err(:SERVER_ERR, 0, __method__) end
+    raise_err(:SERVER_ERR, 0, __method__) if !user
     return { :success=> true, :user_info=> user.to_hash() }
   end
 

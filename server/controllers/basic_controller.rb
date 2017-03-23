@@ -11,9 +11,8 @@ class BasicController
 
   def check_app_key()
 
-    m = __method__
-    if !@params.key?('app_key') then raise_err(:BAD_REQ, 0, m) end
-    if !app_valid?(@params['app_key']) then raise_err(:BAD_REQ, 1, m) end
+    raise_err(:BAD_REQ, 0, __method__) if !@params.key?('app_key')
+    raise_err(:BAD_REQ, 1, __method__) if !app_valid?(@params['app_key'])
   end
 
   # Checks for the user email and password. This is used before a user token is
