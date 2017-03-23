@@ -44,6 +44,19 @@ module PostgresService
     self.invalidate_tokens(tokens)
   end
 
+  def self.expire_all_tokens!()
+
+    now = Time.now
+    tokens = @postgres[:tokens]
+      .where('token_expire_stamp > ?', now)
+      .where('token_logout_stamp > ?', now)
+      .order(Sequel.desc(:token_expire_stamp))
+      .all
+
+    invalidate_tokens(tokens)
+    return tokens.length
+  end
+
   def self.valid_tokens(user_id)
 
     now = Time.now
