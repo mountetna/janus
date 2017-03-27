@@ -10,12 +10,13 @@ module Conf
     :INVALID_LOG,          # 2
     :TOKEN_NOT_VALID,      # 3 
     :NO_PERMS,             # 4 
-    :INVALID_GROUP,        # 5 
+    :INVALID_GROUP         # 5 
   ]
 
   ERRORS = [
 
-    :TOKEN_USER_MISMATCH   # 0
+    :TOKEN_USER_MISMATCH,   # 0
+    :CONNECTION_ERROR       # 1
   ]
 
   EMAIL_MATCH = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/

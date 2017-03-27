@@ -18,7 +18,7 @@ class ClientController
     return File.read('./server/views/index.html')
   end
 
-  def login()
+  def log_in()
 
     return File.read('./server/views/login.html')
   end

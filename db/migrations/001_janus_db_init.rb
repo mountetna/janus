@@ -24,7 +24,7 @@ Sequel.migration do
       String :email, :null=>false, :unique=>true
       String :first_name
       String :last_name
-      String :pass_hash, :null=>false
+      String :pass_hash
       DateTime :user_create_stamp, :null=>false, :default=>Time.now
     end
 

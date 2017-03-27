@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+
+    <title>
+
+      Janus Auth Server
+    </title>
+    <link type='text/css' rel='stylesheet' href='/css/reset.css' />
+    <link type='text/css' rel='stylesheet' href='/css/bootstrap.min.css' />
+    <link type='text/css' rel='stylesheet' href='/css/fonts.css' />
+    <link type='text/css' rel='stylesheet' href='/css/global.css' />
+    <link type='text/css' rel='stylesheet' href='/css/media.css' />
+  </head>
+  <body>
+
+    <div id='ui-group'>
+      
+      <div id='janus-group'>
+
+        <div id='header-group'>
+          
+          <div id='title-menu'>
+
+            <button class='title-menu-btn'>
+                
+                Janus
+              <br />
+              <span>
+
+                AUTHSERVER
+              </span>
+            </button>
+            <img id='ucsf-logo' src='/img/ucsf_logo_dark.png' alt='' />
+          </div>
+          <div id='nav-menu'>
+          </div>
+        </div>
+        <div class='logo-group'>
+
+          <img src='/img/logo_basic.png' alt='' />
+        </div>
+        <div id='left-column-group'>
+        </div>
+        <div id='user-info-group'>
+
+          Log in through another method. <br/>
+          If you have reached this page in error, please contact the system admin.<br/>
+          jason.cater@ucsf.edu
+        </div>
+      </div>
+    </div>
+
+    <script type='text/javascript' src='/js/libraries/utils.js'></script>
+    <script>
+
+      function setUserToken(){
+
+        // Check to see if a token has been set.
+        if(token == undefined){
+
+          setErrorMsg();
+          return;
+        }
+        setRedirectMsg();
+
+        // Set the token as a cookie
+        var expire = new Date();
+        expire.setHours(expire.getHours() + 24);
+        COOKIES.setItem(TOKEN_NAME, token, Infinity, '/', 'ucsf.edu');
+
+        // Redirect the user to the original end point.
+        var hash = parseHash();
+        if(!('refer' in hash)) setRedirectError();
+        redirectUser(hash['refer']);
+      }
+
+      function redirectUser(redirectAddr){
+
+        // Do the redirection.
+        window.location = 'https://'+redirectAddr;
+      }
+
+      function parseHash(){
+
+        // Check to see if we have a proper redirect address.
+        if(queryString == undefined){
+
+          setErrorMsg();
+          return;
+        }
+        setRedirectMsg();
+
+        queryString = decodeURIComponent(queryString).split('&');
+        var urlObj = {};
+        for(var a = 0; a < queryString['length']; ++a){
+
+          var item = queryString[a].split('=');
+          urlObj[item[0]] = item[1];
+        }
+
+        return urlObj;
+      }
+
+      function setErrorMsg(){
+
+        var msg = 'Log in through another method. <br/> \
+          If you have reached this page in error, please contact the system admin.<br/> \
+          jason.cater@ucsf.edu';
+
+        document.getElementById('user-info-group').innerHTML(msg);
+      }
+
+      function setRedirectMsg(){
+
+        var msg = 'Login successful, redirecting. Standby.';
+        document.getElementById('user-info-group').innerHTML(msg);
+      }
+
+      function setRedirectError(){
+
+        var msg = 'You are logged in, but we lost the redirect.';
+        document.getElementById('user-info-group').innerHTML(msg);
+      }
+
+      <%= 'var token = \''+token+'\';' %>
+      <%= 'var queryString = \''+query_string+'\';' %>
+      setUserToken()
+    </script>
+  </body>
+</html>

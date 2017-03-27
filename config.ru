@@ -4,7 +4,10 @@ require 'json'
 require 'pg'
 require 'sequel'
 require 'digest'
+require 'net/http'
 require 'logger'
+require 'erb'
+require 'ostruct'
 
 # The details
 require './server/conf'

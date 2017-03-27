@@ -101,6 +101,9 @@ module Models
 
     def authorized?(pass)
 
+      # A password can be 'nil' if one logs in via Shibboleth/MyAccess.
+      if pass_hash == nil then false end
+
       ordered_params = SignService::order_params(pass)
       client_hash = SignService::hash_password(ordered_params, Secrets::PASS_ALGO)
       return (pass_hash == client_hash) ? true : false

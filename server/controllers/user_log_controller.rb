@@ -2,34 +2,58 @@ class UserLogController < BasicController
 
   def run()
 
-    # Check that an 'app_key' is present and valid
-    check_app_key()
+    case @action
+    when 'log_in_shib'
 
-    # Depending on whether we get token or email/pass combo we perform different
-    # checks.
-    unless @action == 'log_in'
+      return send(@action)
+    when 'log_in'
 
-      # Check that a token is present and valid.
-      raise_err(:BAD_REQ, 1, __method__) if !postlog_valid?()
-      set_token()
+      # Check that the email/pass/app_key is valid.
+      check_app_key()
+      raise_err(:BAD_REQ, 1, __method__) if !prelog_valid?()
     else
 
-      # Check that the email/pass is valid.
-      raise_err(:BAD_REQ, 1, __method__) if !prelog_valid?()
+      # Check that a token/app_key is present and valid.
+      check_app_key()
+      raise_err(:BAD_REQ, 1, __method__) if !postlog_valid?()
+      set_token()
     end
 
     # Execute the path that was requested
     return send(@action).to_json()
   end
 
-  def log_in()
+  def log_in_shib()
 
-    m = __method__
+    # Check that this request came from shibboleth(shibd)
+    email = @request.env['HTTP_X_SHIB_ATTRIBUTE'].downcase()
+    raise_err(:BAD_LOG, 2, __method__) if email == '(null)'
+
+    # Get and check user. No password required.
+    user = Models::User[:email=> email]
+    if !user 
+
+      template = File.read('./server/views/login_no_user.html.erb')
+      return ERB.new(template).result()
+    end
+
+    # Create a new token for the user.
+    PostgresService::create_new_token!(user)
+
+    # Generate the HTML to return.
+    template_vars = OpenStruct.new
+    template_vars.token = user.get_token()
+    template_vars.query_string = @request.env['QUERY_STRING']
+    template = File.read('./server/views/login_shib.html.erb')
+    return ERB.new(template).result(template_vars.instance_eval { binding })
+  end
+
+  def log_in()
 
     # Get and check user and then check the password.
     user = Models::User[:email=> @params['email']]
     pass = @params['pass']
-    raise_err(:BAD_LOG,2,m) if !user || !user.authorized?(pass)
+    raise_err(:BAD_LOG, 2 , __method__) if !user || !user.authorized?(pass)
 
     # Create a new token for the user.
     PostgresService::create_new_token!(user)
