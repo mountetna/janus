@@ -70,9 +70,14 @@
         expire.setHours(expire.getHours() + 24);
         COOKIES.setItem(TOKEN_NAME, token, Infinity, '/', 'ucsf.edu');
 
-        // Redirect the user to the original end point.
         var hash = parseHash();
-        if(!('refer' in hash)) setRedirectError();
+        if(!('refer' in hash)){
+
+          setRedirectError();
+          return;
+        }
+
+        // Redirect the user to the original end point.
         redirectUser(hash['refer']);
       }
 
