@@ -109,19 +109,19 @@
           If you have reached this page in error, please contact the system admin.<br/> \
           jason.cater@ucsf.edu';
 
-        document.getElementById('user-info-group').innerHTML(msg);
+        document.getElementById('user-info-group').innerHTML = msg;
       }
 
       function setRedirectMsg(){
 
         var msg = 'Login successful, redirecting. Standby.';
-        document.getElementById('user-info-group').innerHTML(msg);
+        document.getElementById('user-info-group').innerHTML = msg;
       }
 
       function setRedirectError(){
 
         var msg = 'You are logged in, but we lost the redirect.';
-        document.getElementById('user-info-group').innerHTML(msg);
+        document.getElementById('user-info-group').innerHTML = msg;
       }
 
       <%= 'var token = \''+token+'\';' %>
