@@ -8,6 +8,7 @@ require 'net/http'
 require 'logger'
 require 'erb'
 require 'ostruct'
+require 'uri'
 
 # The details
 require './server/conf'

@@ -23,7 +23,8 @@ class Janus
 
       begin
 
-        Rack::Response.new(call_action_for(route))
+        #Rack::Response.new(call_action_for(route))
+        call_action_for(route)
       rescue BasicError=> err
 
         Rack::Response.new(send_err(err).to_json)

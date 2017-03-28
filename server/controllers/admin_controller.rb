@@ -30,7 +30,7 @@ class AdminController < BasicController
     end
 
     # Execute the path that was requested
-    return send(@action).to_json()
+    return Rack::Response.new(send(@action).to_json())
   end
 
 # email/pass checks

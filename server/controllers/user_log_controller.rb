@@ -20,17 +20,18 @@ class UserLogController < BasicController
     end
 
     # Execute the path that was requested
-    return send(@action).to_json()
+    return Rack::Response.new(send(@action).to_json())
   end
 
   def log_in_shib()
 
     # Check that this request came from shibboleth(shibd)
     email = @request.env['HTTP_X_SHIB_ATTRIBUTE'].downcase()
-    if email == '(null)'
+    refer = extract_refer(@request.env['QUERY_STRING'])
+    if email == '(null)' || refer == ''
 
       template = File.read('./server/views/login.html')
-      return ERB.new(template).result()
+      return Rack::Response.new(ERB.new(template).result())
     end
 
     # Get and check user. No password required.
@@ -38,18 +39,18 @@ class UserLogController < BasicController
     if !user 
 
       template = File.read('./server/views/login_no_user.html.erb')
-      return ERB.new(template).result()
+      return Rack::Response.new(ERB.new(template).result())
     end
 
     # Create a new token for the user.
     PostgresService::create_new_token!(user)
 
-    # Generate the HTML to return.
-    template_vars = OpenStruct.new
-    template_vars.token = user.get_token()
-    template_vars.query_string = @request.env['QUERY_STRING']
-    template = File.read('./server/views/login_shib.html.erb')
-    return ERB.new(template).result(template_vars.instance_eval { binding })
+    # Set cookie and redirect.
+    response = Rack::Response.new
+    response.redirect(refer, 302)
+    response.set_cookie(Conf::TOKEN_NAME, {:value => user.get_token(), :path => '/', :domain=> 'ucsf.edu', :expires => Time.now+Conf::TOKEN_EXP})
+
+    return response.finish
   end
 
   def log_in()
@@ -80,5 +81,33 @@ class UserLogController < BasicController
     @token.token_logout_stamp = Time.now
     @token.save_changes()
     return { :success=> true, :logged=> false }
+  end
+
+  private
+  def extract_refer(query_string)
+
+    if query_string == '' then return '' end
+    query_string = URI.unescape(query_string)
+    query_array = query_string.split('&')
+    query_hash = {}
+    query_array.each do |query|
+
+      query = query.split('=')
+      query_hash[query[0]] = query[1]
+    end
+
+    # Check for that 'refer' key
+    unless query_hash.key?('refer') then return '' end
+
+    # Check that the refer url is valid and in our Mt. Etna network.
+    unless refer_valid?(query_hash['refer']) then return '' end
+
+    return query_hash['refer']
+  end
+
+  def refer_valid?(refer)
+
+    uri = URI.parse(refer)
+    return (Conf::VALID_HOSTS.include?(uri.host)) ? true : false
   end
 end
