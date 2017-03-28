@@ -29,7 +29,7 @@ class UserLogController < BasicController
     email = @request.env['HTTP_X_SHIB_ATTRIBUTE'].downcase()
     if email == '(null)'
 
-      template = File.read('./server/views/login.html.erb')
+      template = File.read('./server/views/login.html')
       return ERB.new(template).result()
     end
 
