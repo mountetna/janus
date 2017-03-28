@@ -27,7 +27,11 @@ class UserLogController < BasicController
 
     # Check that this request came from shibboleth(shibd)
     email = @request.env['HTTP_X_SHIB_ATTRIBUTE'].downcase()
-    raise_err(:BAD_LOG, 2, __method__) if email == '(null)'
+    if email == '(null)'
+
+      template = File.read('./server/views/login.html.erb')
+      return ERB.new(template).result()
+    end
 
     # Get and check user. No password required.
     user = Models::User[:email=> email]
