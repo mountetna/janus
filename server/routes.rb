@@ -4,7 +4,7 @@
 Janus = Janus.new()
 
 Janus.add_route('GET', '/', 'ClientController#index')
-#Janus.add_route('GET', '/login', 'ClientController#log_in')
+
 Janus.add_route('GET', '/login', 'UserLogController#log_in_shib')
 Janus.add_route('POST', '/login', 'UserLogController#log_in')
 Janus.add_route('POST', '/logout', 'UserLogController#log_out')

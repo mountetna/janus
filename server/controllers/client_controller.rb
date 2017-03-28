@@ -10,16 +10,11 @@ class ClientController
 
   def run()
 
-    return send(@action)
+    return Rack::Response.new(send(@action))
   end
 
   def index()
 
     return File.read('./server/views/index.html')
-  end
-
-  def log_in()
-
-    return File.read('./server/views/login.html')
   end
 end
