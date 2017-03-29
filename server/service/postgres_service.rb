@@ -107,14 +107,9 @@ module PostgresService
     @postgres[:groups].all
   end
 
-  def self.create_new_permission(perm)
+  def self.create_new_permission(user_id, project_id, role)
 
-    row = {
-
-      :user_id=> perm['user_id'],
-      :project_id=> perm['project_id'],
-      :role=> perm['role']
-    }
+    row = { :user_id=> user_id, :project_id=> project_id, :role=> role }
     Models::Permission.create(row)
   end
 end

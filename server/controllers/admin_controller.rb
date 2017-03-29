@@ -118,7 +118,7 @@ class AdminController < BasicController
     else
 
       # Create new permission
-      PostgresService::create_new_permission(perm)
+      PostgresService::create_new_permission(user[:id], pjkt[:id], perm['role'])
     end
 
     return true
@@ -127,8 +127,8 @@ class AdminController < BasicController
   def del_perm(perm)
 
     # Check if the user and project are existant.
-    user = Models::User[:id=> perm['user_email']]
-    pjkt = Models::Project[:id=> perm['project_name']]
+    user = Models::User[:email=> perm['user_email']]
+    pjkt = Models::Project[:project_name=> perm['project_name']]
     if !user || !pjkt then return false end
 
     # Check if this is the master system permission.
