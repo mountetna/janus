@@ -105,8 +105,8 @@ class AdminController < BasicController
   def save_perm(perm)
 
     # Check if the user and project are existant.
-    user = Models::User[:id=> perm['user_id']]
-    pjkt = Models::Project[:id=> perm['project_id']]
+    user = Models::User[:id=> perm['user_email']]
+    pjkt = Models::Project[:id=> perm['project_name']]
     if !user || !pjkt then return false end
 
     # Check if there is currently a permission with the user and project.
@@ -127,8 +127,8 @@ class AdminController < BasicController
   def del_perm(perm)
 
     # Check if the user and project are existant.
-    user = Models::User[:id=> perm['user_id']]
-    pjkt = Models::Project[:id=> perm['project_id']]
+    user = Models::User[:id=> perm['user_email']]
+    pjkt = Models::Project[:id=> perm['project_name']]
     if !user || !pjkt then return false end
 
     # Check if this is the master system permission.
