@@ -16,6 +16,7 @@ Sequel.migration do
       primary_key :id
       foreign_key :group_id, :groups
       String :project_name, :null=>false, :unique=>true
+      String :project_name_full, :null=>false, :unique=>true
     end
 
     create_table(:users) do
