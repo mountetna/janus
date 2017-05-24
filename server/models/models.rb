@@ -116,7 +116,7 @@ module Models
       permissions.map do |permission|
 
         project = Models::Project[:id=> permission.project_id]
-        if project.project_name == 'administration'
+        if project.project_name == 'Administration'
 
           if permission.role == 'administrator'
 
