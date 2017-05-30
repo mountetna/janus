@@ -27,7 +27,7 @@ Sequel.migration do
     create_table(:apps) do
       primary_key(:id)
       String(:app_key, {null: false})
-      String :app_name, {null: false})
+      String(:app_name, {null: false})
     end
 
     create_table(:permissions) do
