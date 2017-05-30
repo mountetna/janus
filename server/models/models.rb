@@ -77,7 +77,7 @@ module Models
             :role=> permission.role,
             :project_id=> permission.project_id,
             :project_name=> permission.project.project_name,
-            :project_full_name=> permission.project.project_name_full,
+            :project_name_full=> permission.project.project_name_full,
             :group_id=> permission.project.group_id,
             :group_name=> permission.project.group.group_name
           }
