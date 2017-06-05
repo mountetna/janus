@@ -9,6 +9,7 @@ require 'logger'
 require 'erb'
 require 'ostruct'
 require 'uri'
+require 'securerandom'
 
 # The details
 require './server/conf'
