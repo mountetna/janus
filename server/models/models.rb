@@ -37,6 +37,7 @@ module Models
         :group_id=> group_id,
         :group_name=> group.group_name,
         :project_name=> project_name,
+        :project_name_full=> project_name_full
       }
     end
   end
