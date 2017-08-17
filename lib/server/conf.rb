@@ -1,11 +1,10 @@
 module Conf
 
-  TOKEN_EXP = 60*60 # Tokens expire in 'n' seconds.
+  TOKEN_EXP = 24*60*60 # Tokens expire in 'n' seconds.
   TOKEN_NAME = 'UCSF_ETNA_AUTH_TOKEN'
 
   # Warning and error messages that will end up in the log
   WARNS = [
-
     :PARAMS_NOT_PRESENT,   # 0
     :PARAMS_NOT_CORRECT,   # 1
     :INVALID_LOG,          # 2
@@ -15,7 +14,6 @@ module Conf
   ]
 
   ERRORS = [
-
     :TOKEN_USER_MISMATCH,   # 0
     :CONNECTION_ERROR       # 1
   ]

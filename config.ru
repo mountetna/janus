@@ -1,8 +1,10 @@
 # The packages
-require 'rack'
+require 'bundler'
+
+Bundler.require(:default)
+
 require 'json'
-require 'pg'
-require 'sequel'
+require 'yaml'
 require 'digest'
 require 'net/http'
 require 'logger'
@@ -12,22 +14,25 @@ require 'uri'
 require 'securerandom'
 
 # The details
-require './server/conf'
-require './server/secrets'
-require './server/service/sign_service'
+require_relative './lib/server/conf'
+require_relative './lib/server/secrets'
+require_relative './lib/server/service/sign_service'
 
 # The database
-require './server/service/postgres_service'
-PostgresService::connect()
-require './server/models/models'
+require_relative './lib/server/models'
 
 # The application
-require './server/errors/basic_error'
-require './server/janus'
-require './server/routes'
-require './server/controllers/basic_controller'
-require './server/controllers/admin_controller'
-require './server/controllers/client_controller'
-require './server/controllers/user_log_controller'
+require_relative './lib/janus'
+require_relative './lib/server'
+require_relative './lib/server/janus'
+require_relative './lib/server/routes'
+require_relative './lib/server/controllers/janus_controller'
+require_relative './lib/server/controllers/admin_controller'
+require_relative './lib/server/controllers/client_controller'
+require_relative './lib/server/controllers/user_log_controller'
+
+use Etna::ParseBody
+use Etna::SymbolizeParams
 use Rack::Static, urls: ['/css', '/js', '/fonts', '/img'], root: 'client'
-run(Janus)
+
+run Janus::Server.new(YAML.load(File.read("config.yml")))
