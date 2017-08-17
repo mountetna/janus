@@ -5,6 +5,22 @@ class Janus
       @token = nil
     end
 
+    def default_checks
+    end
+
+    def response
+      default_checks
+      return send(@action)
+    rescue Etna::BadRequest => e
+      return failure(422, e.message)
+    rescue Etna::ServerError => e
+      return failure(500, e.message)
+    end
+
+    def success_json hash = {}
+      success('application/json', hash.to_json)
+    end
+
     def view name
       txt = File.read(File.expand_path("../views/#{name}.html", __dir__))
       @response['Content-Type'] = 'text/html'

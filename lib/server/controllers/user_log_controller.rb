@@ -1,20 +1,13 @@
 class UserLogController < Janus::Controller
-  def response
+  def default_checks
+    check_app_key
+
     case @action
     when 'log_in'
-      # Check that the email/pass/app_key is valid.
-      check_app_key
-
       raise Etna::BadRequest, "Invalid login or password" unless email_password_valid?
     else
-      # Check that a token/app_key is present and valid.
-      check_app_key
-
       raise Etna::BadRequest, "Invalid token" unless token_valid?
     end
-
-    # Execute the path that was requested
-    return send(@action)
   end
 
   def log_in_shib
@@ -24,7 +17,7 @@ class UserLogController < Janus::Controller
     return view(:login) if email == '(null)' || refer.nil?
 
     # Get and check user. No password required.
-    user = Models::User[email: email]
+    user = Janus::User[email: email]
     return erb_view(:login_no_user) unless user 
 
     # Create a new token for the user.
@@ -44,7 +37,7 @@ class UserLogController < Janus::Controller
 
   def log_in
     # Get and check user and then check the password.
-    user = Models::User[email: @params[:email]]
+    user = Janus::User[email: @params[:email]]
     pass = @params[:pass]
     raise Etna::BadRequest, "Invalid login" unless user && user.authorized?(pass)
 
@@ -52,18 +45,19 @@ class UserLogController < Janus::Controller
     user.create_token!
 
     # On success return the user info.
-    return { success: true, user_info: user.to_hash }
+    success_json(success: true, user_info: user.to_hash)
   end
 
   def check_log
     # Pull the user info for the token.
-    return { success: true, user_info: token.user.to_hash }
+    success_json(success: true, user_info: token.user.to_hash)
   end
 
   def log_out
     # Invalidate the token.
     token.invalidate!
-    return { success: true, logged: false }
+
+    success_json(success: true, logged: false)
   end
 
   private

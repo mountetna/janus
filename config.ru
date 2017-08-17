@@ -18,14 +18,9 @@ require_relative './lib/server/conf'
 require_relative './lib/server/secrets'
 require_relative './lib/server/service/sign_service'
 
-# The database
-require_relative './lib/server/models'
-
 # The application
 require_relative './lib/janus'
 require_relative './lib/server'
-require_relative './lib/server/janus'
-require_relative './lib/server/routes'
 require_relative './lib/server/controllers/janus_controller'
 require_relative './lib/server/controllers/admin_controller'
 require_relative './lib/server/controllers/client_controller'
@@ -33,6 +28,6 @@ require_relative './lib/server/controllers/user_log_controller'
 
 use Etna::ParseBody
 use Etna::SymbolizeParams
-use Rack::Static, urls: ['/css', '/js', '/fonts', '/img'], root: 'client'
+use Rack::Static, urls: ['/css', '/js', '/fonts', '/img'], root: 'lib/client'
 
 run Janus::Server.new(YAML.load(File.read("config.yml")))

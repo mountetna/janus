@@ -17,3 +17,5 @@ trash.rb
 *.woff2
 
 config.yml
+coverage
+public

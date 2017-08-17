@@ -1,5 +1,5 @@
 class AdminController < Janus::Controller
-  def response
+  def default_checks
     # Check that an 'app_key' is present and valid
     check_app_key
 
@@ -19,38 +19,35 @@ class AdminController < Janus::Controller
       user = Janus::User[email: @params[:email]]
       raise Etna::BadRequest, "User is not an admin" unless user && user.admin? && user.authorized?(@params[:pass])
     end
-
-    # Execute the path that was requested
-    send(@action)
   end
 
 # email/pass checks
-  def check_admin()
-    { success: true, administrator: true }
+  def check_admin
+    success_json(success: true, administrator: true)
   end
 
 # token checks
-  def check_admin_token()
-    { success: true, administrator: true }
+  def check_admin_token
+    success_json(success: true, administrator: true)
   end
 
-  def get_users()
-    { success: true, users: Janus::User.all.map(&:to_hash) }
+  def get_users
+    success_json(success: true, users: Janus::User.all.map(&:to_hash))
   end
 
-  def get_projects()
-    { success: true, projects: Janus::Project.all.map(&:to_hash) }
+  def get_projects
+    success_json(success: true, projects: Janus::Project.all.map(&:to_hash))
   end
 
-  def get_groups()
-    { success: true, groups: Janus::Group.all }
+  def get_groups
+    success_json(success: true, groups: Janus::Group.all)
   end
 
-  def get_permissions()
-    { success: true, permissions: Janus::Permission.all.map(&:to_hash) }
+  def get_permissions
+    success_json(success: true, permissions: Janus::Permission.all.map(&:to_hash))
   end
 
-  def upload_permissions()
+  def upload_permissions
     raise Etna::BadRequest, "No param: permissions" unless @params.key?(:permissions)
 
     saved = @params[:permissions].select do |perm|
@@ -63,10 +60,10 @@ class AdminController < Janus::Controller
       end
     end
 
-    { success: true, permissions: saved }
+    success_json(success: true, permissions: saved)
   end
 
-  def remove_permissions()
+  def remove_permissions
     raise Etna::BadRequest, "No param: permissions" unless @params.key?(:permissions)
 
     deleted = @params[:permissions].select do |perm|
@@ -83,10 +80,10 @@ class AdminController < Janus::Controller
       Janus::Permission.where(user_id: user.id, project_id: project.id).delete
     end
 
-    { success: true, permissions: deleted }
+    success_json(success: true, permissions: deleted)
   end
 
   def logout_all
-    { success: true, logout_count: Janus::Token.expire_all! }
+    success_json(success: true, logout_count: Janus::Token.expire_all!)
   end
 end

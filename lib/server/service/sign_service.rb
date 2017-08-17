@@ -4,7 +4,6 @@ module SignService
   # Creates an ordered array of items (which includes a password and salt) for
   # hashing
   def self.order_params(pass)
-
     params = [pass, Secrets::PASS_SALT]
   end
 
