@@ -23,6 +23,7 @@ class Janus
       }
     end
 
+    # WARNING! In the event of a shibboleth login 'pass_hash' == nil!
     def create_token!
       expire_tokens!
  
@@ -38,7 +39,7 @@ class Janus
     end
 
     def valid_token
-      tokens.find(&:valid?)
+      tokens.find(&:valid?)[:token]
     end
 
     def valid_tokens
@@ -53,8 +54,10 @@ class Janus
       # A password can be 'nil' if one logs in via Shibboleth/MyAccess.
       return false unless pass_hash
 
-      ordered_params = SignService::order_params(pass)
-      client_hash = SignService::hash_password(ordered_params, Janus.instance.config(:pass_algo))
+      client_hash = SignService::hash_password(
+        SignService::order_params(pass, Janus.instance.config(:pass_salt)),
+        Janus.instance.config(:pass_algo)
+      )
       return pass_hash == client_hash
     end
 

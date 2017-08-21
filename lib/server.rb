@@ -1,15 +1,9 @@
 # This class handles the http request and routing
 class Janus 
   class Server < Etna::Server
-    def initialize(config)
-      super
-      application.connect(application.config(:db))
-    end
-
     get '/', 'client#index'
 
     get '/login', 'user_log#log_in_shib'
-    #get '/login', 'user_log#log_in_shib'
     post '/login', 'user_log#log_in'
     post '/logout', 'user_log#log_out'
     post '/check', 'user_log#check_log'
@@ -29,30 +23,18 @@ class Janus
     # This could cause problems with Metis if there are active uploads.
     post '/logout-all', 'admin#logout_all'
 
-    def send_err(err)
-      ip = @request.env['HTTP_X_FORWARDED_FOR'].to_s
-      ref_id = SecureRandom.hex(4).to_s
-      response = { success: false, ref: ref_id }
-      m = err.method.to_s
+    def initialize(config)
+      super
+      application.connect(application.config(:db))
+      load_models
+    end
 
-      case err.type
-      when :SERVER_ERR
-        code = Conf::ERRORS[err.id].to_s
-        @app_logger.error(ref_id+' - '+code+', '+m+', '+ip)
-        response[:error] = 'Server error.'
-      when :BAD_REQ
-        code = Conf::WARNS[err.id].to_s
-        @app_logger.warn(ref_id+' - '+code+', '+m+', '+ip)
-        response[:error] = 'Bad request.'
-      when :BAD_LOG
-        code = Conf::WARNS[err.id].to_s
-        @app_logger.warn(ref_id+' - '+code+', '+m+', '+ip)
-        response[:error] = 'Invalid login.'
-      else
-        @app_logger.error(ref_id+' - UNKNOWN, '+m+', '+ip)
-        response[:error] = 'Unknown error.'
-      end
-      return response
+    private 
+
+    # At this point the postgres db should have it's connection and we can set
+    # up the Sequel models.
+    def load_models
+      require_relative 'server/models'
     end
   end
 end

@@ -7,26 +7,24 @@ class AdminController < Janus::Controller
     # different checks.
     unless @action == 'check_admin'
       # Check if a token is present and valid.
-      raise Etna::BadRequest, "Invalid token" unless token_valid?
+      raise Etna::BadRequest, 'Invalid token' unless token_valid?
 
       # Get and check user and then check the token.
-      raise Etna::BadRequest, "User is not an admin" unless token.user && token.user.admin?
+      raise Etna::BadRequest, 'User is not an admin' unless token.user && token.user.admin?
     else
       # Check that the email/pass is valid.
-      raise Etna::BadRequest, "Invalid login or password." unless email_password_valid?
+      raise Etna::BadRequest, 'Invalid login or password.' unless email_password_valid?
 
       # Get and check user and then check the password.
       user = Janus::User[email: @params[:email]]
-      raise Etna::BadRequest, "User is not an admin" unless user && user.admin? && user.authorized?(@params[:pass])
+      raise Etna::BadRequest, 'User is not an admin' unless user && user.admin? && user.authorized?(@params[:pass])
     end
   end
 
-# email/pass checks
   def check_admin
     success_json(success: true, administrator: true)
   end
 
-# token checks
   def check_admin_token
     success_json(success: true, administrator: true)
   end
@@ -48,7 +46,7 @@ class AdminController < Janus::Controller
   end
 
   def upload_permissions
-    raise Etna::BadRequest, "No param: permissions" unless @params.key?(:permissions)
+    raise Etna::BadRequest, 'No param: permissions' unless @params.key?(:permissions)
 
     saved = @params[:permissions].select do |perm|
       user = Janus::User[email: perm['user_email']]
@@ -64,17 +62,17 @@ class AdminController < Janus::Controller
   end
 
   def remove_permissions
-    raise Etna::BadRequest, "No param: permissions" unless @params.key?(:permissions)
+    raise Etna::BadRequest, 'No param: permissions' unless @params.key?(:permissions)
 
     deleted = @params[:permissions].select do |perm|
       # Check if the user and project are existant.
-      user = Models::User[email: perm['user_email']]
-      project = Models::Project[project_name: perm['project_name']]
+      user = Janus::User[email: perm['user_email']]
+      project = Janus::Project[project_name: perm['project_name']]
 
       next if !user || !project
 
       # Check if this is the master system permission.
-      next if project.project_name == "Administration"
+      next if project.project_name == 'Administration'
 
       # Check if there is currently a permission with the user and project.
       Janus::Permission.where(user_id: user.id, project_id: project.id).delete

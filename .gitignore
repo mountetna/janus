@@ -2,6 +2,7 @@
 npm-debug.log
 trash.rb
 /lib/server/secrets.rb
+/db/seed.rb
 
 /node_modules/
 /lib/client/img/

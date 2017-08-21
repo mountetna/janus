@@ -17,18 +17,18 @@ class Janus
       return failure(500, e.message)
     end
 
-    def success_json hash = {}
+    def success_json(hash = {})
       success('application/json', hash.to_json)
     end
 
-    def view name
+    def view(name)
       txt = File.read(File.expand_path("../views/#{name}.html", __dir__))
       @response['Content-Type'] = 'text/html'
       @response.write(txt)
       @response.finish
     end
 
-    def erb_view name
+    def erb_view(name)
       txt = File.read(File.expand_path("../views/#{name}.html.erb", __dir__))
       @response['Content-Type'] = 'text/html'
       @response.write(ERB.new(txt).result)
@@ -36,8 +36,8 @@ class Janus
     end
 
     def check_app_key
-      raise Etna::BadRequest, "Param not present: app_key" if !@params.key?(:app_key)
-      raise Etna::BadRequest, "Invalid app key" if !app_valid?(@params[:app_key])
+      raise Etna::BadRequest, 'Param not present: app_key' if !@params.key?(:app_key)
+      raise Etna::BadRequest, 'Invalid app key' if !app_valid?(@params[:app_key])
     end
 
     # Checks for the user email and password. This is used before a user token is

@@ -4,21 +4,23 @@ class UserLogController < Janus::Controller
 
     case @action
     when 'log_in'
-      raise Etna::BadRequest, "Invalid login or password" unless email_password_valid?
+      unless email_password_valid?
+        raise Etna::BadRequest, 'Invalid login or password'
+      end
     else
-      raise Etna::BadRequest, "Invalid token" unless token_valid?
+      raise Etna::BadRequest, 'Invalid token' unless token_valid?
     end
   end
 
   def log_in_shib
-    # Check that this request came from shibboleth(shibd)
+    # Check that this request came from shibboleth(shibd).
     email = @request.env['HTTP_X_SHIB_ATTRIBUTE'].downcase
     refer = extract_refer(@request.env['QUERY_STRING'])
     return view(:login) if email == '(null)' || refer.nil?
 
     # Get and check user. No password required.
     user = Janus::User[email: email]
-    return erb_view(:login_no_user) unless user 
+    return view(:login_no_user) unless user 
 
     # Create a new token for the user.
     user.create_token!
@@ -36,10 +38,12 @@ class UserLogController < Janus::Controller
   end
 
   def log_in
+
     # Get and check user and then check the password.
     user = Janus::User[email: @params[:email]]
-    pass = @params[:pass]
-    raise Etna::BadRequest, "Invalid login" unless user && user.authorized?(pass)
+    unless user && user.authorized?(@params[:pass])
+      raise Etna::BadRequest,'Invalid login'
+    end
 
     # Create a new token for the user.
     user.create_token!
@@ -56,18 +60,20 @@ class UserLogController < Janus::Controller
   def log_out
     # Invalidate the token.
     token.invalidate!
-
     success_json(success: true, logged: false)
   end
 
   private
+
   def extract_refer(query_string='')
     return nil if query_string.empty?
 
-    # split the string on & and =
-    query_hash = Hash[URI.unescape(query_string).split('&').map { |i| i.split(/=/) }]
+    # Split the string on '&' and '='.
+    query_hash = Hash[
+      URI.unescape(query_string).split('&').map { |i| i.split(/=/) }
+    ]
 
-    # Check for 'refer' key
+    # Check for 'refer' key.
     return nil unless query_hash.key?('refer')
 
     # Check that the refer url is valid and in our Mt. Etna network.

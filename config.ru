@@ -29,4 +29,4 @@ use Etna::ParseBody
 use Etna::SymbolizeParams
 use Rack::Static, urls: ['/css', '/js', '/fonts', '/img'], root: 'lib/client'
 
-run Janus::Server.new(YAML.load(File.read("config.yml")))
+run Janus::Server.new(YAML.load(File.read('config.yml')))

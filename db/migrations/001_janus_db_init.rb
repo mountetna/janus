@@ -13,6 +13,7 @@ Sequel.migration do
       foreign_key(:group_id, :groups)
       String(:project_name, {null: false, unique: true})
       String(:project_name_full, {null: false, unique: true})
+      String(:project_description)
     end
 
     create_table(:users) do
