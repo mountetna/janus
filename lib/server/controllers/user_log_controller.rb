@@ -29,7 +29,7 @@ class UserLogController < Janus::Controller
       Janus.instance.config(:token_name),
       value: user.valid_token,
       path: '/',
-      domain: Janus.instance.config(:cookie_domain),
+      domain: Janus.instance.config(:token_domain),
       expires: Time.now+Janus.instance.config(:token_life)
     )
     return @response.finish
