@@ -42,7 +42,7 @@ class UserLogController < Janus::Controller
     # Get and check user and then check the password.
     user = Janus::User[email: @params[:email]]
     unless user && user.authorized?(@params[:pass])
-      raise Etna::BadRequest,'Invalid login'
+      raise Etna::BadRequest, 'Invalid login'
     end
 
     # Create a new token for the user.
