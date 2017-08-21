@@ -26,11 +26,11 @@ class UserLogController < Janus::Controller
     # Set cookie and redirect.
     @response.redirect(refer, 302)
     @response.set_cookie(
-      Conf::TOKEN_NAME,
+      Janus.instance.config(:token_name),
       value: user.valid_token,
       path: '/',
       domain: Janus.instance.config(:cookie_domain),
-      expires: Time.now+Conf::TOKEN_EXP
+      expires: Time.now+Janus.instance.config(:token_life)
     )
     return @response.finish
   end

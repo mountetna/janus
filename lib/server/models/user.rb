@@ -27,7 +27,7 @@ class Janus
       expire_tokens!
  
       # Time is in seconds, nil = no expiration
-      expires = Time.now + Conf::TOKEN_EXP
+      expires = Time.now + Janus.instance.config(:token_life)
 
       add_token(
         token: Janus::Token.generate(pass_hash), 
@@ -54,7 +54,7 @@ class Janus
       return false unless pass_hash
 
       ordered_params = SignService::order_params(pass)
-      client_hash = SignService::hash_password(ordered_params, Secrets::PASS_ALGO)
+      client_hash = SignService::hash_password(ordered_params, Janus.instance.config(:pass_algo))
       return pass_hash == client_hash
     end
 

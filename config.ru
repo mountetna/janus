@@ -15,7 +15,6 @@ require 'securerandom'
 
 # The details
 require_relative './lib/server/conf'
-require_relative './lib/server/secrets'
 require_relative './lib/server/service/sign_service'
 
 # The application

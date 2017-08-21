@@ -2,8 +2,8 @@ class Janus
   class Token < Sequel::Model
     many_to_one :user
     def self.generate(pass_hash)
-      params = [Time.now.getutc.to_s, pass_hash, Secrets::TOKEN_SALT]
-      return SignService::hash_password(params, Secrets::TOKEN_ALGO)
+      params = [Time.now.getutc.to_s, pass_hash, Janus.instance.config(:token_salt)]
+      return SignService::hash_password(params, Janus.instance.config(:token_algo))
     end
 
     def self.expire_all!

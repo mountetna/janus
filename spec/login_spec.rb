@@ -15,7 +15,7 @@ describe UserLogController do
         :user,
         email: 'janus@mount.etna',
         pass_hash: SignService.hash_password(
-          SignService.order_params(@password), Secrets::PASS_ALGO
+          SignService.order_params(@password), Janus.instance.config(:pass_algo)
         )
       )
     end
