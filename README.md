@@ -1,6 +1,53 @@
 ## Janus Auth Server
 This is a simple authentication server written in Ruby/Rack/Thin
 
+### Some notes about setting up.
+
+You are going to need a `config.yml` file which will contain your app secrets 
+and it should look something like so...
+
+`./config.yml`
+
+```
+---
+:development:
+  :db:
+    :adapter: postgres
+    :host: localhost
+    :database: janus
+    :user: developer
+    :password: <%= developer_word %>
+    :search_path: [ private ]
+  :pass_algo: sha256
+  :pass_salt: <%= password_salt %>
+  :token_algo: sha256
+  :token_salt: <%= token_salt %>
+  :token_name: JANUS_TOKEN
+  :token_domain: <% cookie_domain %>
+  :token_life: 86400   
+
+:test:
+  :db:
+    :adapter: postgres
+    :host: localhost
+    :database: janus_test
+    :user: developer
+    :password: <%= developer_word %>
+    :search_path: [ private ]
+  :pass_algo: sha256
+  :pass_salt: <%= password_salt %>
+  :token_algo: sha256
+  :token_salt: <%= token_salt %>
+  :token_name: JANUS_TOKEN
+  :token_domain: <% cookie_domain %>
+  :token_life: 86400
+```
+If you want to use Postgres you may need to set the 'schema' with `:search_path:`.
+
+### Notes about database setup.
+
+See `./db/README.md`
+
 ### To start the Thin server.
 
 ```

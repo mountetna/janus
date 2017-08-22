@@ -7,6 +7,6 @@
   We do have a few static resrouces that need to be linked.
 
   ```
-  $ sudo -i -u [USER] ln -s /var/www/metis-static/img /var/www/metis/client/img
-  $ sudo -i -u [USER] ln -s /var/www/metis-static/fonts /var/www/metis/client/fonts
+  $ sudo -i -u [USER] ln -s /var/www/janus-static/img /var/www/janus/client/img
+  $ sudo -i -u [USER] ln -s /var/www/janus-static/fonts /var/www/janus/client/fonts
   ```

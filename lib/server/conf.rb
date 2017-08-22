@@ -1,11 +1,6 @@
 module Conf
-
-  TOKEN_EXP = 60*60 # Tokens expire in 'n' seconds.
-  TOKEN_NAME = 'UCSF_ETNA_AUTH_TOKEN'
-
   # Warning and error messages that will end up in the log
   WARNS = [
-
     :PARAMS_NOT_PRESENT,   # 0
     :PARAMS_NOT_CORRECT,   # 1
     :INVALID_LOG,          # 2
@@ -15,7 +10,6 @@ module Conf
   ]
 
   ERRORS = [
-
     :TOKEN_USER_MISMATCH,   # 0
     :CONNECTION_ERROR       # 1
   ]
@@ -23,7 +17,6 @@ module Conf
   EMAIL_MATCH = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/
 
   VALID_HOSTS = [
-
     'janus.ucsf.edu',
     'janus-stage.ucsf.edu',
     'janus-dev.ucsf.edu',
