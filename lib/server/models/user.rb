@@ -9,7 +9,7 @@ class Janus
         first_name: first_name, 
         last_name: last_name, 
         user_id: id,
-        token: valid_token,
+        token: valid_token.token,
         permissions:  permissions.map do |permission|
           {
             role: permission.role,
@@ -39,7 +39,7 @@ class Janus
     end
 
     def valid_token
-      tokens.find(&:valid?)[:token]
+      tokens.find(&:valid?)
     end
 
     def valid_tokens

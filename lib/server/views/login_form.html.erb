@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      Janus Auth Server
+    </title>
+    <link type='text/css' rel='stylesheet' href='/css/reset.css' />
+    <link type='text/css' rel='stylesheet' href='/css/bootstrap.min.css' />
+    <link type='text/css' rel='stylesheet' href='/css/fonts.css' />
+    <link type='text/css' rel='stylesheet' href='/css/global.css' />
+    <link type='text/css' rel='stylesheet' href='/css/login.css' />
+    <link type='text/css' rel='stylesheet' href='/css/media.css' />
+    <link rel="icon"  type="image/png"  href="/img/favicon.png">
+  </head>
+  <body>
+    <div id='ui-group'>
+      <div id='janus-group'>
+        <div id='header-group'>
+          <div id='title-menu'>
+            <button class='title-menu-btn'>
+                Janus
+              <br />
+              <span>
+                AUTHSERVER
+              </span>
+            </button>
+            <img id='ucsf-logo' src='/img/ucsf_logo_dark.png' alt='' />
+          </div>
+          <div id='nav-menu'>
+          </div>
+        </div>
+        <div class='logo-group'>
+          <img src='/img/logo_basic.png' alt='' />
+        </div>
+        <div id='left-column-group'>
+        </div>
+        <form id='login-group' method='post' action='/login'>
+          <input type='hidden' name='refer' value='<%= @refer %>'/>
+          <input name='email' id='email-input' class='log-input' type='text' placeholder='Enter your email'/>
+          <br />
+          <input name='password' id='pass-input' class='log-input' type='password' placeholder='Enter your password' />
+          <br />
+          <input type='submit' class='login-button' value='SIGN IN'/>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

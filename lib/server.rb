@@ -3,8 +3,8 @@ class Janus
   class Server < Etna::Server
     get '/', 'client#index'
 
-    get '/login', 'user_log#log_in_shib'
-    post '/login', 'user_log#log_in'
+    get '/login', 'user_log#login'
+    post '/login', 'user_log#validate_login'
     post '/logout', 'user_log#log_out'
     post '/check', 'user_log#check_log'
 
