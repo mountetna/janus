@@ -15,9 +15,18 @@ describe UserLogController do
         :user,
         email: 'janus@mount.etna',
         pass_hash: SignService.hash_password(
-          SignService.order_params(@password), Janus.instance.config(:pass_algo)
+          SignService.order_params(@password, Janus.instance.config(:pass_salt)),
+          Janus.instance.config(:pass_algo)
         )
       )
+    end
+
+    it "gets a simple form" do
+      refer = 'http://test.st'
+      get("/login?refer=#{refer}")
+
+      expect(last_response.status).to eq(200)
+      expect(last_response.body).to match(/value='#{refer}'/)
     end
 
     it "complains without credentials" do
@@ -26,23 +35,27 @@ describe UserLogController do
     end
 
     it "validates a password" do
-      json_post(
+      form_post(
         :login, 
         email: @user.email,
-        pass: 'bassboard',
+        password: 'bassboard',
         app_key: @client.app_key
       )
       expect(last_response.status).to eq(422)
     end
 
-    it "returns success with credentials" do
-      json_post(
+    it "redirects to refer with credentials" do
+      refer = "https://test.host"
+      form_post(
         :login, 
         email: @user.email,
-        pass: @password,
-        app_key: @client.app_key
+        password: @password,
+        app_key: @client.app_key,
+        refer: refer
       )
-      expect(last_response.status).to eq(200)
+
+      expect(last_response.status).to eq(302)
+      expect(last_response.headers["Location"]).to eq(refer)
       expect(@user.valid_token).not_to be_nil
     end
   end
@@ -75,7 +88,7 @@ describe UserLogController do
                 app_key: @client.app_key)
 
       json = JSON.parse(last_response.body)
-      expect(json["user_info"]["email"]).to eq(user.email)
+      expect(json["email"]).to eq(user.email)
     end
   end
 end
