@@ -1,51 +1,48 @@
 class AdminController < Janus::Controller
-  def default_checks
+  def validate_admin_status
     # Check that an 'app_key' is present and valid
-    check_app_key
+    raise Etna::BadRequest, 'Invalid app key' unless app_key_valid?
 
-    # Depending on whether we get token or email/pass combo we perform
-    # different checks.
-    unless @action == 'check_admin'
-      # Check if a token is present and valid.
-      raise Etna::BadRequest, 'Invalid token' unless token_valid?
+    # Check if a token is present and valid.
+    raise Etna::BadRequest, 'Invalid token' unless token_valid?
 
-      # Get and check user and then check the token.
-      raise Etna::BadRequest, 'User is not an admin' unless token.user && token.user.admin?
-    else
-      # Check that the email/pass is valid.
-      raise Etna::BadRequest, 'Invalid login or password.' unless email_password_valid?
-
-      # Get and check user and then check the password.
-      user = Janus::User[email: @params[:email]]
-      raise Etna::BadRequest, 'User is not an admin' unless user && user.admin? && user.authorized?(@params[:pass])
-    end
-  end
-
-  def check_admin
-    success_json(success: true, administrator: true)
+    # Get and check user and then check the token.
+    raise Etna::BadRequest, 'User is not an admin' unless token.user && token.user.admin?
   end
 
   def check_admin_token
+    validate_admin_status
+
     success_json(success: true, administrator: true)
   end
 
   def get_users
+    validate_admin_status
+
     success_json(success: true, users: Janus::User.all.map(&:to_hash))
   end
 
   def get_projects
+    validate_admin_status
+
     success_json(success: true, projects: Janus::Project.all.map(&:to_hash))
   end
 
   def get_groups
+    validate_admin_status
+
     success_json(success: true, groups: Janus::Group.all)
   end
 
   def get_permissions
+    validate_admin_status
+
     success_json(success: true, permissions: Janus::Permission.all.map(&:to_hash))
   end
 
   def upload_permissions
+    validate_admin_status
+
     raise Etna::BadRequest, 'No param: permissions' unless @params.key?(:permissions)
 
     saved = @params[:permissions].select do |perm|
@@ -62,6 +59,8 @@ class AdminController < Janus::Controller
   end
 
   def remove_permissions
+    validate_admin_status
+
     raise Etna::BadRequest, 'No param: permissions' unless @params.key?(:permissions)
 
     deleted = @params[:permissions].select do |perm|
@@ -82,6 +81,8 @@ class AdminController < Janus::Controller
   end
 
   def logout_all
+    validate_admin_status
+
     success_json(success: true, logout_count: Janus::Token.expire_all!)
   end
 end
