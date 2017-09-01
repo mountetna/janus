@@ -1,17 +1,4 @@
 class UserLogController < Janus::Controller
-  def default_checks
-    check_app_key
-
-    case @action
-    when 'log_in'
-      unless email_password_valid?
-        raise Etna::BadRequest, 'Invalid login or password'
-      end
-    else
-      raise Etna::BadRequest, 'Invalid token' unless token_valid?
-    end
-  end
-
   def log_in_shib
     # Check that this request came from shibboleth(shibd).
     email = @request.env['HTTP_X_SHIB_ATTRIBUTE'].downcase
@@ -25,23 +12,19 @@ class UserLogController < Janus::Controller
     # Create a new token for the user.
     user.create_token!
 
-    # Set cookie and redirect.
-    @response.redirect(refer, 302)
-    @response.set_cookie(
-      Janus.instance.config(:token_name),
-      value: user.valid_token,
-      path: '/',
-      domain: Janus.instance.config(:token_domain),
-      expires: Time.now+Janus.instance.config(:token_life)
-    )
-    return @response.finish
+    respond_with_cookie(refer)
   end
 
-  def log_in
+  def login
+    @refer = @params[:refer]
+    erb_view(:login_form)
+  end
 
+  def validate_login
+    raise Etna::BadRequest, 'Invalid login or password' unless email_password_valid?
     # Get and check user and then check the password.
     user = Janus::User[email: @params[:email]]
-    unless user && user.authorized?(@params[:pass])
+    unless user && user.authorized?(@params[:password])
       raise Etna::BadRequest, 'Invalid login'
     end
 
@@ -49,12 +32,16 @@ class UserLogController < Janus::Controller
     user.create_token!
 
     # On success return the user info.
-    success_json(success: true, user_info: user.to_hash)
+    respond_with_cookie(user, @params[:refer])
   end
 
   def check_log
+    raise Etna::BadRequest, 'Invalid app key' unless app_key_valid?
+
+    raise Etna::BadRequest, 'Invalid token' unless token_valid?
+
     # Pull the user info for the token.
-    success_json(success: true, user_info: token.user.to_hash)
+    success_json(token.user.to_hash)
   end
 
   def log_out
@@ -64,6 +51,19 @@ class UserLogController < Janus::Controller
   end
 
   private
+
+  def respond_with_cookie(user, refer)
+    # Set cookie and redirect.
+    @response.redirect(refer, 302)
+    @response.set_cookie(
+      Janus.instance.config(:token_name),
+      value: user.valid_token.token,
+      path: '/',
+      domain: Janus.instance.config(:token_domain),
+      expires: Time.now+Janus.instance.config(:token_life)
+    )
+    return @response.finish
+  end
 
   def extract_refer(query_string='')
     return nil if query_string.empty?

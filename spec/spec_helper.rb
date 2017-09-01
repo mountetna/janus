@@ -1,5 +1,6 @@
 require 'yaml'
 require 'json'
+require 'uri'
 require 'simplecov'
 require 'factory_girl'
 require 'database_cleaner'
@@ -154,6 +155,16 @@ def json_post endpoint, hash
     hash.to_json,
     {
       'CONTENT_TYPE' => 'application/json'
+    }
+  )
+end
+
+def form_post endpoint, hash
+  post(
+    "/#{endpoint}",
+    URI.encode_www_form(hash),
+    {
+      'CONTENT_TYPE' => 'application/x-www-form-urlencoded'
     }
   )
 end
