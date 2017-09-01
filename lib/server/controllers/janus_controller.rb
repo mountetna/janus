@@ -7,10 +7,18 @@ class Janus
       @token = nil
     end
 
+    private
+
     def success_json(hash = {})
       success('application/json', hash.to_json)
     end
 
+    # token comes from params but should probably come from headers
+    def token
+      @token ||= Janus::Token[token: @params[:token]]
+    end
+
+    # Janus only takes requests from authorized applications
     def app_key_valid?
       @params.key?(:app_key) && app_valid?(@params[:app_key])
     end
@@ -24,10 +32,6 @@ class Janus
     # Checks for the user token and makes sure that the user token is valid.
     def token_valid?
       @params.key?(:token) && token && token.valid?
-    end
-
-    def token
-      @token ||= Janus::Token[token: @params[:token]]
     end
 
     # Quick check that the email is in a somewhat valid format.

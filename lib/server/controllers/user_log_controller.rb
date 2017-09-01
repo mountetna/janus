@@ -15,19 +15,6 @@ class UserLogController < Janus::Controller
     respond_with_cookie(refer)
   end
 
-  def respond_with_cookie(user, refer)
-    # Set cookie and redirect.
-    @response.redirect(refer, 302)
-    @response.set_cookie(
-      Janus.instance.config(:token_name),
-      value: user.valid_token.token,
-      path: '/',
-      domain: Janus.instance.config(:token_domain),
-      expires: Time.now+Janus.instance.config(:token_life)
-    )
-    return @response.finish
-  end
-
   def login
     @refer = @params[:refer]
     erb_view(:login_form)
@@ -64,6 +51,19 @@ class UserLogController < Janus::Controller
   end
 
   private
+
+  def respond_with_cookie(user, refer)
+    # Set cookie and redirect.
+    @response.redirect(refer, 302)
+    @response.set_cookie(
+      Janus.instance.config(:token_name),
+      value: user.valid_token.token,
+      path: '/',
+      domain: Janus.instance.config(:token_domain),
+      expires: Time.now+Janus.instance.config(:token_life)
+    )
+    return @response.finish
+  end
 
   def extract_refer(query_string='')
     return nil if query_string.empty?

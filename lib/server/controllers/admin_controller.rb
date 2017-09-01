@@ -1,15 +1,4 @@
 class AdminController < Janus::Controller
-  def validate_admin_status
-    # Check that an 'app_key' is present and valid
-    raise Etna::BadRequest, 'Invalid app key' unless app_key_valid?
-
-    # Check if a token is present and valid.
-    raise Etna::BadRequest, 'Invalid token' unless token_valid?
-
-    # Get and check user and then check the token.
-    raise Etna::BadRequest, 'User is not an admin' unless token.user && token.user.admin?
-  end
-
   def check_admin_token
     validate_admin_status
 
@@ -84,5 +73,18 @@ class AdminController < Janus::Controller
     validate_admin_status
 
     success_json(success: true, logout_count: Janus::Token.expire_all!)
+  end
+
+  private
+
+  def validate_admin_status
+    # Check that an 'app_key' is present and valid
+    raise Etna::BadRequest, 'Invalid app key' unless app_key_valid?
+
+    # Check if a token is present and valid.
+    raise Etna::BadRequest, 'Invalid token' unless token_valid?
+
+    # Get and check user and then check the token.
+    raise Etna::BadRequest, 'User is not an admin' unless token.user && token.user.admin?
   end
 end
