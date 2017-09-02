@@ -1,6 +1,6 @@
 class Janus
   class Controller < Etna::Controller
-    VIEW_PATH=File.expand_path('../views', __dir__)
+    VIEW_PATH = File.expand_path('../views', __dir__)
 
     def initialize(request, action)
       super
@@ -13,20 +13,22 @@ class Janus
       success('application/json', hash.to_json)
     end
 
-    # token comes from params but should probably come from headers
+    # Token comes from params but should probably come from headers.
     def token
       @token ||= Janus::Token[token: @params[:token]]
     end
 
-    # Janus only takes requests from authorized applications
+    # Janus only takes requests from authorized applications.
     def app_key_valid?
       @params.key?(:app_key) && app_valid?(@params[:app_key])
     end
 
-    # Checks for the user email and password. This is used before a user token is
-    # generated.
+    # Checks for the user email and password. This is used before a user token
+    # is generated.
     def email_password_valid?
-      @params.key?(:email) && @params.key?(:password) && email_valid?(@params[:email])
+      @params.key?(:email) &&
+      @params.key?(:password) &&
+      email_valid?(@params[:email])
     end
 
     # Checks for the user token and makes sure that the user token is valid.

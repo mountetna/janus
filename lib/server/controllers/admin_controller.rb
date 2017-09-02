@@ -1,31 +1,26 @@
 class AdminController < Janus::Controller
   def check_admin_token
     validate_admin_status
-
     success_json(success: true, administrator: true)
   end
 
   def get_users
     validate_admin_status
-
     success_json(success: true, users: Janus::User.all.map(&:to_hash))
   end
 
   def get_projects
     validate_admin_status
-
     success_json(success: true, projects: Janus::Project.all.map(&:to_hash))
   end
 
   def get_groups
     validate_admin_status
-
     success_json(success: true, groups: Janus::Group.all)
   end
 
   def get_permissions
     validate_admin_status
-
     success_json(success: true, permissions: Janus::Permission.all.map(&:to_hash))
   end
 
@@ -71,14 +66,13 @@ class AdminController < Janus::Controller
 
   def logout_all
     validate_admin_status
-
     success_json(success: true, logout_count: Janus::Token.expire_all!)
   end
 
   private
 
   def validate_admin_status
-    # Check that an 'app_key' is present and valid
+    # Check that an 'app_key' is present and valid.
     raise Etna::BadRequest, 'Invalid app key' unless app_key_valid?
 
     # Check if a token is present and valid.
