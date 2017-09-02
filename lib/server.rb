@@ -1,10 +1,13 @@
 # This class handles the http request and routing
 class Janus 
   class Server < Etna::Server
-    get '/', 'client#index'
 
-    get '/login', 'user_log#login'
-    post '/login', 'user_log#validate_login'
+    # Only one of these two end points gets used. If you are using Shibboleth
+    # then enable the appropriate end point.
+    get '/', 'user_log#login'
+    #get '/', 'user_log#login_shib'
+
+    post '/validate-login', 'user_log#validate_login'
     post '/logout', 'user_log#log_out'
     post '/check', 'user_log#check_log'
 
