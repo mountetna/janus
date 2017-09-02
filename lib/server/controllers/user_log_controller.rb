@@ -1,29 +1,56 @@
 class UserLogController < Janus::Controller
-  def log_in_shib
+  def login_shib
+
+    # Make sure the refer url is valid.
+    refer = extract_refer(@request.env['QUERY_STRING'])
+    raise Etna::BadRequest, 'Invalid url refer'  if refer.nil?
+
     # Check that this request came from shibboleth(shibd).
     email = @request.env['HTTP_X_SHIB_ATTRIBUTE'].downcase
-    refer = extract_refer(@request.env['QUERY_STRING'])
-    return view(:login) if email == '(null)' || refer.nil?
+    raise Etna::BadRequest, 'Invalid email' if email == '(null)'
 
     # Get and check user. No password required.
     user = Janus::User[email: email]
-    return view(:login_no_user) unless user 
+    raise Etna::BadRequest, 'Invalid user' unless user 
 
     # Create a new token for the user.
     user.create_token!
 
-    respond_with_cookie(refer)
+    respond_with_cookie(user, refer)
   end
 
   def login
     @refer = @params[:refer]
-    erb_view(:login_form)
+
+    # Check if the token is set. If not then show the login dialog.
+    @params[:token] = pull_token_from_cookie
+    return erb_view(:login_form) if !token
+
+    # Check if the token is valid. If not then show the login dialog.
+    return erb_view(:login_form) if !token_valid?
+
+    # Make sure the refer url is valid.
+    unless refer_valid?(@params[:refer])
+      raise Etna::BadRequest, 'Invalid url refer' 
+    end
+
+    # The token is valid and the refer is ok, so go ahead and redirect the user.
+    respond_with_cookie(token.user, @params[:refer])
   end
 
   def validate_login
-    raise Etna::BadRequest, 'Invalid login or password' unless email_password_valid?
+    unless email_password_valid?
+      raise Etna::BadRequest, 'Invalid email or password' 
+    end
+
+    # Make sure the refer url is valid.
+    unless refer_valid?(@params[:refer])
+      raise Etna::BadRequest, 'Invalid url refer' 
+    end
+
     # Get and check user and then check the password.
     user = Janus::User[email: @params[:email]]
+
     unless user && user.authorized?(@params[:password])
       raise Etna::BadRequest, 'Invalid login'
     end
@@ -37,7 +64,6 @@ class UserLogController < Janus::Controller
 
   def check_log
     raise Etna::BadRequest, 'Invalid app key' unless app_key_valid?
-
     raise Etna::BadRequest, 'Invalid token' unless token_valid?
 
     # Pull the user info for the token.
@@ -62,6 +88,7 @@ class UserLogController < Janus::Controller
       domain: Janus.instance.config(:token_domain),
       expires: Time.now+Janus.instance.config(:token_life)
     )
+
     return @response.finish
   end
 
@@ -83,7 +110,31 @@ class UserLogController < Janus::Controller
   end
 
   def refer_valid?(refer)
-    uri = URI.parse(refer)
+
+    # Attempt to parse the refer.
+    begin
+      uri = URI.parse(refer)
+    rescue
+      return false
+    end
+
+    # Check the host list for the refer.
     return (Conf::VALID_HOSTS.include?(uri.host)) ? true : false
+  end
+
+  # Check to see if there is a Janus cookie set, and if it is valid.
+  def pull_token_from_cookie
+    tkn = nil
+    return tkn unless @request.env['HTTP_COOKIE']
+
+    cookies = @request.env['HTTP_COOKIE'].split(';')
+    cookies.each do |cookie|
+      if cookie.include?(Janus.instance.config(:token_name))
+        tkn = cookie.split('=')[1]
+        break
+      end
+    end
+
+    return tkn
   end
 end
