@@ -11,7 +11,7 @@
 
 .log-input {
 
-  width: 200px;
+  width: 196px;
   height: 35px;
   border: 1px solid #999;
   margin-top: 10px;
@@ -23,7 +23,7 @@
 
 .log-input:focus {
 
-  border: 1px solid #7db4b5;
+  border: 1px solid #666699;
   outline: none;
 }
 
@@ -56,7 +56,7 @@
 .login-button:focus {
     
   outline:none;
-  border:1px solid #7db4b5;
+  border:1px solid #666699;
   background: #ccc;
 }
 
