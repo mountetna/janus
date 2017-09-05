@@ -38,7 +38,7 @@ class Janus
 
     # Quick check that the email is in a somewhat valid format.
     def email_valid?(eml)
-      eml =~ Conf::EMAIL_MATCH
+      eml =~ /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/
     end
 
     # Check to see if the application key is valid.

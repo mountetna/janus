@@ -3,7 +3,9 @@ class UserLogController < Janus::Controller
 
     # Make sure the refer url is valid.
     refer = extract_refer(@request.env['QUERY_STRING'])
-    raise Etna::BadRequest, 'Invalid url refer'  if refer.nil?
+    if refer.nil? || !refer_valid?(refer)
+      raise Etna::BadRequest, 'Invalid url refer'
+    end
 
     # Check that this request came from shibboleth(shibd).
     email = @request.env['HTTP_X_SHIB_ATTRIBUTE'].downcase
@@ -35,7 +37,7 @@ class UserLogController < Janus::Controller
     end
 
     # The token is valid and the refer is ok, so go ahead and redirect the user.
-    respond_with_cookie(token.user, @params[:refer])
+    respond_with_cookie(token.user, @refer)
   end
 
   def validate_login
@@ -114,12 +116,13 @@ class UserLogController < Janus::Controller
     # Attempt to parse the refer.
     begin
       uri = URI.parse(refer)
+      host = uri.host.split('.')[-2,2].join('.') # Extract the root host.
     rescue
       return false
     end
 
-    # Check the host list for the refer.
-    return (Conf::VALID_HOSTS.include?(uri.host)) ? true : false
+    # Check to make sure the refer comes from the same domain as the token.
+    return host == Janus.instance.config(:token_domain) ? true : false
   end
 
   # Check to see if there is a Janus cookie set, and if it is valid.
