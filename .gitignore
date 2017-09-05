@@ -5,17 +5,9 @@ trash.rb
 /db/seed.sql
 
 /node_modules/
-/lib/client/img/
-/lib/client/fonts/
 /tmp
 /log
 /source
-
-*.eot
-*.svg
-*.ttf
-*.woff
-*.woff2
 
 config.yml
 coverage
