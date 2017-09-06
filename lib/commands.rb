@@ -48,4 +48,45 @@ class Janus
       Janus.instance.setup_db
     end
   end
+
+  class AddProject < Etna::Command
+    usage '<project_name> <project_name_full>'
+    def execute project_name, project_name_full
+      attributes = { project_name: project_name }
+      project = Project.find(attributes) || Project.new(attributes)
+      project.project_name_full = project_name_full
+      project.save
+    end
+
+    def setup(config)
+      Janus.instance.configure(config)
+      Janus.instance.setup_db
+    end
+  end
+
+  class Permit < Etna::Command
+    def execute email, project_name, role
+      user = User[email: email]
+      project = Project[project_name: project_name]
+      if !user
+        puts "User not found."
+        exit
+      end
+
+      if !project
+        puts "Project not found."
+        exit
+      end
+
+      attributes = { project: project, user: user }
+      perm = Permission.find(attributes) || Permission.new(attributes)
+      perm.role = role
+      perm.save
+    end
+
+    def setup(config)
+      Janus.instance.configure(config)
+      Janus.instance.setup_db
+    end
+  end
 end

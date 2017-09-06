@@ -22,6 +22,32 @@ describe Janus::Console do
   end
 end
 
+describe Janus::AddProject do
+  it "adds a project to the database" do
+    project_name = "augean_stables"
+    project_name_full = "Augean Stables"
+
+    command = Janus::AddProject.new
+    command.execute(project_name, project_name_full)
+
+    project = Project.first
+
+    expect(project.project_name).to eq(project_name)
+  end
+
+  it "updates if the project exists" do
+    project_name = "augean_stables"
+    project_name_full = "Augean Stables"
+    project = create(:project, project_name: project_name, project_name_full: "Augaian Stables")
+
+    command = Janus::AddProject.new
+    command.execute(project_name, project_name_full)
+
+    project.refresh
+
+    expect(project.project_name_full).to eq(project_name_full)
+  end
+end
 describe Janus::AddUser do
   it "adds a user to the database" do
     email = "test_user@test.edu"
@@ -29,7 +55,7 @@ describe Janus::AddUser do
     command = Janus::AddUser.new
     command.execute(email, "Janus", "Two-faces")
 
-    user = Janus::User.first
+    user = User.first
 
     expect(user.email).to eq(email)
   end
@@ -45,5 +71,25 @@ describe Janus::AddUser do
     user.refresh
 
     expect(user.last_name).to eq(last_name)
+  end
+end
+
+describe Janus::Permit do
+  it "gives a user a specific permission on a project" do
+    email = "hercules@test.edu"
+    project_name = "augean_stables"
+    role = "viewer"
+
+    user = create(:user, email: email)
+    project = create(:project, project_name: project_name, project_name_full: "Augean Stables")
+
+    command = Janus::Permit.new
+    command.execute(email, project_name, role)
+
+    perm = Permission.first
+
+    expect(perm.user.email).to eq(email)
+    expect(perm.project.project_name).to eq(project_name)
+    expect(perm.role).to eq(role)
   end
 end
