@@ -12,3 +12,4 @@ gem 'rack-test', require: "rack/test"
 gem 'factory_girl'
 gem 'simplecov'
 gem 'database_cleaner'
+gem 'pry'

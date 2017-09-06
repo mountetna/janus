@@ -23,20 +23,20 @@ describe UserLogController do
 
     it "gets a simple form" do
       refer = 'http://test.st'
-      get("/login?refer=#{refer}")
+      get("/?refer=#{refer}")
 
       expect(last_response.status).to eq(200)
       expect(last_response.body).to match(/value='#{refer}'/)
     end
 
     it "complains without credentials" do
-      json_post( :login, {} )
+      json_post( 'validate-login', {} )
       expect(last_response.status).to eq(422)
     end
 
     it "validates a password" do
       form_post(
-        :login, 
+        'validate-login', 
         email: @user.email,
         password: 'bassboard',
         app_key: @client.app_key
@@ -45,9 +45,9 @@ describe UserLogController do
     end
 
     it "redirects to refer with credentials" do
-      refer = "https://test.host"
+      refer = "https://#{Janus.instance.config(:token_domain)}"
       form_post(
-        :login, 
+        'validate-login', 
         email: @user.email,
         password: @password,
         app_key: @client.app_key,
