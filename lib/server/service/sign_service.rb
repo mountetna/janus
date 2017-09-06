@@ -38,4 +38,10 @@ module SignService
   def self.stringify_params(ordered_params)
     ordered_params.join
   end
+
+  # Generates a random string made of numbers and letters.
+  def self.generate_random(length)
+    o = [('a'..'z'), ('A'..'Z'), (0..9)].map(&:to_a).flatten
+    (0...length).map { o[rand(o.length)] }.join
+  end
 end

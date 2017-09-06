@@ -2,10 +2,10 @@ class Janus
   class Token < Sequel::Model
     many_to_one :user
 
-    def self.generate(pass_hash)
+    def self.generate
       params = [
         Time.now.getutc.to_s,
-        pass_hash,
+        SignService.generate_random(Janus.instance.config(:token_seed_length)),
         Janus.instance.config(:token_salt)
       ]
 

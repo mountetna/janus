@@ -31,7 +31,7 @@ class Janus
       expires = Time.now + Janus.instance.config(:token_life)
 
       add_token(
-        token: Janus::Token.generate(pass_hash), 
+        token: Janus::Token.generate, 
         token_login_stamp: Time.now,
         token_expire_stamp: expires,
         token_logout_stamp: expires
