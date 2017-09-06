@@ -1,4 +1,2 @@
-class Janus
-  class App < Sequel::Model
-  end
+class App < Sequel::Model
 end

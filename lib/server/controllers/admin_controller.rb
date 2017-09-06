@@ -6,22 +6,22 @@ class AdminController < Janus::Controller
 
   def get_users
     validate_admin_status
-    success_json(success: true, users: Janus::User.all.map(&:to_hash))
+    success_json(success: true, users: User.all.map(&:to_hash))
   end
 
   def get_projects
     validate_admin_status
-    success_json(success: true, projects: Janus::Project.all.map(&:to_hash))
+    success_json(success: true, projects: Project.all.map(&:to_hash))
   end
 
   def get_groups
     validate_admin_status
-    success_json(success: true, groups: Janus::Group.all)
+    success_json(success: true, groups: Group.all)
   end
 
   def get_permissions
     validate_admin_status
-    success_json(success: true, permissions: Janus::Permission.all.map(&:to_hash))
+    success_json(success: true, permissions: Permission.all.map(&:to_hash))
   end
 
   def upload_permissions
@@ -30,11 +30,11 @@ class AdminController < Janus::Controller
     raise Etna::BadRequest, 'No param: permissions' unless @params.key?(:permissions)
 
     saved = @params[:permissions].select do |perm|
-      user = Janus::User[email: perm['user_email']]
-      project = Janus::Project[project_name: perm['project_name']]
+      user = User[email: perm['user_email']]
+      project = Project[project_name: perm['project_name']]
 
       next if !user || !project
-      Janus::Permission.find_or_create(user: user, project: project) do |perm|
+      Permission.find_or_create(user: user, project: project) do |perm|
         perm.role = perm['role']
       end
     end
@@ -49,8 +49,8 @@ class AdminController < Janus::Controller
 
     deleted = @params[:permissions].select do |perm|
       # Check if the user and project are existant.
-      user = Janus::User[email: perm['user_email']]
-      project = Janus::Project[project_name: perm['project_name']]
+      user = User[email: perm['user_email']]
+      project = Project[project_name: perm['project_name']]
 
       next if !user || !project
 
@@ -58,7 +58,7 @@ class AdminController < Janus::Controller
       next if project.project_name == 'Administration'
 
       # Check if there is currently a permission with the user and project.
-      Janus::Permission.where(user_id: user.id, project_id: project.id).delete
+      Permission.where(user_id: user.id, project_id: project.id).delete
     end
 
     success_json(success: true, permissions: deleted)
@@ -66,7 +66,7 @@ class AdminController < Janus::Controller
 
   def logout_all
     validate_admin_status
-    success_json(success: true, logout_count: Janus::Token.expire_all!)
+    success_json(success: true, logout_count: Token.expire_all!)
   end
 
   private

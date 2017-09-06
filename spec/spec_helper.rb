@@ -130,19 +130,19 @@ RSpec.configure do |config|
 end
 
 FactoryGirl.define do
-  factory :app, class: Janus::App do
+  factory :app do
     to_create(&:save)
   end
-  factory :user, class: Janus::User do
+  factory :user do
     to_create(&:save)
   end
-  factory :token, class: Janus::Token do
+  factory :token do
     to_create(&:save)
   end
-  factory :permission, class: Janus::Permission do
+  factory :permission do
     to_create(&:save)
   end
-  factory :project, class: Janus::Project do
+  factory :project do
     to_create(&:save)
   end
 end

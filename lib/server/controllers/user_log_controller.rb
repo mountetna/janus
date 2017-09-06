@@ -12,7 +12,7 @@ class UserLogController < Janus::Controller
     raise Etna::BadRequest, 'Invalid email' if email == '(null)'
 
     # Get and check user. No password required.
-    user = Janus::User[email: email]
+    user = User[email: email]
     raise Etna::BadRequest, 'Invalid user' unless user 
 
     # Create a new token for the user.
@@ -51,7 +51,7 @@ class UserLogController < Janus::Controller
     end
 
     # Get and check user and then check the password.
-    user = Janus::User[email: @params[:email]]
+    user = User[email: @params[:email]]
 
     unless user && user.authorized?(@params[:password])
       raise Etna::BadRequest, 'Invalid login'

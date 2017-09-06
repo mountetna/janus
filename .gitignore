@@ -13,3 +13,4 @@ config.yml
 coverage
 public
 spec/examples.txt
+*.swp
