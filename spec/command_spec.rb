@@ -24,8 +24,26 @@ end
 
 describe Janus::AddUser do
   it "adds a user to the database" do
-    c = Janus::AddUser.new
+    email = "test_user@test.edu"
 
-    c.execute(email, first_name, last_name)
+    command = Janus::AddUser.new
+    command.execute(email, "Janus", "Two-faces")
+
+    user = Janus::User.first
+
+    expect(user.email).to eq(email)
+  end
+
+  it "updates if the user exists" do
+    email = "test_user@test.edu"
+    last_name = "Two-faces"
+    user = create(:user, email: email, first_name: "Janus", last_name: "One-face")
+
+    command = Janus::AddUser.new
+    command.execute(email, "Janus", last_name)
+
+    user.refresh
+
+    expect(user.last_name).to eq(last_name)
   end
 end

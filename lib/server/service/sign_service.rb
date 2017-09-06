@@ -1,29 +1,24 @@
 # General signing/hashing utilities.
 module SignService
-
-  # Creates an ordered array of items (which includes a password
-  # and salt) for hashing
-  def self.order_params(pass, salt)
-    params = [pass, salt]
-  end
-
   # Generate a hash for a plain-text password
   def self.hash_password(password)
     params = [ password, Janus.instance.config(:pass_salt) ]
-    self.signature(params, Janus.instance.config(:pass_algo)
+    self.signature(params, Janus.instance.config(:pass_algo))
   end
 
   # Generate a hash for a token
   def self.hash_token
     params = [
       Time.now.getutc.to_s,
-      pass_hash,
+      self.generate_random(
+        Janus.instance.config(:token_seed_length)
+      ),
       Janus.instance.config(:token_salt)
-    ] 
-    self.signature(params, Janus.instance.config(:token_algo)
+    ]
+    self.signature(params, Janus.instance.config(:token_algo))
   end
 
-  def self.signature(params)
+  def self.signature(params, algo)
     signature = case algo.downcase.to_sym
     when :md5
       sign_with_MD5(params)

@@ -30,5 +30,22 @@ class Janus
   end
 
   class AddUser < Etna::Command
+    usage '<email> <first_name> <last_name> [<password>]'
+    def execute email, first_name, last_name, password=nil
+      user = Janus::User.find_or_create(email: email)
+      user.tap do |user|
+        user.first_name = first_name
+        user.last_name  = last_name
+        if password
+          user.pass_hash = SignService::hash_password(password)
+        end
+        user.save
+      end
+    end
+
+    def setup(config)
+      Janus.instance.configure(config)
+      Janus.instance.setup_db
+    end
   end
 end
