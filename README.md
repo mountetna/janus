@@ -16,15 +16,17 @@ and it should look something like so...
     :host: localhost
     :database: janus
     :user: developer
-    :password: <%= developer_word %>
+    :password: <%= developer_password %>
     :search_path: [ private ]
   :pass_algo: sha256
   :pass_salt: <%= password_salt %>
   :token_algo: sha256
   :token_salt: <%= token_salt %>
   :token_name: JANUS_TOKEN
-  :token_domain: <% cookie_domain %>
-  :token_life: 86400   
+  :token_domain: <%= cookie_domain %>
+  :token_life: 86400
+  :token_seed_length: 128
+  :log_file: <%= log_file_path %>
 
 :test:
   :db:
@@ -32,7 +34,7 @@ and it should look something like so...
     :host: localhost
     :database: janus_test
     :user: developer
-    :password: <%= developer_word %>
+    :password: <%= developer_password %>
     :search_path: [ private ]
   :pass_algo: sha256
   :pass_salt: <%= password_salt %>
@@ -41,6 +43,8 @@ and it should look something like so...
   :token_name: JANUS_TOKEN
   :token_domain: <% cookie_domain %>
   :token_life: 86400
+  :token_seed_length: 128
+  :log_file: <%= log_file_path %>
 ```
 If you want to use Postgres you may need to set the 'schema' with `:search_path:`.
 
