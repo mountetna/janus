@@ -8,15 +8,12 @@ class Janus
         email: email,
         first_name: first_name, 
         last_name: last_name, 
-        user_id: id,
         token: valid_token.token,
         permissions:  permissions.map do |permission|
           {
             role: permission.role,
-            project_id: permission.project_id,
             project_name: permission.project.project_name,
             project_name_full: permission.project.project_name_full,
-            group_id: permission.project.group_id,
             group_name: permission.project.group.group_name
           }
         end
@@ -54,10 +51,7 @@ class Janus
       # A password can be 'nil' if one logs in via Shibboleth/MyAccess.
       return false unless pass_hash
 
-      client_hash = SignService::hash_password(
-        SignService::order_params(pass, Janus.instance.config(:pass_salt)),
-        Janus.instance.config(:pass_algo)
-      )
+      client_hash = SignService::hash_password(pass)
       return pass_hash == client_hash
     end
 

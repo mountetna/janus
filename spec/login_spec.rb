@@ -14,10 +14,7 @@ describe UserLogController do
       @user = create(
         :user,
         email: 'janus@mount.etna',
-        pass_hash: SignService.hash_password(
-          SignService.order_params(@password, Janus.instance.config(:pass_salt)),
-          Janus.instance.config(:pass_algo)
-        )
+        pass_hash: SignService.hash_password(@password)
       )
     end
 

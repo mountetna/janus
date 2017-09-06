@@ -25,9 +25,7 @@ class Janus
 
     def setup(config)
       Janus.instance.configure(config)
-
-      Janus.instance.connect(Janus.instance.config(:db))
-      require_relative 'server/models'
+      Janus.instance.setup_db
     end
   end
 
