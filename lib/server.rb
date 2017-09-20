@@ -28,16 +28,7 @@ class Janus
 
     def initialize(config)
       super
-      application.connect(application.config(:db))
-      load_models
-    end
-
-    private 
-
-    # At this point the postgres db should have it's connection and we can set
-    # up the Sequel models.
-    def load_models
-      require_relative 'server/models'
+      application.setup_db
     end
   end
 end

@@ -2,9 +2,11 @@ class Janus
   include Etna::Application
   attr_reader :db
 
-  def connect(db_config)
-    @db = Sequel.connect(db_config)
+  def setup_db
+    @db = Sequel.connect(config(:db))
     @db.extension :connection_validator
     @db.pool.connection_validation_timeout = -1
+
+    require_relative 'models'
   end
 end

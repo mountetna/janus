@@ -15,7 +15,7 @@ class Janus
 
     # Token comes from params but should probably come from headers.
     def token
-      @token ||= Janus::Token[token: @params[:token]]
+      @token ||= Token[token: @params[:token]]
     end
 
     # Janus only takes requests from authorized applications.
@@ -43,7 +43,7 @@ class Janus
 
     # Check to see if the application key is valid.
     def app_valid?(app_key)
-      return Janus::App[app_key: app_key]
+      return App[app_key: app_key]
     end
   end
 end
