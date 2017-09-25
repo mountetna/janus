@@ -15,7 +15,6 @@ require 'securerandom'
 # The application
 require_relative './lib/janus'
 require_relative './lib/server'
-require_relative './lib/server/service/sign_service'
 require_relative './lib/server/controllers/janus_controller'
 require_relative './lib/server/controllers/admin_controller'
 require_relative './lib/server/controllers/user_log_controller'
