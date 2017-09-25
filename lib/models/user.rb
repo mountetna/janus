@@ -21,8 +21,6 @@ class User < Sequel::Model
 
   # WARNING! In the event of a shibboleth login 'pass_hash' == nil!
   def create_token!
-    expire_tokens!
-
     # Time is in seconds, nil = no expiration
     expires = Time.now + Janus.instance.config(:token_life)
 
