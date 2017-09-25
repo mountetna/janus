@@ -20,7 +20,7 @@ describe UserLogController do
 
     it "gets a simple form" do
       refer = 'http://test.st'
-      get("/?refer=#{refer}")
+      get("/login?refer=#{refer}")
 
       expect(last_response.status).to eq(200)
       expect(last_response.body).to match(/value='#{refer}'/)
