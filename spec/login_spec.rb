@@ -68,22 +68,47 @@ describe UserLogController do
       expect(last_response.status).to eq(302)
     end
 
-    it 'sets the expiration time on the cookie correctly' do
-      form_post(
-        'validate-login', 
-        email: @user.email,
-        password: 'password',
-        app_key: @client.app_key,
-        refer: @refer
-      )
-      @user.refresh
-      token = @user.valid_token
-      cookies = parse_cookie(last_response.headers['Set-Cookie'])
-      cookie_time = Time.parse(cookies['expires'])
+    context 'cookie expiration time' do
+      it 'sets the expiration time on the cookie correctly for a new token' do
+        form_post(
+          'validate-login', 
+          email: @user.email,
+          password: 'password',
+          app_key: @client.app_key,
+          refer: @refer
+        )
+        @user.refresh
+        token = @user.valid_token
+        cookies = parse_cookie(last_response.headers['Set-Cookie'])
+        cookie_time = Time.parse(cookies['expires'])
 
-      expect(cookies[Janus.instance.config(:token_name)]).not_to be_nil
-      expect(cookie_time).to be_within(1).of(token.token_expire_stamp)
-      expect(last_response.status).to eq(302)
+        expect(cookies[Janus.instance.config(:token_name)]).not_to be_nil
+        expect(cookie_time).to be_within(1).of(token.token_expire_stamp)
+        expect(last_response.status).to eq(302)
+      end
+
+      it 'sets a fresh token on login' do
+        token = create( :token, user: @user, token: 'xyzzy',
+                       token_login_stamp: Time.now - 60,
+                       token_expire_stamp: Time.now+10,
+                       token_logout_stamp: Time.now+10)
+        form_post(
+          'validate-login', 
+          email: @user.email,
+          password: 'password',
+          app_key: @client.app_key,
+          refer: @refer
+        )
+        @user.refresh
+        valid_token = @user.valid_token
+        cookies = parse_cookie(last_response.headers['Set-Cookie'])
+        cookie_time = Time.parse(cookies['expires'])
+
+        expect(cookies[Janus.instance.config(:token_name)]).to eq(valid_token.token)
+        expect(cookies[Janus.instance.config(:token_name)]).not_to eq(token.token)
+        expect(cookie_time).to be_within(1).of(valid_token.token_expire_stamp)
+        expect(last_response.status).to eq(302)
+      end
     end
 
     it 'redirects to refer with credentials' do

@@ -1,6 +1,6 @@
 class User < Sequel::Model
   one_to_many :permissions
-  one_to_many :tokens
+  one_to_many :tokens, order: Sequel.desc(:token_login_stamp)
 
   def to_hash
     {
