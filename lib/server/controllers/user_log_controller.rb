@@ -26,10 +26,9 @@ class UserLogController < Janus::Controller
 
     # Check if the token is set. If not then show the login dialog.
     @params[:token] = pull_token_from_cookie
-    return erb_view(:login_form) if !token
 
     # Check if the token is valid. If not then show the login dialog.
-    return erb_view(:login_form) if !token_valid?
+    return erb_view(:login_form) unless token_valid?
 
     # Make sure the refer url is valid.
     unless refer_valid?(@params[:refer])
@@ -37,7 +36,9 @@ class UserLogController < Janus::Controller
     end
 
     # The token is valid and the refer is ok, so go ahead and redirect the user.
-    respond_with_cookie(token.user, @refer)
+    @response.redirect(@params[:refer], 302)
+
+    @response.finish
   end
 
   def validate_login
@@ -88,7 +89,7 @@ class UserLogController < Janus::Controller
       value: user.valid_token.token,
       path: '/',
       domain: Janus.instance.config(:token_domain),
-      expires: Time.now+Janus.instance.config(:token_life)
+      expires: user.valid_token.token_expire_stamp
     )
 
     return @response.finish
