@@ -19,13 +19,24 @@ class User < Sequel::Model
     }
   end
 
+  def jwt_payload
+    {
+      email: email,
+      first: first_name, 
+      last: last_name, 
+      perm:  permissions.group_by(&:role).sort_by(&:first).map do |role, perms|
+        [ role[0], perms.map{|p| p.project.project_name}.sort.join(",") ].join(":")
+      end.join(";")
+    }
+  end
+
   # WARNING! In the event of a shibboleth login 'pass_hash' == nil!
   def create_token!
     # Time is in seconds, nil = no expiration
     expires = Time.now.utc + Janus.instance.config(:token_life)
 
     add_token(
-      token: Token.generate, 
+      token: Token.generate(self), 
       token_login_stamp: Time.now.utc,
       token_expire_stamp: expires,
       token_logout_stamp: expires

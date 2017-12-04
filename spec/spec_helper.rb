@@ -2,7 +2,7 @@ require 'yaml'
 require 'json'
 require 'uri'
 require 'simplecov'
-require 'factory_girl'
+require 'factory_bot'
 require 'database_cleaner'
 require 'rack/test'
 
@@ -114,10 +114,10 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 =end
 
-  config.include FactoryGirl::Syntax::Methods
+  config.include FactoryBot::Syntax::Methods
 
   config.before(:suite) do
-    FactoryGirl.find_definitions
+    FactoryBot.find_definitions
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
   end
@@ -129,7 +129,7 @@ RSpec.configure do |config|
   end
 end
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :app do
     to_create(&:save)
   end

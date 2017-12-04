@@ -65,6 +65,7 @@ class Janus
   end
 
   class Permit < Etna::Command
+    usage '<email> <project_name> <role>'
     def execute email, project_name, role
       user = User[email: email]
       project = Project[project_name: project_name]

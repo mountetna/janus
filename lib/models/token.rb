@@ -1,19 +1,21 @@
 class Token < Sequel::Model
   many_to_one :user
 
-  def self.generate
-    SignService.hash_token
-  end
+  class << self
+    def generate(user)
+      SignService.jwt_token(user)
+    end
 
-  def self.expire_all!
-    now = Time.now
-    tokens = self.where('token_expire_stamp > ?', now)
-      .where('token_logout_stamp > ?', now)
+    def expire_all!
+      now = Time.now
+      tokens = self.where('token_expire_stamp > ?', now)
+        .where('token_logout_stamp > ?', now)
 
-    count = tokens.count
-    tokens.update( token_logout_stamp: now )
+      count = tokens.count
+      tokens.update( token_logout_stamp: now )
 
-    return count
+      return count
+    end
   end
 
   def valid?
