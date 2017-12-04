@@ -1,6 +1,6 @@
 # The packages
 require 'bundler'
-Bundler.require(:default)
+Bundler.require(:default, ENV["JANUS_ENV"].to_sym)
 
 require 'json'
 require 'yaml'

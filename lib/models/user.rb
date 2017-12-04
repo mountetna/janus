@@ -36,7 +36,7 @@ class User < Sequel::Model
     expires = Time.now.utc + Janus.instance.config(:token_life)
 
     add_token(
-      token: Token.generate(self), 
+      token: Token.generate(self, expires), 
       token_login_stamp: Time.now.utc,
       token_expire_stamp: expires,
       token_logout_stamp: expires

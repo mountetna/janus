@@ -22,17 +22,17 @@ describe User do
     perm = create(:permission, project: gateway, user: user, role: 'editor')
     perm = create(:permission, project: tunnel, user: user, role: 'viewer')
 
-    t1 = user.create_token!
+    token = user.create_token!
 
-    t1.refresh
+    token.refresh
 
-    expect(t1.token).to match(%r!^[\w\-,]+\.[\w\-,]+\.[\w\-,]+$!)
+    expect(token.token).to match(%r!^[\w\-,]+\.[\w\-,]+\.[\w\-,]+$!)
 
     rsa_private = SignService.rsa_key
     rsa_public = rsa_private.public_key
 
     payload, headers = JWT.decode(
-      t1.token, 
+      token.token, 
       rsa_public,
       true, 
       algorithm: Janus.instance.config(:token_algo)
@@ -42,5 +42,37 @@ describe User do
     expect(payload['first']).to eq(user.first_name)
     expect(payload['last']).to eq(user.last_name)
     expect(payload['perm']).to eq('e:gateway,mirror;v:tunnel')
+  end
+
+  it 'expires the JWT' do
+    now = Time.now
+    Timecop.freeze(now)
+
+    user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
+
+    token = user.create_token!
+
+    rsa_private = SignService.rsa_key
+    rsa_public = rsa_private.public_key
+
+    expect {
+        payload, headers = JWT.decode(
+        token.token, 
+        rsa_public,
+        true, 
+        algorithm: Janus.instance.config(:token_algo)
+      )
+    }.not_to raise_error(JWT::ExpiredSignature)
+
+    Timecop.freeze(now + Janus.instance.config(:token_life) + 10) do
+      expect {
+        payload, headers = JWT.decode(
+          token.token, 
+          rsa_public,
+          true, 
+          algorithm: Janus.instance.config(:token_algo)
+        )
+      }.to raise_error(JWT::ExpiredSignature)
+    end
   end
 end

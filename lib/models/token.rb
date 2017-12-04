@@ -2,8 +2,10 @@ class Token < Sequel::Model
   many_to_one :user
 
   class << self
-    def generate(user)
-      SignService.jwt_token(user)
+    def generate(user, expires)
+      SignService.jwt_token(
+        user.jwt_payload.merge(exp: expires.to_i)
+      )
     end
 
     def expire_all!

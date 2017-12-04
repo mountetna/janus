@@ -9,9 +9,9 @@ module SignService
       )
     end
 
-    def jwt_token(user)
+    def jwt_token(payload)
       return JWT.encode(
-        user.jwt_payload, 
+        payload,
         rsa_key,
         Janus.instance.config(:token_algo)
       )
