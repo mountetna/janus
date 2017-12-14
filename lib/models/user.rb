@@ -59,7 +59,7 @@ class User < Sequel::Model
     # A password can be 'nil' if one logs in via Shibboleth/MyAccess.
     return false unless pass_hash
 
-    client_hash = SignService::hash_password(pass)
+    client_hash = Janus.instance.sign.hash_password(pass)
     return pass_hash == client_hash
   end
 

@@ -37,7 +37,7 @@ class Janus
         user.first_name = first_name
         user.last_name  = last_name
         if password
-          user.pass_hash = SignService::hash_password(password)
+          user.pass_hash = Janus.instance.sign.hash_password(password)
         end
         user.save
       end

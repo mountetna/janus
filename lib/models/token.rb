@@ -3,7 +3,7 @@ class Token < Sequel::Model
 
   class << self
     def generate(user, expires)
-      SignService.jwt_token(
+      Janus.instance.sign.jwt_token(
         user.jwt_payload.merge(exp: expires.to_i)
       )
     end

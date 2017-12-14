@@ -28,15 +28,7 @@ describe User do
 
     expect(token.token).to match(%r!^[\w\-,]+\.[\w\-,]+\.[\w\-,]+$!)
 
-    rsa_private = SignService.rsa_key
-    rsa_public = rsa_private.public_key
-
-    payload, headers = JWT.decode(
-      token.token, 
-      rsa_public,
-      true, 
-      algorithm: Janus.instance.config(:token_algo)
-    )
+    payload, headers = Janus.instance.sign.jwt_decode(token.token)
 
     expect(payload['email']).to eq(user.email)
     expect(payload['first']).to eq(user.first_name)
@@ -52,7 +44,7 @@ describe User do
 
     token = user.create_token!
 
-    rsa_private = SignService.rsa_key
+    rsa_private = Janus.instance.sign.private_key
     rsa_public = rsa_private.public_key
 
     expect {

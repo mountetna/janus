@@ -1,5 +1,3 @@
-require_relative './service/sign_service'
-
 class Janus
   include Etna::Application
   attr_reader :db
