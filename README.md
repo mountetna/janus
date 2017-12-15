@@ -1,10 +1,9 @@
 ## Janus Auth Server
 This is a simple authentication server written in Ruby/Rack/Thin
 
-### Some notes about setting up.
+### Configuration
 
-You are going to need a `config.yml` file which will contain your app secrets 
-and it should look something like so...
+Janus is an Etna application and puts all of its configuration into a `config.yml`. Example:
 
 `./config.yml`
 
@@ -19,14 +18,14 @@ and it should look something like so...
     :password: <%= developer_password %>
     :search_path: [ private ]
   :pass_algo: sha256
-  :pass_salt: <%= password_salt %>
+  :pass_salt: <password_salt>
   :token_algo: sha256
-  :token_salt: <%= token_salt %>
+  :token_salt: <token_salt>
   :token_name: JANUS_TOKEN
-  :token_domain: <%= cookie_domain %>
+  :token_domain: <cookie_domain>
   :token_life: 86400
   :token_seed_length: 128
-  :log_file: <%= log_file_path %>
+  :log_file: <log_file_path>
 
 :test:
   :db:
@@ -34,54 +33,61 @@ and it should look something like so...
     :host: localhost
     :database: janus_test
     :user: developer
-    :password: <%= developer_password %>
+    :password: <developer_password>
     :search_path: [ private ]
   :pass_algo: sha256
-  :pass_salt: <%= password_salt %>
+  :pass_salt: <password_salt>
   :token_algo: sha256
-  :token_salt: <%= token_salt %>
+  :token_salt: <token_salt>
   :token_name: JANUS_TOKEN
-  :token_domain: <% cookie_domain %>
+  :token_domain: <cookie_domain>
   :token_life: 86400
   :token_seed_length: 128
-  :log_file: <%= log_file_path %>
+  :log_file: <log_file_path>
 ```
+
 If you want to use Postgres you may need to set the 'schema' with `:search_path:`.
 
-### Notes about database setup.
+# Authenticating
 
-See `./db/README.md`
+Janus authenticates by yielding a JSON web token (JWT).
+Client applications may verify this token using Janus's
+public key, most likely through the Etna::Auth rack
+middleware.
 
-### To start the Thin server.
+There are two ways to get a token:
+
+## Logins
+
+The endpoint `/login` will either display an HTML form for password entry or send you to a Shibboleth-protected endpoint for authentication. If successful, Janus will set a cookie with the token in the response. This endpoint is most suitable for browser applications.
+
+## Generating a token
+
+Machine users who hold no truck with browsers can use a registered public key to generate a token.
+
+The endpoint `/time-signature` returns a cryptographic nonce. The user signs the nonce, base64-encodes the signature, and concatenates the result to the nonce.
+
+The endpoint `/generate` returns a valid token if the `Authorization` header is set to the appropriate value.
+
+Here is a bash script that will successfully generate a Janus token on most systems (you need 'openssl', 'wget' and 'base64' utilities).
 
 ```
-$ cd /var/www/janus
-$ thin start -d -a 127.0.0.1 -p 3000
+#!/bin/bash
+
+# The base URL for janus
+JANUS_URL=$1
+# Your secret key file in PEM format
+PEM=$2
+# Your email address
+EMAIL=$(echo -n $3 | base64 -w 0)
+
+NONCE=$(wget -q -O - $JANUS_URL/time-signature)
+
+SIG=$(echo -n $NONCE.$EMAIL | openssl dgst -sha256 -sign $PEM | base64 -w 0)
+
+AUTH=$NONCE.$EMAIL.$SIG
+
+TOKEN=$(wget -q -O - --header="Authorization: Basic $AUTH" $JANUS_URL/generate )
+
+echo $TOKEN
 ```
-
-### To stop the Thin server.
-
-```
-$ cd /var/www/janus
-$ kill `cat tmp/pids/thin.pid`
-```
-
-### Notes for local development.
-When I initially developed this application I was using a Linux VM under virtual box. Here are a few commands I needed to get going.
-
-#### Install the Virtual Box Guest Tools in Debian
-
-```
-$ sudo apt-get install virtualbox-guest-additions-iso
-$ sudo apt-get install virtualbox-guest-utils
-```
-
-#### Mount Janus folder in the VM
-I was using a shared folder on the VM, here is how to mount that folder in the VM.
-
-  `$ sudo mount -t vboxsf -o rw,uid=1000,gid=1000 janus /var/www/janus`
-
-#### Enable symlinking for the shared project folder (using Virtual Box)
-If you are running this application in a VM with a shared folder you will need run the VM Hypervisor as root AND will need to enable symlinking on the project folder to install the appropriate npm modules. Keep in mind that you run this command on the host; not the guest.
-
-  `$ sudo VBoxManage setextradata [name of the VM] VBoxInternal2/SharedFoldersEnableSymlinksCreate/[name of the shared folder] 1`

@@ -95,22 +95,26 @@ class AuthorizationController < Janus::Controller
     # their signature
     return failure(401, 'Validation token was not presented.') unless auth_token
 
-    timesig, email, signature = auth_token.split(/\./)
+    timesig64, email64, signature64 = auth_token.split(/\./)
 
     noauth = 'You are unauthorized'
 
     # validate the timesig
-    timestamp, nonce_sig = Base64.decode64(timesig).split(/\./)
+    timestamp, nonce_sig = Base64.decode64(timesig64).split(/\./)
 
-    return failure(401, noauth) unless Janus::Nonce.new(timestamp).to_s == timesig
+    return failure(401, noauth) unless Janus::Nonce.new(timestamp).to_s == timesig64
 
+
+    # validate the email
+    email = Base64.decode64(email64)
+    return failure(401, noauth) if email =~ /[^[:print:]]/
 
     # find the user
-    user = User[email: Base64.decode64(email)]
+    user = User[email: email]
     return failure(401, noauth) unless user
 
     # check the user's signature
-    unless user.valid_signature?("#{timesig}.#{email}", Base64.decode64(signature))
+    unless user.valid_signature?("#{timesig64}.#{email64}", Base64.decode64(signature64))
       return failure(401, noauth) 
     end
 
