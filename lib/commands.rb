@@ -90,4 +90,25 @@ class Janus
       Janus.instance.setup_db
     end
   end
+  class Migrate < Etna::Command
+    usage 'Run migrations for the current environment.'
+    
+    def execute(version=nil)
+      Sequel.extension(:migration)
+      db = Janus.instance.db
+
+      if version
+        puts "Migrating to version #{version}"
+        Sequel::Migrator.run(db, 'db/migrations', target: version.to_i)
+      else
+        puts 'Migrating to latest'
+        Sequel::Migrator.run(db, 'db/migrations')
+      end
+    end
+
+    def setup(config)
+      super
+      Janus.instance.setup_db(false)
+    end
+  end
 end
