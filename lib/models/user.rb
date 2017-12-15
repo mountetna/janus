@@ -55,6 +55,20 @@ class User < Sequel::Model
     valid_tokens.each(&:invalidate!)
   end
 
+  def valid_signature?(text, signature)
+    return nil unless public_key
+
+    pkey = OpenSSL::PKey::RSA.new(public_key)
+
+    verified = pkey.verify(
+      OpenSSL::Digest::SHA256.new,
+      signature, text
+    )
+    OpenSSL.errors.clear
+
+    return verified
+  end
+
   def authorized?(pass)
     # A password can be 'nil' if one logs in via Shibboleth/MyAccess.
     return false unless pass_hash

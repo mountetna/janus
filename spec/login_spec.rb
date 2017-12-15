@@ -1,4 +1,4 @@
-describe UserLogController do
+describe AuthorizationController do
   include Rack::Test::Methods
 
   def app

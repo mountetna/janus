@@ -4,12 +4,17 @@ class Janus
 
     # Only one of these two end points gets used. If you are using Shibboleth
     # then enable the appropriate end point.
-    get '/login', action: 'user_log#login'
-    #get '/login', 'user_log#login_shib'
+    get '/login', action: 'authorization#login'
+    #get '/login', 'authorization#login_shib'
+    
+    post '/validate-login', action: 'authorization#validate_login'
+    post '/logout', action: 'authorization#log_out'
+    post '/check', action: 'authorization#check_log'
 
-    post '/validate-login', action: 'user_log#validate_login'
-    post '/logout', action: 'user_log#log_out'
-    post '/check', action: 'user_log#check_log'
+    # This generates nonces
+    get '/time-signature', action: 'authorization#time_signature'
+    # This uses a signed nonce to generate a new token
+    get '/generate', action: 'authorization#generate'
 
     # Administrative endpoints.
     post '/check-admin', action: 'admin#check_admin'
