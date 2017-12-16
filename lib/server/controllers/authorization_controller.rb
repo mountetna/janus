@@ -100,10 +100,7 @@ class AuthorizationController < Janus::Controller
     noauth = 'You are unauthorized'
 
     # validate the timesig
-    timestamp, nonce_sig = Base64.decode64(timesig64).split(/\./)
-
-    return failure(401, noauth) unless Janus::Nonce.new(timestamp).to_s == timesig64
-
+    return failure(401, noauth) unless Janus::Nonce.valid?(timesig64)
 
     # validate the email
     email = Base64.decode64(email64)

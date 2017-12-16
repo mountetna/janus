@@ -66,5 +66,7 @@ describe User do
         )
       }.to raise_error(JWT::ExpiredSignature)
     end
+
+    Timecop.return
   end
 end

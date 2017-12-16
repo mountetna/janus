@@ -33,7 +33,7 @@ describe "Token Generation" do
   end
 
   it "returns a signed timestamp token" do
-    Timecop.freeze
+    Timecop.freeze(Time.now)
     get('/time-signature')
 
     expect(last_response.status).to eq(200)
@@ -42,6 +42,7 @@ describe "Token Generation" do
     date = DateTime.parse(date)
     expect(date.iso8601).to eq(DateTime.now.iso8601)
     expect(sig).to match(/\A[0-9a-f]+\z/)
+    Timecop.return
   end
 
   it "allows token generation with a user signature" do
@@ -108,5 +109,32 @@ describe "Token Generation" do
 
     # The request is rejected
     expect(last_response.status).to eq(401)
+  end
+
+  it "rejects token generation if the nonce is stale" do
+    # First the user gets a nonce
+    now = Time.now
+    Timecop.freeze(now)
+
+    get('/time-signature')
+
+    # Encode your authorization request
+    request = request_token(@rsa_key, last_response.body,'janus@mount.etna')
+
+    # Before 60 seconds it is valid
+    Timecop.freeze(now + 40) do
+      header('Authorization', "Basic #{request}")
+      get('/generate')
+      expect(last_response.status).to eq(200)
+    end
+
+    # After 60 seconds it is invalid
+    Timecop.freeze(now + 60) do
+      header('Authorization', "Basic #{request}")
+      get('/generate')
+      expect(last_response.status).to eq(401)
+    end
+
+    Timecop.return
   end
 end
