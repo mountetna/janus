@@ -55,6 +55,8 @@ class AuthorizationController < Janus::Controller
     # Get and check user and then check the password.
     user = User[email: @params[:email]]
 
+    @logger.warn(user.pass_hash)
+    @logger.warn(Janus.instance.sign.hash_password(@params[:password]))
     unless user && user.authorized?(@params[:password])
       raise Etna::BadRequest, 'Invalid login'
     end
@@ -85,7 +87,6 @@ class AuthorizationController < Janus::Controller
     # The message is the current moment in ISO
     # format
     return success(
-      'text/plain', 
       Janus::Nonce.new(DateTime.now.iso8601).to_s
     )
   end
@@ -117,7 +118,7 @@ class AuthorizationController < Janus::Controller
 
     user.create_token!
 
-    return success('text/plain', user.valid_token.token)
+    return success(user.valid_token.token)
   end
 
   private
