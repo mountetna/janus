@@ -160,7 +160,7 @@ end
 
 def form_post endpoint, hash
   post(
-    "/#{endpoint}",
+    "http://#{Janus.instance.config(:token_domain)}/#{endpoint}",
     URI.encode_www_form(hash),
     {
       'CONTENT_TYPE' => 'application/x-www-form-urlencoded'
