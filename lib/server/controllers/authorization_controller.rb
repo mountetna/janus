@@ -55,8 +55,6 @@ class AuthorizationController < Janus::Controller
     # Get and check user and then check the password.
     user = User[email: @params[:email]]
 
-    @logger.warn(user.pass_hash)
-    @logger.warn(Janus.instance.sign.hash_password(@params[:password]))
     unless user && user.authorized?(@params[:password])
       raise Etna::BadRequest, 'Invalid login'
     end
