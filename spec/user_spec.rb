@@ -14,13 +14,14 @@ describe User do
 
   it 'returns a JWT' do
     user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
-    mirror = create(:project, project_name: 'mirror', project_name_full: 'Mirror')
     gateway = create(:project, project_name: 'gateway', project_name_full: 'Gateway')
     tunnel = create(:project, project_name: 'tunnel', project_name_full: 'Tunnel')
+    mirror = create(:project, project_name: 'mirror', project_name_full: 'Mirror')
 
+    # the JWT will include a string encoding these permissions
+    perm = create(:permission, project: tunnel, user: user, role: 'viewer', restricted: true)
     perm = create(:permission, project: mirror, user: user, role: 'editor')
     perm = create(:permission, project: gateway, user: user, role: 'editor')
-    perm = create(:permission, project: tunnel, user: user, role: 'viewer')
 
     token = user.create_token!
 
@@ -33,7 +34,9 @@ describe User do
     expect(payload['email']).to eq(user.email)
     expect(payload['first']).to eq(user.first_name)
     expect(payload['last']).to eq(user.last_name)
-    expect(payload['perm']).to eq('e:gateway,mirror;v:tunnel')
+
+    # The permissions are grouped by role (a,e,v) with upper case for restricted access
+    expect(payload['perm']).to eq('V:tunnel;e:gateway,mirror')
   end
 
   it 'expires the JWT' do

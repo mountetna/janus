@@ -24,8 +24,10 @@ class User < Sequel::Model
       email: email,
       first: first_name, 
       last: last_name, 
-      perm:  permissions.group_by(&:role).sort_by(&:first).map do |role, perms|
-        [ role[0], perms.map{|p| p.project.project_name}.sort.join(",") ].join(":")
+
+      # Encode permissions as a string e.g. "a:p1,p2;e:p3;v:p4"
+      perm:  permissions.map(&:project_role).group_by(&:first).sort_by(&:first).map do |role_key, project_roles|
+        [ role_key, project_roles.map(&:last).sort.join(",") ].join(":")
       end.join(";")
     }
   end

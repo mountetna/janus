@@ -14,4 +14,12 @@ class Permission < Sequel::Model
       group_name: project.group.group_name
     }
   end
+
+  def role_key
+    restricted ? role[0].upcase : role[0]
+  end
+
+  def project_role
+    [ role_key, project.project_name ]
+  end
 end
