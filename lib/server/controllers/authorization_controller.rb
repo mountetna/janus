@@ -92,6 +92,9 @@ class AuthorizationController < Janus::Controller
   def generate
     # The user must authorize the request with
     # their signature
+    
+    auth_token = (@request.env['HTTP_AUTHORIZATION'] || '')[ /\ASigned-Nonce (.*)\z/, 1 ]
+
     return failure(401, 'Validation token was not presented.') unless auth_token
 
     timesig64, email64, signature64 = auth_token.split(/\./)
