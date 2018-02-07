@@ -49,6 +49,38 @@ class Janus
     end
   end
 
+  class AddKey < Etna::Command
+    usage '<email> <pem_file>'
+    def execute email, pem_file
+      user = User[email: email]
+      if !user
+        puts "User not found."
+        exit
+      end
+
+      if !File.exists?(pem_file)
+        puts "No such key file"
+        exit
+      end
+
+      pem = File.read(pem_file)
+      begin
+        key = OpenSSL::PKey::RSA.new(pem)
+      rescue
+        puts "Could not parse key file!"
+        exit
+      end
+
+      user.public_key = pem
+      user.save
+    end
+
+    def setup(config)
+      Janus.instance.configure(config)
+      Janus.instance.setup_db
+    end
+  end
+
   class AddProject < Etna::Command
     usage '<project_name> <project_name_full>'
     def execute project_name, project_name_full
