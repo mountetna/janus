@@ -5,6 +5,10 @@ describe "Token Generation" do
     OUTER_APP
   end
 
+  def auth_header(token)
+    header('Authorization', "Signed-Nonce #{token}")
+  end
+
   def request_token rsa_key, nonce, email
     payload = [
       nonce,
@@ -52,7 +56,7 @@ describe "Token Generation" do
     # Encode your authorization request
     request = request_token(@rsa_key, last_response.body,'janus@mount.etna')
 
-    header('Authorization', "Basic #{request}")
+    auth_header(request)
     get('/generate')
 
     expect(last_response.status).to eq(200)
@@ -74,7 +78,7 @@ describe "Token Generation" do
     # We sign it correctly as ourselves
     request = request_token(@rsa_key, fake_nonce, 'janus@mount.etna')
 
-    header 'Authorization', "Basic #{request}"
+    header 'Authorization', "Signed-Nonce #{request}"
     get('/generate')
 
     # The request is rejected
@@ -88,7 +92,7 @@ describe "Token Generation" do
     # But we ask for the wrong identity
     request = request_token(@rsa_key, last_response.body,'polyphemus@mount.etna')
 
-    header 'Authorization', "Basic #{request}"
+    header 'Authorization', "Signed-Nonce #{request}"
     get('/generate')
 
     # The request is rejected
@@ -104,7 +108,7 @@ describe "Token Generation" do
 
     request = request_token(bad_rsa_key, last_response.body,'janus@mount.etna')
 
-    header 'Authorization', "Basic #{request}"
+    header 'Authorization', "Signed-Nonce #{request}"
     get('/generate')
 
     # The request is rejected
@@ -123,14 +127,14 @@ describe "Token Generation" do
 
     # Before 60 seconds it is valid
     Timecop.freeze(now + 40) do
-      header('Authorization', "Basic #{request}")
+      auth_header(request)
       get('/generate')
       expect(last_response.status).to eq(200)
     end
 
     # After 60 seconds it is invalid
     Timecop.freeze(now + 60) do
-      header('Authorization', "Basic #{request}")
+      auth_header(request)
       get('/generate')
       expect(last_response.status).to eq(401)
     end
