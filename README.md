@@ -1,67 +1,61 @@
-## Janus Auth Server
-This is a simple authentication server written in Ruby/Rack/Thin
+# Janus Auth Server
+Janus is an authentication and identity service for Etna applications. It is
+based on the [etna](https://github.com/mountetna/etna) gem.
 
-### Configuration
+Janus implements the basic user and project structure of Etna applications.
 
-Janus is an Etna application and puts all of its configuration into a `config.yml`. Example:
+## Users
 
-`./config.yml`
+A Janus user is primarily identified by an email address. You may
+add users via the `bin/janus add_user` command.
 
-```
----
-:development:
-  :db:
-    :adapter: postgres
-    :host: localhost
-    :database: janus
-    :user: developer
-    :password: <%= developer_password %>
-    :search_path: [ private ]
-  :pass_algo: sha256
-  :pass_salt: <password_salt>
-  :token_algo: sha256
-  :token_salt: <token_salt>
-  :token_name: JANUS_TOKEN
-  :token_domain: <cookie_domain>
-  :token_life: 86400
-  :token_seed_length: 128
-  :log_file: <log_file_path>
+See below on how users may authenticate.
 
-:test:
-  :db:
-    :adapter: postgres
-    :host: localhost
-    :database: janus_test
-    :user: developer
-    :password: <developer_password>
-    :search_path: [ private ]
-  :pass_algo: sha256
-  :pass_salt: <password_salt>
-  :token_algo: sha256
-  :token_salt: <token_salt>
-  :token_name: JANUS_TOKEN
-  :token_domain: <cookie_domain>
-  :token_life: 86400
-  :token_seed_length: 128
-  :log_file: <log_file_path>
-```
+## Projects
 
-If you want to use Postgres you may need to set the 'schema' with `:search_path:`.
+A 'project' is the entity that produced a particular data set.
+You may add projects using the `bin/janus add_project` command.
+Generally Etna applications communicate using the
+`project_name` and rarely `The Full Name of the Project`.
+
+## Permissions
+
+Users are granted specific permissions on each project. A permission consists of:
+  * user
+  * project
+  * role - either of `[ 'administrator', 'editor', 'viewer' ]`
+  * restricted - true if the user can see the project's restricted data
+You may add permissions using the `bin/janus permit` command.
+
+# Identification
+
+Janus provides identity by yielding a JSON web token (JWT).  Client
+applications may verify this token using Janus's public key, most likely
+through the Etna::Auth rack middleware.
+
+The token format is: `<header>.<params>.<signature>`
+
+Each section is a base64-encoded JSON hash. The params Janus reports are: 
+`{ email, first, last, perm }` - the latter encodes the user's project
+permissions.
 
 # Authenticating
 
-Janus authenticates by yielding a JSON web token (JWT).
-Client applications may verify this token using Janus's
-public key, most likely through the Etna::Auth rack
-middleware.
+There are three ways to get a token:
 
-There are two ways to get a token:
+## Password login
 
-## Logins
+The endpoint `/login` can be configured to display an HTML form for password
+entry. If successful, Janus will set a cookie with the token in the response.
+This endpoint is mostly useful for developers.
 
-The endpoint `/login` will either display an HTML form for password entry or send you to a Shibboleth-protected endpoint for authentication. If successful, Janus will set a cookie with the token in the response. This endpoint is most suitable for browser applications.
+## Shibboleth login
 
-## Generating a token
+The `/login` endpoint can also be configured as a Shibboleth-protected endpoint
+for authentication. If successful, Janus will set a cookie with the token in
+the response. This endpoint is most suitable for browser applications.
+
+## Public-key login
 
 Machine users who hold no truck with browsers can use a registered public key to generate a token.
 
@@ -87,7 +81,73 @@ SIG=$(echo -n $NONCE.$EMAIL | openssl dgst -sha256 -sign $PEM | base64 -w 0)
 
 AUTH=$NONCE.$EMAIL.$SIG
 
-TOKEN=$(wget -q -O - --header="Authorization: Basic $AUTH" $JANUS_URL/generate )
+TOKEN=$(wget -q -O - --header="Authorization: Signed-Nonce $AUTH" $JANUS_URL/generate )
 
 echo $TOKEN
 ```
+
+### Configuration
+
+Janus is an Etna application and puts all of its configuration into a `config.yml` YAML file.
+
+Example:
+
+`./config.yml`
+
+```
+---
+:development:
+
+  # db connection made using sequel + pg gems,
+  # see those for options
+
+  :db:
+    :adapter: postgres
+    :host: localhost
+    :database: janus
+    :user: developer
+    :password: <%= developer_password %>
+
+    # We recommend using the 'private' search path
+    :search_path: [ private ]
+
+  # How Janus should generate passwords (using Etna::SignService)
+  :pass_algo: sha256
+  :pass_salt: <password_salt>
+
+  # Token generation options
+  :token_algo: sha256
+  :token_name: JANUS_TOKEN
+  :token_domain: <cookie_domain>
+  :token_life: 86400
+
+  # Janus private key
+  :rsa_private: |
+    -----BEGIN RSA PRIVATE KEY-----
+    TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBp\nc2
+    NpbmcgZWxpdA==
+    -----END RSA PRIVATE KEY-----
+
+  :log_file: <log_file_path>
+
+:test:
+  :db:
+    :adapter: postgres
+    :host: localhost
+    :database: janus_test
+    :user: developer
+    :password: <developer_password>
+    :search_path: [ private ]
+  :pass_algo: sha256
+  :pass_salt: <password_salt>
+  :token_algo: sha256
+  :token_salt: <token_salt>
+  :token_name: JANUS_TOKEN
+  :token_domain: <cookie_domain>
+  :token_life: 86400
+  :token_seed_length: 128
+  :log_file: <log_file_path>
+```
+
+If you want to use Postgres you may need to set the 'schema' with `:search_path:`.
+
