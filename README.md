@@ -86,7 +86,7 @@ TOKEN=$(wget -q -O - --header="Authorization: Signed-Nonce $AUTH" $JANUS_URL/gen
 echo $TOKEN
 ```
 
-### Configuration
+# Configuration
 
 Janus is an Etna application and puts all of its configuration into a `config.yml` YAML file.
 
@@ -151,3 +151,7 @@ Example:
 
 If you want to use Postgres you may need to set the 'schema' with `:search_path:`.
 
+## Generating keys
+
+Janus relies on a RSA public and private key pair. You may generate keys in PEM
+format using the command `bin/janus generate_key_pair <key_size>`.

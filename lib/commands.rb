@@ -49,7 +49,7 @@ class Janus
     end
   end
 
-  class AddKey < Etna::Command
+  class AddUserKey < Etna::Command
     usage '<email> <pem_file>'
     def execute email, pem_file
       user = User[email: email]
@@ -122,8 +122,9 @@ class Janus
       Janus.instance.setup_db
     end
   end
+
   class Migrate < Etna::Command
-    usage 'Run migrations for the current environment.'
+    usage '[<version number>] # blank to migrate to the latest'
     
     def execute(version=nil)
       Sequel.extension(:migration)
@@ -141,6 +142,34 @@ class Janus
     def setup(config)
       super
       Janus.instance.setup_db(false)
+    end
+  end
+
+  class GenerateKeyPair < Etna::Command
+    usage '<key_size> # Generate a private/public key pair in PEM format'
+
+    def execute(key_size)
+      key_size = key_size.to_i
+
+      if key_size < 1024
+        puts "Your key size is too small"
+        exit
+      end
+
+      if Math.log(key_size,2) != Math.log(key_size,2).to_i
+        puts "Key size must be a power of 2"
+        exit
+      end
+
+      private_key = Janus.instance.sign.generate_private_key(key_size)
+
+      puts "Private key:"
+      puts private_key
+
+      puts
+
+      puts "Public key:"
+      puts private_key.public_key
     end
   end
 end
