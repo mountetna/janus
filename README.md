@@ -25,6 +25,7 @@ Users are granted specific permissions on each project. A permission consists of
   * project
   * role - either of `[ 'administrator', 'editor', 'viewer' ]`
   * restricted - true if the user can see the project's restricted data
+
 You may add permissions using the `bin/janus permit` command.
 
 # Identification
