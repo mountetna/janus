@@ -25,11 +25,10 @@ class UserLogController < Janus::Controller
     @refer = @params[:refer]
 
     # Check if the token is set. If not then show the login dialog.
-    @params[:token] = pull_token_from_cookie
-    return erb_view(:login_form) if !token
+    @params[:token] = @request.cookies[Janus.instance.config(:token_name)]
 
     # Check if the token is valid. If not then show the login dialog.
-    return erb_view(:login_form) if !token_valid?
+    return erb_view(:login_form) unless token_valid?
 
     # Make sure the refer url is valid.
     unless refer_valid?(@params[:refer])
@@ -37,7 +36,9 @@ class UserLogController < Janus::Controller
     end
 
     # The token is valid and the refer is ok, so go ahead and redirect the user.
-    respond_with_cookie(token.user, @refer)
+    @response.redirect(@params[:refer], 302)
+
+    @response.finish
   end
 
   def validate_login
@@ -88,7 +89,7 @@ class UserLogController < Janus::Controller
       value: user.valid_token.token,
       path: '/',
       domain: Janus.instance.config(:token_domain),
-      expires: Time.now+Janus.instance.config(:token_life)
+      expires: user.valid_token.token_expire_stamp
     )
 
     return @response.finish
@@ -123,21 +124,5 @@ class UserLogController < Janus::Controller
 
     # Check to make sure the refer comes from the same domain as the token.
     return host == Janus.instance.config(:token_domain) ? true : false
-  end
-
-  # Check to see if there is a Janus cookie set, and if it is valid.
-  def pull_token_from_cookie
-    tkn = nil
-    return tkn unless @request.env['HTTP_COOKIE']
-
-    cookies = @request.env['HTTP_COOKIE'].split(';')
-    cookies.each do |cookie|
-      if cookie.include?(Janus.instance.config(:token_name))
-        tkn = cookie.split('=')[1]
-        break
-      end
-    end
-
-    return tkn
   end
 end

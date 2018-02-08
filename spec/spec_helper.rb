@@ -176,3 +176,7 @@ end
 def config
   Janus.instance.instance_variable_get("@config")
 end
+
+def parse_cookie set_cookie
+  Hash[set_cookie.split(/; /).map { |param| param.split(/=/) }]
+end

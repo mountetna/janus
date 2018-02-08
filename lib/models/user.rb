@@ -1,6 +1,6 @@
 class User < Sequel::Model
   one_to_many :permissions
-  one_to_many :tokens
+  one_to_many :tokens, order: Sequel.desc(:token_login_stamp)
 
   def to_hash
     {
@@ -22,11 +22,11 @@ class User < Sequel::Model
   # WARNING! In the event of a shibboleth login 'pass_hash' == nil!
   def create_token!
     # Time is in seconds, nil = no expiration
-    expires = Time.now + Janus.instance.config(:token_life)
+    expires = Time.now.utc + Janus.instance.config(:token_life)
 
     add_token(
       token: Token.generate, 
-      token_login_stamp: Time.now,
+      token_login_stamp: Time.now.utc,
       token_expire_stamp: expires,
       token_logout_stamp: expires
     )
