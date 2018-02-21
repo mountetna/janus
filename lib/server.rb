@@ -1,4 +1,7 @@
 # This class handles the http request and routing
+require_relative './server/controllers/janus_controller'
+require_relative './server/controllers/admin_controller'
+require_relative './server/controllers/authorization_controller'
 class Janus 
   class Server < Etna::Server
 
@@ -6,7 +9,7 @@ class Janus
     # then enable the appropriate end point.
     get '/login', action: 'authorization#login'
     #get '/login', 'authorization#login_shib'
-    
+
     post '/validate-login', action: 'authorization#validate_login'
     post '/logout', action: 'authorization#log_out'
     post '/check', action: 'authorization#check_log'
