@@ -156,3 +156,28 @@ If you want to use Postgres you may need to set the 'schema' with `:search_path:
 
 Janus relies on a RSA public and private key pair. You may generate keys in PEM
 format using the command `bin/janus generate_key_pair <key_size>`.
+
+# User and Project Setup
+
+## Creating a user
+
+You may add a new user with the `add_user` command. The primary identifier for
+a user is an email address. They may also have a first and last name. You may optionally
+set a password here.
+
+### Setting a public key
+
+Some users will want to set a public key to allow them to generate a janus token via
+the `/generate` endpoint (see above). You may set this key using the `add_user_key` command and a public key file. Keys must be in PEM format and must be RSA keys.
+
+## Creating a project
+
+You may add a new project with the `add_project` command.  The project_name is
+`snake_cased` and is the primary referrent for the project throughout Etna
+applications.  Most Etna applications will not acknowledge a project if there
+is no corresponding Janus project entry.
+
+## Adding permissions
+
+Each user has a permission for a project. You may add a permission using the `permit` command.
+Each permission consists of a role (`administrator`, `editor`, or `viewer`) and whether or not the user can see `restricted` data.
