@@ -16,7 +16,7 @@ class Permission < Sequel::Model
   end
 
   def role_key
-    restricted ? role[0].upcase : role[0]
+    privileged ? role[0].upcase : role[0]
   end
 
   def project_role

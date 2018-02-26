@@ -5,8 +5,8 @@ class User < Sequel::Model
   def to_hash
     {
       email: email,
-      first_name: first_name, 
-      last_name: last_name, 
+      first_name: first_name,
+      last_name: last_name,
       token: valid_token.token,
       permissions:  permissions.map do |permission|
         {
@@ -22,13 +22,14 @@ class User < Sequel::Model
   def jwt_payload
     {
       email: email,
-      first: first_name, 
-      last: last_name, 
+      first: first_name,
+      last: last_name,
 
       # Encode permissions as a string e.g. "a:p1,p2;e:p3;v:p4"
-      perm:  permissions.map(&:project_role).group_by(&:first).sort_by(&:first).map do |role_key, project_roles|
-        [ role_key, project_roles.map(&:last).sort.join(",") ].join(":")
-      end.join(";")
+      perm:  permissions.map(&:project_role).group_by(&:first)
+        .sort_by(&:first).map do |role_key, project_roles|
+        [ role_key, project_roles.map(&:last).sort.join(',') ].join(':')
+      end.join(';')
     }
   end
 
@@ -38,7 +39,7 @@ class User < Sequel::Model
     expires = Time.now.utc + Janus.instance.config(:token_life)
 
     add_token(
-      token: Token.generate(self, expires), 
+      token: Token.generate(self, expires),
       token_login_stamp: Time.now.utc,
       token_expire_stamp: expires,
       token_logout_stamp: expires
@@ -81,7 +82,9 @@ class User < Sequel::Model
 
   def admin?
     permissions.any? do |permission|
-      permission.role == 'administrator' && permission.project && permission.project.project_name == 'Administration'
+      permission.role == 'administrator' &&
+        permission.project &&
+        permission.project.project_name == 'Administration'
     end
   end
 end

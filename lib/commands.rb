@@ -31,7 +31,7 @@ class Janus
 
   class AddUser < Etna::Command
     usage '<email> <first_name> <last_name> [<password>]'
-    def execute email, first_name, last_name, password=nil
+    def execute(email, first_name, last_name, password=nil)
       user = User.find_or_create(email: email)
       user.tap do |user|
         user.first_name = first_name
@@ -51,15 +51,15 @@ class Janus
 
   class AddUserKey < Etna::Command
     usage '<email> <pem_file>'
-    def execute email, pem_file
+    def execute(email, pem_file)
       user = User[email: email]
       if !user
-        puts "User not found."
+        puts 'User not found.'
         exit
       end
 
       if !File.exists?(pem_file)
-        puts "No such key file"
+        puts 'No such key file'
         exit
       end
 
@@ -67,7 +67,7 @@ class Janus
       begin
         key = OpenSSL::PKey::RSA.new(pem)
       rescue
-        puts "Could not parse key file!"
+        puts 'Could not parse key file!'
         exit
       end
 
@@ -83,7 +83,7 @@ class Janus
 
   class AddProject < Etna::Command
     usage '<project_name> <project_name_full>'
-    def execute project_name, project_name_full
+    def execute(project_name, project_name_full)
       attributes = { project_name: project_name }
       project = Project.find(attributes) || Project.new(attributes)
       project.project_name_full = project_name_full
@@ -97,21 +97,24 @@ class Janus
   end
 
   class Permit < Etna::Command
-    usage '<email> <project_name> <role>'
-    def execute email, project_name, role
+    usage '<email> <project_name> <role> [<privileged>]'
+    def execute(email, project_name, role, privileged=:false)
       user = User[email: email]
       project = Project[project_name: project_name]
       if !user
-        puts "User not found."
+        puts 'User not found.'
         exit
       end
 
       if !project
-        puts "Project not found."
+        puts 'Project not found.'
         exit
       end
 
-      attributes = { project: project, user: user }
+      privileged = !!(privileged.to_sym == :true)
+
+      attributes = { project: project, user: user, privileged: privileged }
+
       perm = Permission.find(attributes) || Permission.new(attributes)
       perm.role = role
       perm.save
@@ -152,23 +155,23 @@ class Janus
       key_size = key_size.to_i
 
       if key_size < 1024
-        puts "Your key size is too small"
+        puts 'Your key size is too small'
         exit
       end
 
       if Math.log(key_size,2) != Math.log(key_size,2).to_i
-        puts "Key size must be a power of 2"
+        puts 'Key size must be a power of 2'
         exit
       end
 
       private_key = Janus.instance.sign.generate_private_key(key_size)
 
-      puts "Private key:"
+      puts 'Private key:'
       puts private_key
 
       puts
 
-      puts "Public key:"
+      puts 'Public key:'
       puts private_key.public_key
     end
   end

@@ -19,7 +19,7 @@ describe User do
     mirror = create(:project, project_name: 'mirror', project_name_full: 'Mirror')
 
     # the JWT will include a string encoding these permissions
-    perm = create(:permission, project: tunnel, user: user, role: 'viewer', restricted: true)
+    perm = create(:permission, project: tunnel, user: user, role: 'viewer', privileged: true)
     perm = create(:permission, project: mirror, user: user, role: 'editor')
     perm = create(:permission, project: gateway, user: user, role: 'editor')
 
@@ -35,7 +35,7 @@ describe User do
     expect(payload['first']).to eq(user.first_name)
     expect(payload['last']).to eq(user.last_name)
 
-    # The permissions are grouped by role (a,e,v) with upper case for restricted access
+    # The permissions are grouped by role (a,e,v) with upper case for privileged access
     expect(payload['perm']).to eq('V:tunnel;e:gateway,mirror')
   end
 

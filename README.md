@@ -58,7 +58,7 @@ the response. This endpoint is most suitable for browser applications.
 
 ## Public-key login
 
-Machine users who hold no truck with browsers can use a registered public key to generate a token.
+Machine users who cannot use browsers can use a registered public key to generate a token.
 
 The endpoint `/time-signature` returns a cryptographic nonce. The user signs the nonce, base64-encodes the signature, and concatenates the result to the nonce.
 
@@ -117,7 +117,7 @@ Example:
   :pass_salt: <password_salt>
 
   # Token generation options
-  :token_algo: sha256
+  :token_algo: RS256
   :token_name: JANUS_TOKEN
   :token_domain: <cookie_domain>
   :token_life: 86400
