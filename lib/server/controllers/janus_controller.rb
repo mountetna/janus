@@ -10,7 +10,7 @@ class Janus
     private
 
     def success_json(hash = {})
-      success('application/json', hash.to_json)
+      success(hash.to_json, 'application/json')
     end
 
     # Token comes from params but should probably come from headers.

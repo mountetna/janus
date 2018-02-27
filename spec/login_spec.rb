@@ -1,4 +1,4 @@
-describe UserLogController do
+describe AuthorizationController do
   include Rack::Test::Methods
 
   def app
@@ -10,12 +10,13 @@ describe UserLogController do
 
   context 'password login' do
     before(:each) do
+      clear_cookies
       @refer = "https://#{Janus.instance.config(:token_domain)}"
       @password = 'password'
       @user = create(
         :user,
         email: 'janus@mount.etna',
-        pass_hash: SignService.hash_password(@password)
+        pass_hash: Janus.instance.sign.hash_password(@password)
       )
     end
 
@@ -123,6 +124,18 @@ describe UserLogController do
       expect(last_response.status).to eq(302)
       expect(last_response.headers['Location']).to eq(@refer)
       expect(@user.valid_token).not_to be_nil
+    end
+
+    it "sets a cookie with credentials" do
+      refer = "https://#{Janus.instance.config(:token_domain)}"
+      form_post(
+        'validate-login', 
+        email: @user.email,
+        password: @password,
+        app_key: @client.app_key,
+        refer: refer
+      )
+      expect(rack_mock_session.cookie_jar[Janus.instance.config(:token_name)]).not_to be_empty
     end
   end
 
