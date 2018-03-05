@@ -72,11 +72,15 @@ class AdminController < Janus::Controller
   private
 
   def validate_admin_status
+    app = App[app_key: @params[:app_key]]
+
     # Check that an 'app_key' is present and valid.
-    raise Etna::BadRequest, 'Invalid app key' unless app_key_valid?
+    raise Etna::BadRequest, 'Invalid app key' unless app
 
     # Check if a token is present and valid.
-    raise Etna::BadRequest, 'Invalid token' unless token_valid?
+    token = Token[token: @params[:token]]
+
+    raise Etna::BadRequest, 'Invalid token' unless token && token.valid?
 
     # Get and check user and then check the token.
     raise Etna::BadRequest, 'User is not an admin' unless token.user && token.user.admin?
