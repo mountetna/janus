@@ -1,44 +1,17 @@
 require_relative '../nonce'
 
 class AuthorizationController < Janus::Controller
-  def login_shib
+  def login
     # Make sure the refer url is valid.
     unless refer_valid?(@params[:refer])
       raise Etna::BadRequest, 'Invalid url refer'
     end
 
-    # Check that this request came from shibboleth(shibd).
-    email = @request.env['HTTP_X_SHIB_ATTRIBUTE'].downcase
-    raise Etna::BadRequest, 'Invalid email' if email == '(null)'
-
-    # Get and check user. No password required.
-    user = User[email: email]
-    raise Etna::BadRequest, 'Invalid user' unless user 
-
-    # Create a new token for the user.
-    user.create_token!
-
-    respond_with_cookie(user, refer)
-  end
-
-  def login
-    @refer = @params[:refer]
-
-    # Check if the token is set. If not then show the login dialog.
-    token = Token[token: @request.cookies[Janus.instance.config(:token_name)]]
-
-    # Check if the token is valid. If not then show the login dialog.
-
-    # Make sure the refer url is valid.
-    unless refer_valid?(@params[:refer])
-      raise Etna::BadRequest, 'Invalid url refer' 
+    if Janus.instance.config(:auth_method) == 'shibboleth'
+      return login_shib
+    else
+      return login_form
     end
-    return erb_view(:login_form) unless token && token.valid?
-
-    # The token is valid and the refer is ok, so go ahead and redirect the user.
-    @response.redirect(@params[:refer], 302)
-
-    @response.finish
   end
 
   def validate_login
@@ -130,6 +103,34 @@ class AuthorizationController < Janus::Controller
   end
 
   private
+
+  def login_shib
+    # Check that this request came from shibboleth(shibd).
+    email = (@request.env['HTTP_X_SHIB_ATTRIBUTE'] || '').downcase
+    raise Etna::Unauthorized if email == '(null)' || email.empty?
+
+    # Get and check user. No password required.
+    user = User[email: email]
+    raise Etna::Unauthorized unless user
+
+    # Create a new token for the user.
+    user.create_token!
+
+    respond_with_cookie(user, @params[:refer])
+  end
+
+  def login_form
+    # Check if the token is set. If not then show the login dialog.
+    token = Token[token: @request.cookies[Janus.instance.config(:token_name)]]
+
+    # Check if the token is valid. If not then show the login dialog.
+    return erb_view(:login_form) unless token && token.valid?
+
+    # The token is valid and the refer is ok, so go ahead and redirect the user.
+    @response.redirect(@params[:refer], 302)
+
+    @response.finish
+  end
 
   def respond_with_cookie(user, refer)
     # Set cookie and redirect.
