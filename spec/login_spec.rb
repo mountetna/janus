@@ -15,7 +15,7 @@ describe AuthorizationController do
       @password = 'password'
       @user = create(
         :user,
-        email: 'janus@mount.etna',
+        email: 'janus@two-faces.org',
         pass_hash: Janus.instance.sign.hash_password(@password)
       )
     end
@@ -141,7 +141,7 @@ describe AuthorizationController do
 
   context 'logout' do
     it 'logs the user out' do
-      user = create( :user, email: 'janus@mount.etna' )
+      user = create( :user, email: 'janus@two-faces.org' )
       token = create( :token, user: user, token: 'xyzzy',
                      token_expire_stamp: Time.now+60,
                      token_logout_stamp: Time.now+60)
@@ -157,7 +157,7 @@ describe AuthorizationController do
 
   context 'check_log' do
     it 'returns user information for a token' do
-      user = create( :user, email: 'janus@mount.etna' )
+      user = create( :user, email: 'janus@two-faces.org' )
       token = create( :token, user: user, token: 'xyzzy',
                      token_expire_stamp: Time.now+60,
                      token_logout_stamp: Time.now+60)
@@ -168,6 +168,49 @@ describe AuthorizationController do
 
       json = JSON.parse(last_response.body)
       expect(json['email']).to eq(user.email)
+    end
+  end
+
+  context 'shibboleth login' do
+    before(:each) do
+      # a kludge for changing config
+      allow(Janus.instance).to receive(:config).and_call_original
+      allow(Janus.instance).to receive(:config).with(:auth_method).and_return('shibboleth')
+
+      @refer = "https://#{Janus.instance.config(:token_domain)}"
+    end
+
+    after(:each) do
+      RSpec::Mocks.space.proxy_for(Janus.instance).reset
+    end
+
+    it 'complains if there is no email' do
+      get("/login?refer=#{@refer}")
+
+      expect(last_response.status).to eq(401)
+    end
+
+    it 'complains if there is no user' do
+      email = 'janus@two-faces.org'
+      header('X-Shib-Attribute', email)
+
+      get("/login?refer=#{@refer}")
+
+      expect(last_response.status).to eq(401)
+    end
+
+    it 'creates a token and returns a user' do
+      email = 'janus@two-faces.org'
+      user = create(:user, email: email)
+      header('X-Shib-Attribute', email)
+
+      get("/login?refer=#{@refer}")
+
+      user.refresh
+
+      expect(last_response.status).to eq(302)
+      expect(last_response.headers['Location']).to eq(@refer)
+      expect(user.valid_token).not_to be_nil
     end
   end
 end
