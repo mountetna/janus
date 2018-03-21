@@ -122,7 +122,7 @@ class Janus
   end
 
   class AddProject < Etna::Command
-    usage '<project_name> <project_name_full> [<group_name>]'
+    usage '<project_name> <project_name_full> [<description>] [<group_name>]'
     def execute(project_name, project_name_full, description = nil, group_name = nil)
       group = Group[group_name: group_name]
       attributes = {
