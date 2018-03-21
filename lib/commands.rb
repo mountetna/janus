@@ -81,13 +81,69 @@ class Janus
     end
   end
 
+  class ListGroups < Etna::Command
+    usage 'Returns the names of the groups.'
+
+    def execute
+      Group.all do |group|
+        puts "#{group.group_name}\n"
+      end
+    end
+
+    def setup(config)
+      Janus.instance.configure(config)
+      Janus.instance.setup_db
+    end
+  end
+
+  class AddGroup < Etna::Command
+    usage '<group_name>'
+
+    def execute(group_name)
+      if !group_name
+        puts 'You must supply a group name.'
+        exit
+      end
+
+      group = Group[group_name: group_name]
+      if group
+        puts "This group already exists.\n"
+        puts group
+        exit
+      end
+
+      Group.new({group_name: group_name}).save
+    end
+
+    def setup(config)
+      Janus.instance.configure(config)
+      Janus.instance.setup_db
+    end
+  end
+
   class AddProject < Etna::Command
-    usage '<project_name> <project_name_full>'
-    def execute(project_name, project_name_full)
-      attributes = { project_name: project_name }
-      project = Project.find(attributes) || Project.new(attributes)
-      project.project_name_full = project_name_full
-      project.save
+    usage '<project_name> <project_name_full> [<group_name>]'
+    def execute(project_name, project_name_full, description = nil, group_name = nil)
+      group = Group[group_name: group_name]
+      attributes = {
+        project_name_full: project_name_full,
+        project_description: description,
+        group_id: (group) ? group.id : nil
+      }
+      project = Project[project_name: project_name]
+
+      # If the project exists update, save, and exit.
+      if project
+        project.project_name_full = attributes[:project_name_full]
+        project.project_description = attributes[:project_description]
+        project.group_id = attributes[:group_id]
+        project.save
+        exit
+      end
+
+      # Create a new project.
+      attributes[:project_name] = project_name
+      Project.new(attributes).save
     end
 
     def setup(config)
