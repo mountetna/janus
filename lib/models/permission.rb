@@ -9,9 +9,7 @@ class Permission < Sequel::Model
       project_id: project_id,
       role: role,
       project_name: project.project_name,
-      user_email: user.email,
-      group_id: project.group_id,
-      group_name: project.group.group_name
+      user_email: user.email
     }
   end
 
