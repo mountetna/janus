@@ -94,14 +94,55 @@ Janus is an Etna application and puts all of its configuration into a `config.ym
 Example:
 
 `./config.yml`
-
 ```
 ---
+default: &default
+  :pass_algo: sha256
+  :token_algo: RS256
+  :token_domain: <%= cookie_domain %>
+  :token_life: 86400
+
+:test:
+
+  # DB connection made using sequel + pg gems.
+  :db:
+    :adapter: postgres
+    :host: localhost
+    :database: janus_test
+    :user: developer
+    :password: <%= developer_password %>
+
+    # We recommend using the 'private' search path
+    :search_path: [private]
+
+  # How Janus should generate passwords (using Etna::SignService)
+  :pass_salt: <%= password_salt %>
+
+  # Token generation options
+  :token_name: JANUS_TEST_TOKEN
+
+  # Janus private key. See the command `bin/janus generate_key_pair`.
+  :rsa_private: |
+    -----BEGIN RSA PRIVATE KEY-----
+    ...GzjuFFUeUi1A2qdYiQtLLDQufT5KiBudA99Go5ZXscL5By9fkfcIVFaDCQJAR5Bg
+    z3BrEGj52mhAidXj98Ra0I2ygjHuF4i0YneI/KceXlyLF2yuCGz61RO1OrYhKA1j...
+    -----END RSA PRIVATE KEY-----
+
+  # You will also need a matching public key to run testing. A public key here
+  # is only required to run the rspec tests.
+  :rsa_public: |
+    -----BEGIN PUBLIC KEY-----
+    ...MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCtYyPkS8lL/8tmdGG2aHDdkzBN
+    8PwtBo3Cof4CG05b7cXDupk34+bn2/pSSJsOX4VwGh+YBevEegdEkjGlRj3ZhH/r...
+    -----END PUBLIC KEY-----
+
+  :log_file: <%= log_file_path %>
+
 :development:
 
-  # db connection made using sequel + pg gems,
-  # see those for options
+  <<: *default
 
+  # DB connection made using sequel + pg gems.
   :db:
     :adapter: postgres
     :host: localhost
@@ -110,45 +151,25 @@ Example:
     :password: <%= developer_password %>
 
     # We recommend using the 'private' search path
-    :search_path: [ private ]
+    :search_path: [private]
 
   # How Janus should generate passwords (using Etna::SignService)
-  :pass_algo: sha256
-  :pass_salt: <password_salt>
+  :pass_salt: <%= password_salt %>
 
   # Token generation options
-  :token_algo: RS256
   :token_name: JANUS_TOKEN
-  :token_domain: <cookie_domain>
-  :token_life: 86400
 
-  # Janus private key
+  # Janus private key. The matching public key should be use by a client running
+  # the Etna gem. See the command `bin/janus generate_key_pair`.
   :rsa_private: |
     -----BEGIN RSA PRIVATE KEY-----
-    TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBp\nc2
-    NpbmcgZWxpdA==
+    ...V9n9Go1w7+gMtuMcS30CQQDQCq2q5ARcG1WisSsR33wRgZy74WplDRPdcPXgUXgm
+    vTiaJCPuRjhKj0amle0pQUeB6dNV7ROlbbh3R/XGMptk...
     -----END RSA PRIVATE KEY-----
 
-  :log_file: <log_file_path>
+  :log_file: <%= log_file_path %>
 
-:test:
-  :db:
-    :adapter: postgres
-    :host: localhost
-    :database: janus_test
-    :user: developer
-    :password: <developer_password>
-    :search_path: [ private ]
-  :pass_algo: sha256
-  :pass_salt: <password_salt>
-  :token_algo: sha256
-  :token_salt: <token_salt>
-  :token_name: JANUS_TOKEN
-  :token_domain: <cookie_domain>
-  :token_life: 86400
-  :token_seed_length: 128
-  :log_file: <log_file_path>
-```
+````
 
 If you want to use Postgres you may need to set the 'schema' with `:search_path:`.
 
