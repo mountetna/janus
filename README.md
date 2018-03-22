@@ -104,6 +104,8 @@ default: &default
 
 :test:
 
+  <<: *default
+
   # DB connection made using sequel + pg gems.
   :db:
     :adapter: postgres
