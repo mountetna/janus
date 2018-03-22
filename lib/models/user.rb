@@ -9,11 +9,7 @@ class User < Sequel::Model
       last_name: last_name,
       token: valid_token.token,
       permissions:  permissions.map do |permission|
-        {
-          role: permission.role,
-          project_name: permission.project.project_name,
-          project_name_full: permission.project.project_name_full
-        }
+        permission.to_hash
       end
     }
   end

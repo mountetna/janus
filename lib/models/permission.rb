@@ -4,12 +4,9 @@ class Permission < Sequel::Model
 
   def to_hash
     {
-      id: id,
-      user_id: user_id,
       project_id: project_id,
       role: role,
-      project_name: project.project_name,
-      user_email: user.email
+      project_name: project.project_name
     }
   end
 

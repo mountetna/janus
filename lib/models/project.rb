@@ -4,7 +4,6 @@ class Project < Sequel::Model
 
   def to_hash
     {
-      project_id: id,
       group_id: group_id,
       group_name: group.group_name,
       project_name: project_name,
