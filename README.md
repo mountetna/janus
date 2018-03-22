@@ -54,7 +54,9 @@ This endpoint is mostly useful for developers.
 
 The `/login` endpoint can also be configured as a Shibboleth-protected endpoint
 for authentication. If successful, Janus will set a cookie with the token in
-the response. This endpoint is most suitable for browser applications.
+the response. This endpoint is most suitable for browser applications. To use
+this method for authentication, set `auth_method: shibboleth` in the configuration.
+
 
 ## Public-key login
 
@@ -111,6 +113,9 @@ Example:
 
     # We recommend using the 'private' search path
     :search_path: [ private ]
+
+  # Use Shibboleth to authenticate logins
+  auth_method: shibboleth
 
   # How Janus should generate passwords (using Etna::SignService)
   :pass_algo: sha256
