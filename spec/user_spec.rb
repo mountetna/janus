@@ -43,7 +43,12 @@ describe User do
     now = Time.now
     Timecop.freeze(now)
 
-    user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
+    user = create(
+      :user,
+      first_name: 'Janus',
+      last_name: 'Bifrons',
+      email: 'janus@two-faces.org'
+    )
 
     token = user.create_token!
 
@@ -71,5 +76,36 @@ describe User do
     end
 
     Timecop.return
+  end
+
+  it 'checks that a user object is well formed' do
+    user = create(
+      :user,
+      first_name: 'Janus',
+      last_name: 'Bifrons',
+      email: 'janus@two-faces.org'
+    )
+
+    token = user.create_token!
+
+    project = create(
+      :project,
+      project_name: 'gateway',
+      project_name_full: 'Gateway'
+    )
+
+    perm = create(
+      :permission,
+      project: project,
+      user: user,
+      role: 'viewer',
+      privileged: true
+    )
+
+    expect({
+      project_id: project.id,
+      role: 'viewer',
+      project_name: 'gateway'
+    }).to eql(user.to_hash[:permissions][0])
   end
 end
