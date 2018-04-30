@@ -38,7 +38,11 @@ describe Janus::AddProject do
   it 'updates if the project exists' do
     project_name = 'augean_stables'
     project_name_full = 'Augean Stables'
-    project = create(:project, project_name: project_name, project_name_full: 'Augaian Stables')
+    project = create(
+      :project,
+      project_name: project_name,
+      project_name_full: 'Augaian Stables'
+    )
 
     command = Janus::AddProject.new
     command.execute(project_name, project_name_full)
@@ -63,7 +67,12 @@ describe Janus::AddUser do
   it 'updates if the user exists' do
     email = 'test_user@test.edu'
     last_name = 'Two-faces'
-    user = create(:user, email: email, first_name: 'Janus', last_name: 'One-face')
+    user = create(
+      :user,
+      email: email,
+      first_name: 'Janus',
+      last_name: 'One-face'
+    )
 
     command = Janus::AddUser.new
     command.execute(email, 'Janus', last_name)
@@ -81,7 +90,11 @@ describe Janus::Permit do
     role = 'viewer'
 
     user = create(:user, email: email)
-    project = create(:project, project_name: project_name, project_name_full: 'Augean Stables')
+    project = create(
+      :project,
+      project_name: project_name,
+      project_name_full: 'Augean Stables'
+    )
 
     command = Janus::Permit.new
     command.execute(email, project_name, role)
