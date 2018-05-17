@@ -119,6 +119,7 @@ Example:
   # servers/apps that use the etna gem. We keep it here for reference.
   :rsa_public: |
 <%= @rsa_public %>
+```
 
 ## Generating keys
 
