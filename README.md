@@ -1,22 +1,17 @@
 # Janus Auth Server
-Janus is an authentication and identity service for Etna applications. It is
-based on the [etna](https://github.com/mountetna/etna) gem.
+Janus is an authentication and identity service for Etna applications. It is based on the [etna](https://github.com/mountetna/etna) gem.
 
 Janus implements the basic user and project structure of Etna applications.
 
 ## Users
 
-A Janus user is primarily identified by an email address. You may
-add users via the `bin/janus add_user` command.
+A Janus user is primarily identified by an email address. You may add users via the `bin/janus add_user` command.
 
 See below on how users may authenticate.
 
 ## Projects
 
-A 'project' is the entity that produced a particular data set.
-You may add projects using the `bin/janus add_project` command.
-Generally Etna applications communicate using the
-`project_name` and rarely `The Full Name of the Project`.
+A 'project' is the entity that produced a particular data set. You may add projects using the `bin/janus add_project` command. Generally Etna applications communicate using the `project_name` and rarely `The Full Name of the Project`.
 
 ## Permissions
 
@@ -30,15 +25,11 @@ You may add permissions using the `bin/janus permit` command.
 
 # Identification
 
-Janus provides identity by yielding a JSON web token (JWT).  Client
-applications may verify this token using Janus's public key, most likely
-through the Etna::Auth rack middleware.
+Janus provides identity by yielding a JSON web token (JWT). Client applications may verify this token using Janus's public key, most likely through the Etna::Auth rack middleware.
 
 The token format is: `<header>.<params>.<signature>`
 
-Each section is a base64-encoded JSON hash. The params Janus reports are: 
-`{ email, first, last, perm }` - the latter encodes the user's project
-permissions.
+Each section is a base64-encoded JSON hash. The params Janus reports are: `{ email, first, last, perm }` - the latter encodes the user's project permissions.
 
 # Authenticating
 
@@ -46,17 +37,11 @@ There are three ways to get a token:
 
 ## Password login
 
-The endpoint `/login` can be configured to display an HTML form for password
-entry. If successful, Janus will set a cookie with the token in the response.
-This endpoint is mostly useful for developers.
+The endpoint `/login` can be configured to display an HTML form for password entry. If successful, Janus will set a cookie with the token in the response. This endpoint is mostly useful for developers.
 
 ## Shibboleth login
 
-The `/login` endpoint can also be configured as a Shibboleth-protected endpoint
-for authentication. If successful, Janus will set a cookie with the token in
-the response. This endpoint is most suitable for browser applications. To use
-this method for authentication, set `auth_method: shibboleth` in the configuration.
-
+The `/login` endpoint can also be configured as a Shibboleth-protected endpoint for authentication. If successful, Janus will set a cookie with the token in the response. This endpoint is most suitable for browser applications. To use this method for authentication, set `auth_method: shibboleth` in the configuration.
 
 ## Public-key login
 
@@ -100,62 +85,41 @@ Example:
 ```
 ---
 :development:
-
-  # db connection made using sequel + pg gems,
-  # see those for options
-
   :db:
-    :adapter: postgres
-    :host: localhost
     :database: janus
-    :user: developer
-    :password: <%= developer_password %>
-
-    # We recommend using the 'private' search path
-    :search_path: [ private ]
-
-  # Use Shibboleth to authenticate logins
-  auth_method: shibboleth
-
-  # How Janus should generate passwords (using Etna::SignService)
-  :pass_algo: sha256
-  :pass_salt: <password_salt>
-
-  # Token generation options
-  :token_algo: RS256
-  :token_name: JANUS_TOKEN
-  :token_domain: <cookie_domain>
-  :token_life: 86400
-
-  # Janus private key
-  :rsa_private: |
-    -----BEGIN RSA PRIVATE KEY-----
-    TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBp\nc2
-    NpbmcgZWxpdA==
-    -----END RSA PRIVATE KEY-----
-
-  :log_file: <log_file_path>
-
-:test:
-  :db:
-    :adapter: postgres
     :host: localhost
-    :database: janus_test
-    :user: developer
-    :password: <developer_password>
-    :search_path: [ private ]
-  :pass_algo: sha256
-  :pass_salt: <password_salt>
-  :token_algo: sha256
-  :token_salt: <token_salt>
-  :token_name: JANUS_TOKEN
-  :token_domain: <cookie_domain>
-  :token_life: 86400
-  :token_seed_length: 128
-  :log_file: <log_file_path>
-```
+    :adapter: postgres
+    :encoding: unicode
+    :username: developer
+    :password: <%= @psql_developer_password %>
+    :pool: 5
+    :timeout: 5000
 
-If you want to use Postgres you may need to set the 'schema' with `:search_path:`.
+    # We recommend using a search path that is not 'public' (for postgres only).
+    :search_path: [private]
+
+  # How Janus should generate passwords (using Etna::SignService).
+  :pass_algo: sha256
+  :pass_salt: <%= @janus_password_salt %>
+
+  # Token generation options.
+  :token_domain: ucsf.edu
+  :token_life: 86400
+  :token_algo: RS256
+  :token_name: <%= @janus_token_name %>
+
+  :log_level: debug
+  :log_file: '<%= @log_file %>'
+
+  # Janus private key (used to generate the user token).
+  :rsa_private: |
+<%= @rsa_private %>
+
+  # Janus public key. This is required in the config.yml files of other
+  # servers/apps that use the etna gem. We keep it here for reference.
+  :rsa_public: |
+<%= @rsa_public %>
+```
 
 ## Generating keys
 
@@ -167,22 +131,16 @@ format using the command `bin/janus generate_key_pair <key_size>`.
 ## Creating a user
 
 You may add a new user with the `add_user` command. The primary identifier for
-a user is an email address. They may also have a first and last name. You may optionally
-set a password here.
+a user is an email address. They may also have a first and last name. You may optionally set a password here.
 
 ### Setting a public key
 
-Some users will want to set a public key to allow them to generate a janus token via
-the `/generate` endpoint (see above). You may set this key using the `add_user_key` command and a public key file. Keys must be in PEM format and must be RSA keys.
+Some users will want to set a public key to allow them to generate a janus token via the `/generate` endpoint (see above). You may set this key using the `add_user_key` command and a public key file. Keys must be in PEM format and must be RSA keys.
 
 ## Creating a project
 
-You may add a new project with the `add_project` command.  The project_name is
-`snake_cased` and is the primary referrent for the project throughout Etna
-applications.  Most Etna applications will not acknowledge a project if there
-is no corresponding Janus project entry.
+You may add a new project with the `add_project` command.  The project_name is `snake_cased` and is the primary referrent for the project throughout Etna applications.  Most Etna applications will not acknowledge a project if there is no corresponding Janus project entry.
 
 ## Adding permissions
 
-Each user has a permission for a project. You may add a permission using the `permit` command.
-Each permission consists of a role (`administrator`, `editor`, or `viewer`) and whether or not the user can see `restricted` data.
+Each user has a permission for a project. You may add a permission using the `permit` command. Each permission consists of a role (`administrator`, `editor`, or `viewer`) and whether or not the user can see `restricted` data.
