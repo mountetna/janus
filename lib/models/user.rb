@@ -12,8 +12,7 @@ class User < Sequel::Model
         {
           role: permission.role,
           project_name: permission.project.project_name,
-          project_name_full: permission.project.project_name_full,
-          group_name: permission.project.group.group_name
+          project_name_full: permission.project.project_name_full
         }
       end
     }
