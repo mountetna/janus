@@ -1,13 +1,12 @@
 source 'https://rubygems.org'
 
-ruby '2.2.2'
+ruby '2.5.1'
 
 gem 'rack'
 gem 'rack-throttle'
 gem 'pg'
 gem 'sequel'
 gem 'etna'
-gem 'extlib'
 gem 'jwt'
 
 group :test do
