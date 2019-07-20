@@ -1,23 +1,5 @@
 class User < Sequel::Model
   one_to_many :permissions
-  one_to_many :tokens, order: Sequel.desc(:token_login_stamp)
-
-  def to_hash
-    {
-      email: email,
-      first_name: first_name,
-      last_name: last_name,
-      token: valid_token.token,
-      permissions:  permissions.map do |permission|
-        {
-          role: permission.role,
-          project_name: permission.project.project_name,
-          project_name_full: permission.project.project_name_full,
-          group_name: permission.project.group.group_name
-        }
-      end
-    }
-  end
 
   def jwt_payload
     {
@@ -38,24 +20,9 @@ class User < Sequel::Model
     # Time is in seconds, nil = no expiration
     expires = Time.now.utc + Janus.instance.config(:token_life)
 
-    add_token(
-      token: Token.generate(self, expires),
-      token_login_stamp: Time.now.utc,
-      token_expire_stamp: expires,
-      token_logout_stamp: expires
+    Janus.instance.sign.jwt_token(
+      jwt_payload.merge(exp: expires.to_i)
     )
-  end
-
-  def valid_token
-    tokens.find(&:valid?)
-  end
-
-  def valid_tokens
-    tokens.select(&:valid?)
-  end
-
-  def expire_tokens!
-    valid_tokens.each(&:invalidate!)
   end
 
   def valid_signature?(text, signature)

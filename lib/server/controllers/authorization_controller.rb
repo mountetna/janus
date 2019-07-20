@@ -34,30 +34,10 @@ class AuthorizationController < Janus::Controller
     end
 
     # Create a new token for the user.
-    user.create_token!
+    token = user.create_token!
 
     # On success return the user info.
-    respond_with_cookie(user, @params[:refer])
-  end
-
-  def check_log
-    app = App[app_key: @params[:app_key]]
-
-    raise Etna::BadRequest, 'Invalid app key' unless app
-
-    token = Token[token: @params[:token]]
-
-    raise Etna::BadRequest, 'Invalid token' unless token && token.valid?
-
-    # Pull the user info for the token.
-    success_json(token.user.to_hash)
-  end
-
-  def log_out
-    # Invalidate the token.
-    token = Token[token: @params[:token]]
-    token.invalidate!
-    success_json(success: true, logged: false)
+    respond_with_cookie(token, @params[:refer])
   end
 
   # generates a nonce for users to sign
@@ -75,34 +55,34 @@ class AuthorizationController < Janus::Controller
 
     auth_token = (@request.env['HTTP_AUTHORIZATION'] || '')[ /\ASigned-Nonce (.*)\z/, 1 ]
 
-    return failure(401, 'Validation token was not presented.') unless auth_token
+    return noauth unless auth_token
 
     timesig64, email64, signature64 = auth_token.split(/\./)
 
-    noauth = 'You are unauthorized'
-
     # validate the timesig
-    return failure(401, noauth) unless Janus::Nonce.valid?(timesig64)
+    return noauth unless Janus::Nonce.valid?(timesig64)
 
     # validate the email
     email = Base64.decode64(email64)
-    return failure(401, noauth) if email =~ /[^[:print:]]/
+    return noauth if email =~ /[^[:print:]]/
 
     # find the user
     user = User[email: email]
-    return failure(401, noauth) unless user
+    return noauth unless user
 
     # check the user's signature
     unless user.valid_signature?("#{timesig64}.#{email64}", Base64.decode64(signature64))
-      return failure(401, noauth)
+      return noauth
     end
 
-    user.create_token!
-
-    return success(user.valid_token.token)
+    return success(user.create_token!)
   end
 
   private
+
+  def noauth
+    failure(401, 'You are unauthorized')
+  end
 
   def login_shib
     # Check that this request came from shibboleth(shibd).
@@ -114,33 +94,44 @@ class AuthorizationController < Janus::Controller
     raise Etna::Unauthorized unless user
 
     # Create a new token for the user.
-    user.create_token!
+    token = user.create_token!
 
-    respond_with_cookie(user, @params[:refer])
+    respond_with_cookie(token, @params[:refer])
   end
 
   def login_form
     # Check if the token is set. If not then show the login dialog.
-    token = Token[token: @request.cookies[Janus.instance.config(:token_name)]]
+    token = @request.cookies[Janus.instance.config(:token_name)]
 
-    # Check if the token is valid. If not then show the login dialog.
-    return erb_view(:login_form) unless token && token.valid?
-
-    # The token is valid and the refer is ok, so go ahead and redirect the user.
-    @response.redirect(@params[:refer], 302)
-
-    @response.finish
+    begin
+      payload, header = Janus.instance.sign.jwt_decode(token)
+      @response.redirect(@params[:refer], 302)
+      @response.finish
+    rescue
+      return erb_view(:login_form)
+    end
   end
 
-  def respond_with_cookie(user, refer)
-    # Set cookie and redirect.
+  def respond_with_cookie(token, refer)
+    # Set redirect.
     @response.redirect(refer, 302)
+
+    # Tear apart token to get expire time
+    expire_time = Time.at(
+      JSON.parse(
+        Base64.decode64(
+          token.split('.')[1]
+        )
+      )["exp"]
+    )
+
+    # Set cookie
     @response.set_cookie(
       Janus.instance.config(:token_name),
-      value: user.valid_token.token,
+      value: token,
       path: '/',
       domain: Janus.instance.config(:token_domain),
-      expires: user.valid_token.token_expire_stamp
+      expires: expire_time
     )
 
     return @response.finish

@@ -62,8 +62,9 @@ describe "Token Generation" do
     expect(last_response.status).to eq(200)
 
     # A new token was returned
-    token = Token.first
-    expect(last_response.body).to eq(token.token)
+    token = last_response.body
+
+    expect{Janus.instance.sign.jwt_decode(token)}.not_to raise_error
   end
 
   it "rejects token generation with an invalid nonce" do
