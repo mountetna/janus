@@ -5,13 +5,23 @@ describe AdminController do
     OUTER_APP
   end
 
-  before(:each) do
-    @client = create(:app, app_name: 'test', app_key: 'THE KEY')
-    @admin = create(:user, email: 'admin@mount.etna' )
-    @token = create(:token, user: @admin, token: 'godmode',
-                     token_expire_stamp: Time.now+60,
-                     token_logout_stamp: Time.now+60)
-    @project = create(:project, project_name: 'Administration', project_name_full: 'janus test')
-    @permission = create(:permission, user: @admin, project: @project, role: 'administrator')
+  context 'main' do
+    it 'returns a list of user projects' do
+      user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
+
+      gateway = create(:project, project_name: 'gateway', project_name_full: 'Gateway')
+      tunnel = create(:project, project_name: 'tunnel', project_name_full: 'Tunnel')
+      mirror = create(:project, project_name: 'mirror', project_name_full: 'Mirror')
+
+      perm = create(:permission, project: mirror, user: user, role: 'editor')
+      perm = create(:permission, project: gateway, user: user, role: 'editor')
+
+      auth_header(:janus)
+      get('/')
+      expect(last_response.body).to match(/Your Projects/)
+      expect(last_response.body).to match(/Gateway/)
+      expect(last_response.body).to match(/Mirror/)
+      expect(last_response.body).not_to match(/Tunnel/)
+    end
   end
 end
