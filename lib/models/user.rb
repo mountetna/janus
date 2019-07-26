@@ -1,6 +1,10 @@
 class User < Sequel::Model
   one_to_many :permissions
 
+  def name
+    "#{ first_name } #{ last_name }"
+  end
+
   def jwt_payload
     {
       email: email,

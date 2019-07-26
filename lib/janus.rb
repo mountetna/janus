@@ -1,3 +1,5 @@
+require 'sequel'
+
 class Janus
   include Etna::Application
   attr_reader :db

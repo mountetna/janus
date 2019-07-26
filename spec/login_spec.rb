@@ -131,7 +131,7 @@ describe AuthorizationController do
       expect(last_response.headers['Location']).to eq(@refer)
     end
 
-    it "sets a cookie with credentials" do
+    it 'sets a cookie with credentials' do
       refer = "https://#{Janus.instance.config(:token_domain)}"
       form_post(
         'validate-login', 

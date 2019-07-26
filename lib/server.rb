@@ -8,17 +8,19 @@ class Janus
 
     # Only one of these two end points gets used. If you are using Shibboleth
     # then enable the appropriate end point.
-    get '/login', action: 'authorization#login'
-    #get '/login', action: 'authorization#login_shib'
+    get '/login', action: 'authorization#login', auth: { noauth: true }
 
-    post '/validate-login', action: 'authorization#validate_login'
+    post '/validate-login', action: 'authorization#validate_login', auth: { noauth: true }
 
     # This generates nonces
-    get '/time-signature', action: 'authorization#time_signature'
-    # This uses a signed nonce to generate a new token
-    get '/generate', action: 'authorization#generate'
+    get '/time-signature', action: 'authorization#time_signature', auth: { noauth: true }
 
-    def initialize(config)
+    # This uses a signed nonce to generate a new token
+    get '/generate', action: 'authorization#generate', auth: { noauth: true }
+
+    get '/', action: 'admin#main'
+
+    def initialize
       super
       application.setup_db
     end
