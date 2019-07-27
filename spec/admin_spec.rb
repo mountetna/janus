@@ -18,10 +18,25 @@ describe AdminController do
 
       auth_header(:janus)
       get('/')
+
+      expect(last_response.status).to eq(200)
       expect(last_response.body).to match(/Your Projects/)
       expect(last_response.body).to match(/Gateway/)
       expect(last_response.body).to match(/Mirror/)
       expect(last_response.body).not_to match(/Tunnel/)
+    end
+
+    it 'returns the user public key fingerprint' do
+      pkey = OpenSSL::PKey::RSA.new(1024)
+      user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org', public_key: pkey.public_key)
+
+      auth_header(:janus)
+
+      get('/')
+
+      expect(last_response.status).to eq(200)
+      expect(last_response.body).to match(/Your Keys/)
+      expect(last_response.body).to match(/#{user.key_fingerprint}/i)
     end
   end
 end

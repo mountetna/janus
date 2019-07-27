@@ -4,6 +4,14 @@
   font-family: 'Open Sans', sans-serif;
 }
 
+a {
+  color: darkorchid;
+  &:hover {
+    color: orchid;
+  }
+  text-decoration: none;
+}
+
 .white-glyphicon {
   color: #fff;
 }

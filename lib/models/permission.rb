@@ -15,8 +15,14 @@ class Permission < Sequel::Model
     }
   end
 
+  alias_method :privileged?, :privileged
+
   def role_key
     privileged ? role[0].upcase : role[0]
+  end
+
+  def admin?
+    role == 'administrator'
   end
 
   def project_role
