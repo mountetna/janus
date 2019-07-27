@@ -2,6 +2,7 @@
 npm-debug.log
 trash.rb
 /lib/server/secrets.rb
+/lib/client/css
 /db/seed.sql
 
 /node_modules/
@@ -14,3 +15,4 @@ coverage
 public
 spec/examples.txt
 *.swp
+package-lock.json

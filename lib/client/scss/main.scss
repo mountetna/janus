@@ -1,0 +1,15 @@
+#projects-group {
+  @include janus-box;
+}
+
+#identity-group {
+  @include janus-box;
+}
+
+#keys-group {
+  @include janus-box;
+  .item {
+    color: darkgoldenrod;
+    font-family: monospace;
+  }
+}
