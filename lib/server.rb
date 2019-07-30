@@ -20,6 +20,12 @@ class Janus
 
     get '/', action: 'admin#main'
 
+    get '/project/:project_name', action: 'admin#project', auth: { user: { is_admin?: :project_name } }
+
+    post '/update_permission/:project_name', action: 'admin#update_permission', auth: { user: { is_admin?: :project_name } }
+
+    post '/add_user/:project_name', action: 'admin#add_user', auth: { user: { is_admin?: :project_name } }
+
     def initialize
       super
       application.setup_db

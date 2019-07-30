@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<meta charset='utf-8'/>
+<html>
+  <%= erb_partial(:header) %>
+  <script type='text/javascript'>
+
+const show = function(...elements) { elements.forEach( e => e.style = 'display:inline;'); }
+const hide = function(...elements) { elements.forEach( e => e.style = 'display:none;'); }
+
+const updatePermission = function(e) {
+  let select = e.target;
+  let form = select.closest('.item');
+
+  let role = form.querySelector('select[name="role"]');
+  let original_role = form.querySelector('input[name="original_role"]');
+  let privileged = form.querySelector('input[type="checkbox"][name="privileged"]');
+  let original_privileged = form.querySelector('input[name="original_privileged"]');
+
+  let approve = form.querySelector('.approve');
+  let cancel = form.querySelector('.cancel');
+
+  if ((role && original_role.value != role.value) || original_privileged.value != privileged.checked.toString()) {
+    show(approve,cancel);
+  } else {
+    hide(approve,cancel);
+  }
+}
+
+const approveForm = function(e) {
+  let select = e.target;
+  let form = select.closest('.item');
+
+  form.submit();
+}
+
+const cancelPermission = function(e) {
+  let select = e.target;
+  let form = select.closest('.item');
+
+  let role = form.querySelector('select[name="role"]');
+  let original_role = form.querySelector('input[name="original_role"]');
+  let privileged = form.querySelector('input[type="checkbox"][name="privileged"]');
+  let original_privileged = form.querySelector('input[name="original_privileged"]');
+
+  let approve = form.querySelector('.approve');
+  let cancel = form.querySelector('.cancel');
+
+  role.value = original_role.value;
+  privileged.checked = original_privileged.value == 'true';
+  hide(approve,cancel);
+}
+
+const updateNewUser = function(e) {
+  let select = e.target;
+  let form = select.closest('.item');
+
+  let name = form.querySelector('input[name="name"]');
+  let email = form.querySelector('input[name="email"]');
+  let role = form.querySelector('select[name="role"]');
+
+  let approve = form.querySelector('.approve');
+  let cancel = form.querySelector('.cancel');
+
+  if (role.value != 'none' && name.value.length > 0 && email.value.match(/.+\@.+\..+/)) {
+    show(approve,cancel);
+  } else {
+    hide(approve,cancel);
+  }
+}
+
+const cancelNewUser = function(e) {
+  let select = e.target;
+  let form = select.closest('.item');
+
+  let name = form.querySelector('input[name="name"]');
+  let email = form.querySelector('input[name="email"]');
+  let role = form.querySelector('select[name="role"]');
+
+  let approve = form.querySelector('.approve');
+  let cancel = form.querySelector('.cancel');
+
+  name.value = '';
+  email.value = '';
+  role.value = 'none';
+  hide(approve,cancel);
+}
+  </script>
+  <body>
+    <div id='ui-group'>
+      <%= erb_partial(:nav) %>
+      <div id='janus-group'>
+        <div class='project'>
+          <div class='title'><%= @project.project_name_full.capitalize %></div>
+          <div class='item header'>
+            <div class='cell'>Name</div>
+            <div class='cell'>Email</div>
+            <div class='cell'>Role</div>
+            <div class='cell'>Privileged</div>
+            <div class='cell submit'></div>
+          </div>
+          <% @project.permissions.sort_by{|p| [ p.role, p.user.email ] }.each do |permission| %>
+            <form method='post' action='/update_permission/<%= @project.project_name %>' class='item permission'>
+              <div class='cell'><%= permission.user.name %></div>
+              <div class='cell'>
+                <input type='hidden' name='email' value='<%= permission.user.email %>'>
+                <%= permission.user.email %></div>
+              <div class='cell'>
+                <input type='hidden' name='original_role' value='<%= permission.role %>'>
+                <% unless @roles.include?(permission.role) %>
+                  <%= permission.role %>
+                <% else %>
+                  <select name='role' onchange='updatePermission(event)'>
+                    <% @roles.each do |role| %>
+                      <option value='<%= role %>' <%= role == permission.role.to_s ? 'selected' : '' %>><%= role %></option>
+                    <% end %>
+                  </select>
+                <% end %>
+              </div>
+              <div class='cell'>
+                <input type='hidden' name='original_privileged' value='<%= permission.privileged? ? 'true' : 'false' %>'>
+                <input type='hidden' name='privileged' value='false'>
+                <input type='checkbox' name='privileged' value='true' <%= permission.privileged? ? 'checked' : '' %> onchange='updatePermission(event)'>
+              </div>
+              <div class='cell submit'>
+                <i class='approve fa fa-fw fa-save' style='display:none;' onclick='approveForm(event)'> </i>
+                <i class='cancel fa fa-fw fa-ban' style='display:none;' onclick='cancelPermission(event)'> </i>
+              </div>
+            </form>
+          <% end %>
+          <div class='new'>New User</div>
+          <form method='post' action='/add_user/<%= @project.project_name %>' class='item'>
+            <div class='cell'><input type='text' onchange='updateNewUser(event)' placeholder='Name' name='name'></div>
+            <div class='cell'><input type='text' onchange='updateNewUser(event)' placeholder='Email' name='email'></div>
+            <div class='cell'>
+              <select onchange='updateNewUser(event)' name='role'>
+                <option selected value='none'>Role</option>
+                <option value='viewer'>Viewer</option>
+                <option value='editor'>Editor</option>
+              </select>
+            </div>
+            <div class='cell'></div>
+            <div class='cell submit'>
+              <i class='approve fa fa-fw fa-save' style='display:none;' onclick='approveForm(event)'> </i>
+              <i class='cancel fa fa-fw fa-ban' style='display:none;' onclick='cancelNewUser(event)'> </i>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

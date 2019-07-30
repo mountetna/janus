@@ -17,8 +17,12 @@ include Etna::Spec::Auth
 
 AUTH_USERS.update(
   janus: {
-    email: 'janus@two-faces.org', first: 'Janus', last: 'Bifrons', perm: 'V:tunnel;e:gateway,mirror'
+    email: 'janus@two-faces.org', first: 'Janus', last: 'Bifrons', perm: 'V:tunnel;e:gateway,mirror;a:door'
+  },
+  portunus: {
+    email: 'portunus@two-faces.org', first: 'Portunus', perm: 'e:door'
   }
+
 )
 
 Janus.instance.configure(YAML.load(File.read('config.yml')))
@@ -173,6 +177,10 @@ end
 
 def fixture name
   File.join(File.dirname(__FILE__),"fixtures/#{name}.txt")
+end
+
+def json_body(response=nil)
+  JSON.parse((response || last_response).body, symbolize_names: true)
 end
 
 def json_post endpoint, hash
