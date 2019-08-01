@@ -1,17 +1,4 @@
 describe User do
-  it 'can have multiple valid tokens' do
-    user = create(:user, email: 'janus@two-faces.org')
-
-    t1 = user.create_token!
-    t2 = user.create_token!
-
-    t1.refresh
-    t2.refresh
-
-    expect(t1).to be_valid
-    expect(t2).to be_valid
-  end
-
   it 'returns a JWT' do
     user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
     gateway = create(:project, project_name: 'gateway', project_name_full: 'Gateway')
@@ -25,11 +12,9 @@ describe User do
 
     token = user.create_token!
 
-    token.refresh
+    expect(token).to match(%r!^[\w\-,]+\.[\w\-,]+\.[\w\-,]+$!)
 
-    expect(token.token).to match(%r!^[\w\-,]+\.[\w\-,]+\.[\w\-,]+$!)
-
-    payload, headers = Janus.instance.sign.jwt_decode(token.token)
+    payload, headers = Janus.instance.sign.jwt_decode(token)
 
     expect(payload['email']).to eq(user.email)
     expect(payload['first']).to eq(user.first_name)
@@ -52,9 +37,9 @@ describe User do
 
     expect {
         payload, headers = JWT.decode(
-        token.token, 
+        token,
         rsa_public,
-        true, 
+        true,
         algorithm: Janus.instance.config(:token_algo)
       )
     }.not_to raise_error(JWT::ExpiredSignature)
@@ -62,9 +47,9 @@ describe User do
     Timecop.freeze(now + Janus.instance.config(:token_life) + 10) do
       expect {
         payload, headers = JWT.decode(
-          token.token, 
+          token,
           rsa_public,
-          true, 
+          true,
           algorithm: Janus.instance.config(:token_algo)
         )
       }.to raise_error(JWT::ExpiredSignature)

@@ -1,3 +1,5 @@
+require 'rack/throttle'
+
 class Janus
   class Throttle < Rack::Throttle::Daily
     def allowed?(request)

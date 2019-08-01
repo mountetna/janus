@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<meta charset='utf-8'/>
+<html>
+  <%= erb_partial(:header) %>
+  <body>
+    <div id='ui-group'>
+      <%= erb_partial(:nav) %>
+      <div id='janus-group'>
+        <div id='identity-group'>
+          <div class='title'>Your Identity</div>
+          <div class='item'><%= @janus_user.name %></div>
+          <div class='item'><%= @janus_user.email %></div>
+        </div>
+        <div id='projects-group'>
+          <div class='title'>Your Projects</div>
+          <% @janus_user.permissions.sort_by{|p| p.role[0] + p.project.project_name_full.capitalize }.each do |permission| %>
+            <div class='item'>
+              <% if permission.admin? || @janus_user.superuser? %>
+                <a href='/project/<%= permission.project.project_name %>'>
+                  <%= permission.project.project_name_full.capitalize %>
+                </a>
+              <% else %>
+                <%= permission.project.project_name_full.capitalize %>
+              <% end %>
+              - <i><%= permission.role %><%= permission.privileged? ? ', privileged access' : '' %></i>
+            </div>
+          <% end %>
+        </div>
+        <div id='keys-group'>
+          <div class='title'>Your Keys</div>
+          <% if @janus_user.public_key %>
+            <div class='item'>
+              <i class='fa fa-key'></i> <%= @janus_user.key_fingerprint.upcase %>
+            </div>
+          <% else %>
+            <div class='item'>
+              No registered keys
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

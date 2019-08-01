@@ -1,88 +1,74 @@
 class AdminController < Janus::Controller
-  def check_admin_token
-    validate_admin_status
-    success_json(success: true, administrator: true)
+  def main
+    @janus_user = User[email: @user.email]
+    erb_view(:main)
   end
 
-  def get_users
-    validate_admin_status
-    success_json(success: true, users: User.all.map(&:to_hash))
+  def project
+    @project = Project[project_name: @params[:project_name]]
+    @roles = @user.is_superuser? ? [ 'administrator', 'viewer', 'editor', 'disabled' ] : [ 'viewer', 'editor', 'disabled' ]
+    @project_roles = @project.permissions.group_by(&:role)
+    erb_view(:project)
   end
 
-  def get_projects
-    validate_admin_status
-    success_json(success: true, projects: Project.all.map(&:to_hash))
-  end
+  def update_permission
+    require_param(:email)
+    @project = Project[project_name: @params[:project_name]]
 
-  def get_groups
-    validate_admin_status
-    success_json(success: true, groups: Group.all)
-  end
+    permission = @project.permissions.find do |p| p.user.email == @params[:email] end
 
-  def get_permissions
-    validate_admin_status
-    success_json(success: true, permissions: Permission.all.map(&:to_hash))
-  end
+    # fix strings from HTML POST
+    @params[:privileged] = @params[:privileged] == 'true' if [ 'true', 'false' ].include?(@params[:privileged])
 
-  def upload_permissions
-    validate_admin_status
+    raise Etna::BadRequest, "No such user on project #{@params[:project_name]}!" unless permission
 
-    raise Etna::BadRequest, 'No param: permissions' unless @params.key?(:permissions)
+    raise Etna::Forbidden, 'Cannot update admin role!' if permission.role == 'administrator' && !@user.is_superuser?
 
-    saved = @params[:permissions].select do |perm|
-      user = User[email: perm['user_email']]
-      project = Project[project_name: perm['project_name']]
+    raise Etna::Forbidden, 'Cannot grant admin role!' if @params[:role] == 'administrator' && !@user.is_superuser?
 
-      next if !user || !project
-      Permission.find_or_create(user: user, project: project) do |perm|
-        perm.role = perm['role']
-      end
+    raise Etna::BadRequest, "Unknown role #{@params[:role]}" unless !@params[:role] || [ 'administrator', 'viewer', 'editor', 'disabled' ].include?(@params[:role])
+
+    if @params[:role] == 'disabled'
+      permission.delete
+    else
+      permission.role = @params[:role] if @params[:role]
+      permission.privileged = @params[:privileged] if [true,false].include?(@params[:privileged])
+      permission.save
     end
 
-    success_json(success: true, permissions: saved)
+    @response.redirect("/project/#{@params[:project_name]}")
+    @response.finish
   end
 
-  def remove_permissions
-    validate_admin_status
+  def add_user
+    require_params(:email, :name, :role)
+    @project = Project[project_name: @params[:project_name]]
 
-    raise Etna::BadRequest, 'No param: permissions' unless @params.key?(:permissions)
+    raise Etna::Forbidden, 'Cannot set admin role!' if @params[:role] == 'administrator'
 
-    deleted = @params[:permissions].select do |perm|
-      # Check if the user and project are existant.
-      user = User[email: perm['user_email']]
-      project = Project[project_name: perm['project_name']]
+    raise Etna::BadRequest, "Unknown role #{@params[:role]}" unless [ 'viewer', 'editor' ].include?(@params[:role])
 
-      next if !user || !project
-
-      # Check if this is the master system permission.
-      next if project.project_name == 'Administration'
-
-      # Check if there is currently a permission with the user and project.
-      Permission.where(user_id: user.id, project_id: project.id).delete
+    if @project.permissions.any? { |p| p.user.email == @params[:email] }
+      raise Etna::BadRequest, "Duplicate permission on project #{@params[:project_name]}!"
     end
 
-    success_json(success: true, permissions: deleted)
-  end
+    user = User[email: @params[:email]]
+    unless user
+      raise Etna::BadRequest, 'Badly formed email address' unless @params[:email] =~ URI::MailTo::EMAIL_REGEXP
 
-  def logout_all
-    validate_admin_status
-    success_json(success: true, logout_count: Token.expire_all!)
-  end
+      names = @params[:name].split
+      raise Etna::BadRequest, 'Missing name' if names.empty?
+      first, last = names.length > 1 ? [ names[0..-2].join(' '), names.last ] : names
 
-  private
+      user = User.create(email: @params[:email], first_name: first, last_name: last)
+    end
 
-  def validate_admin_status
-    app = App[app_key: @params[:app_key]]
+    permission = Permission.create(project: @project, user: user, role: @params[:role])
+    permission.role = @params[:role] if [ 'viewer', 'editor' ].include?(@params[:role])
+    permission.privileged = false
+    permission.save
 
-    # Check that an 'app_key' is present and valid.
-    raise Etna::BadRequest, 'Invalid app key' unless app
-
-    # Check if a token is present and valid.
-    token = Token[token: @params[:token]]
-
-    raise Etna::BadRequest, 'Invalid token' unless token && token.valid?
-
-    # Get and check user and then check the token.
-    raise Etna::BadRequest, 'User is not an admin' unless token.user && token.user.admin?
+    @response.redirect("/project/#{@params[:project_name]}")
+    @response.finish
   end
 end

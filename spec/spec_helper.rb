@@ -1,12 +1,41 @@
+require 'rack/test'
+require 'etna'
 require 'yaml'
-require 'json'
-require 'uri'
-require 'rack'
+require 'logger'
+require 'factory_bot'
+require 'database_cleaner'
+require 'simplecov'
+require 'timecop'
+
+require_relative '../lib/janus'
+require_relative '../lib/server'
+require_relative '../lib/server/throttle'
 
 ENV['JANUS_ENV'] = 'test'
 
+include Etna::Spec::Auth
+
+AUTH_USERS.update(
+  janus: {
+    email: 'janus@two-faces.org', first: 'Janus', last: 'Bifrons', perm: 'V:tunnel;e:gateway,mirror;a:door'
+  },
+  portunus: {
+    email: 'portunus@two-faces.org', first: 'Portunus', perm: 'e:door'
+  }
+
+)
+
+Janus.instance.configure(YAML.load(File.read('config.yml')))
 # Doing this will load the config.yml into the application
-OUTER_APP = Rack::Builder.parse_file("config.ru").first
+OUTER_APP = Rack::Builder.new do
+  use Etna::ParseBody
+  use Etna::SymbolizeParams
+  use Rack::Static, urls: ['/css', '/js', '/fonts', '/img'], root: 'lib/client'
+
+  use Janus::Throttle, max: 100
+  use Etna::TestAuth
+  run Janus::Server.new
+end
 
 SimpleCov.start
 
@@ -148,6 +177,10 @@ end
 
 def fixture name
   File.join(File.dirname(__FILE__),"fixtures/#{name}.txt")
+end
+
+def json_body(response=nil)
+  JSON.parse((response || last_response).body, symbolize_names: true)
 end
 
 def json_post endpoint, hash

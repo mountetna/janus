@@ -1,0 +1,53 @@
+.project {
+  @include janus-box;
+
+  select, input {
+    border: 1px solid rgba(#6d9eb0, 0.5);
+    padding: 0px 3px;
+    color: black;
+    background: none;
+    font-size: 1.0em;
+  }
+
+  @mixin button($color) {
+    font-size: 1.4em;
+    color: gray;
+    cursor: pointer;
+    &:hover {
+      color: $color;
+    }
+  }
+
+  .approve {
+    @include button(dodgerblue);
+  }
+  .cancel {
+    @include button(forestgreen);
+  }
+
+  .new {
+    padding: 15px 7px 0px 7px;
+    font-size: 0.9em;
+  }
+  .item {
+    display: flex;
+    align-items: center;
+    &.header {
+      border-bottom: 1px solid rgba(#6ca689,0.6);
+    }
+    &.summary {
+      font-size: 0.8em;
+      color: #1d6a86;
+      font-style: italic;
+    }
+    &.permission {
+      border-bottom: 1px solid rgba(#6d9eb0,0.1);
+    }
+    .cell {
+      flex: 1 0 0;
+      &.submit {
+        flex: 0 0 50px;
+      }
+    }
+  }
+}

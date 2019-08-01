@@ -28,16 +28,36 @@ describe AuthorizationController do
     end
 
     it 'redirects with a valid cookie' do
-      token = create( :token, user: @user, token: 'xyzzy',
-                     token_expire_stamp: Time.now+60,
-                     token_logout_stamp: Time.now+60)
-      set_cookie([ Janus.instance.config(:token_name), token.token ].join('='))
+      set_cookie([ Janus.instance.config(:token_name), @user.create_token! ].join('='))
 
       get("/login?refer=#{@refer}")
 
       expect(last_response.status).to eq(302)
       expect(last_response.headers['Location']).to eq(@refer)
-      expect(@user.valid_token).not_to be_nil
+    end
+
+    it 'gets a simple form with an expired cookie' do
+      Timecop.freeze(Time.now - Janus.instance.config(:token_life) - 10) do
+        set_cookie([ Janus.instance.config(:token_name), @user.create_token! ].join('='))
+      end
+
+      get("/login?refer=#{@refer}")
+
+      expect(last_response.status).to eq(200)
+      expect(last_response.body).to match(/value='#{@refer}'/)
+    end
+
+    it 'gets a simple form with out-of-date credentials' do
+      set_cookie([ Janus.instance.config(:token_name), @user.create_token! ].join('='))
+
+      # Give Janus a project
+      gateway = create(:project, project_name: 'gateway', project_name_full: 'Gateway')
+      perm = create(:permission, project: gateway, user: @user, role: 'editor')
+
+      get("/login?refer=#{@refer}")
+
+      expect(last_response.status).to eq(200)
+      expect(last_response.body).to match(/value='#{@refer}'/)
     end
 
     it 'complains without credentials' do
@@ -64,9 +84,10 @@ describe AuthorizationController do
         app_key: @client.app_key,
         refer: @refer
       )
-      cookies = parse_cookie(last_response.headers['Set-Cookie'])
-      expect(cookies[Janus.instance.config(:token_name)]).not_to be_nil
       expect(last_response.status).to eq(302)
+      cookies = parse_cookie(last_response.headers['Set-Cookie'])
+      token = cookies[Janus.instance.config(:token_name)]
+      expect{Janus.instance.sign.jwt_decode(token)}.not_to raise_error
     end
 
     context 'cookie expiration time' do
@@ -78,21 +99,23 @@ describe AuthorizationController do
           app_key: @client.app_key,
           refer: @refer
         )
-        @user.refresh
-        token = @user.valid_token
         cookies = parse_cookie(last_response.headers['Set-Cookie'])
+        token = cookies[Janus.instance.config(:token_name)]
         cookie_time = Time.parse(cookies['expires'])
-
-        expect(cookies[Janus.instance.config(:token_name)]).not_to be_nil
-        expect(cookie_time).to be_within(1).of(token.token_expire_stamp)
+        payload = nil
+        expect {
+          payload, headers = Janus.instance.sign.jwt_decode(token)
+        }.not_to raise_error
+        expect(cookie_time).to be_within(1).of(Time.at(payload["exp"]))
         expect(last_response.status).to eq(302)
       end
 
       it 'sets a fresh token on login' do
-        token = create( :token, user: @user, token: 'xyzzy',
-                       token_login_stamp: Time.now - 60,
-                       token_expire_stamp: Time.now+10,
-                       token_logout_stamp: Time.now+10)
+        token = nil
+        Timecop.freeze(Time.now - Janus.instance.config(:token_life) - 10) do
+          token = @user.create_token!
+        end
+        set_cookie([ Janus.instance.config(:token_name), token ].join('='))
         form_post(
           'validate-login', 
           email: @user.email,
@@ -100,14 +123,10 @@ describe AuthorizationController do
           app_key: @client.app_key,
           refer: @refer
         )
-        @user.refresh
-        valid_token = @user.valid_token
         cookies = parse_cookie(last_response.headers['Set-Cookie'])
         cookie_time = Time.parse(cookies['expires'])
 
-        expect(cookies[Janus.instance.config(:token_name)]).to eq(valid_token.token)
-        expect(cookies[Janus.instance.config(:token_name)]).not_to eq(token.token)
-        expect(cookie_time).to be_within(1).of(valid_token.token_expire_stamp)
+        expect(cookies[Janus.instance.config(:token_name)]).not_to eq(token)
         expect(last_response.status).to eq(302)
       end
     end
@@ -123,10 +142,9 @@ describe AuthorizationController do
 
       expect(last_response.status).to eq(302)
       expect(last_response.headers['Location']).to eq(@refer)
-      expect(@user.valid_token).not_to be_nil
     end
 
-    it "sets a cookie with credentials" do
+    it 'sets a cookie with credentials' do
       refer = "https://#{Janus.instance.config(:token_domain)}"
       form_post(
         'validate-login', 
@@ -136,38 +154,6 @@ describe AuthorizationController do
         refer: refer
       )
       expect(rack_mock_session.cookie_jar[Janus.instance.config(:token_name)]).not_to be_empty
-    end
-  end
-
-  context 'logout' do
-    it 'logs the user out' do
-      user = create( :user, email: 'janus@two-faces.org' )
-      token = create( :token, user: user, token: 'xyzzy',
-                     token_expire_stamp: Time.now+60,
-                     token_logout_stamp: Time.now+60)
-
-      json_post(:logout,
-                token: token.token,
-                app_key: @client.app_key)
-      user.refresh
-
-      expect(user.valid_token).to be_nil
-    end
-  end
-
-  context 'check_log' do
-    it 'returns user information for a token' do
-      user = create( :user, email: 'janus@two-faces.org' )
-      token = create( :token, user: user, token: 'xyzzy',
-                     token_expire_stamp: Time.now+60,
-                     token_logout_stamp: Time.now+60)
-
-      json_post(:check,
-                token: token.token,
-                app_key: @client.app_key)
-
-      json = JSON.parse(last_response.body)
-      expect(json['email']).to eq(user.email)
     end
   end
 
@@ -206,11 +192,12 @@ describe AuthorizationController do
 
       get("/login?refer=#{@refer}")
 
-      user.refresh
-
       expect(last_response.status).to eq(302)
       expect(last_response.headers['Location']).to eq(@refer)
-      expect(user.valid_token).not_to be_nil
+
+      cookies = parse_cookie(last_response.headers['Set-Cookie'])
+      token = cookies[Janus.instance.config(:token_name)]
+      expect{Janus.instance.sign.jwt_decode(token)}.not_to raise_error
     end
   end
 end
