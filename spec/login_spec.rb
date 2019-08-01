@@ -47,6 +47,19 @@ describe AuthorizationController do
       expect(last_response.body).to match(/value='#{@refer}'/)
     end
 
+    it 'gets a simple form with out-of-date credentials' do
+      set_cookie([ Janus.instance.config(:token_name), @user.create_token! ].join('='))
+
+      # Give Janus a project
+      gateway = create(:project, project_name: 'gateway', project_name_full: 'Gateway')
+      perm = create(:permission, project: gateway, user: @user, role: 'editor')
+
+      get("/login?refer=#{@refer}")
+
+      expect(last_response.status).to eq(200)
+      expect(last_response.body).to match(/value='#{@refer}'/)
+    end
+
     it 'complains without credentials' do
       json_post( 'validate-login', {} )
       expect(last_response.status).to eq(422)

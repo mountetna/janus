@@ -7,10 +7,26 @@ class AuthorizationController < Janus::Controller
       raise Etna::BadRequest, 'Invalid url refer'
     end
 
-    if Janus.instance.config(:auth_method) == 'shibboleth'
-      return login_shib
-    else
-      return login_form
+    token = @request.cookies[Janus.instance.config(:token_name)]
+
+    begin
+      payload, header = Janus.instance.sign.jwt_decode(token)
+
+      payload = payload.symbolize_keys.except(:exp)
+
+      user = User[email: payload[:email]]
+
+      raise 'Invalid payload!' if !user || payload != user.jwt_payload
+
+      # they have a valid token
+      @response.redirect(@params[:refer], 302)
+      @response.finish
+    rescue
+      if Janus.instance.config(:auth_method) == 'shibboleth'
+        return login_shib
+      else
+        return login_form
+      end
     end
   end
 
@@ -100,16 +116,7 @@ class AuthorizationController < Janus::Controller
   end
 
   def login_form
-    # Check if the token is set. If not then show the login dialog.
-    token = @request.cookies[Janus.instance.config(:token_name)]
-
-    begin
-      payload, header = Janus.instance.sign.jwt_decode(token)
-      @response.redirect(@params[:refer], 302)
-      @response.finish
-    rescue
-      return erb_view(:login_form)
-    end
+    erb_view(:login_form)
   end
 
   def respond_with_cookie(token, refer)
