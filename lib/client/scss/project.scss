@@ -35,6 +35,11 @@
     &.header {
       border-bottom: 1px solid rgba(#6ca689,0.6);
     }
+    &.summary {
+      font-size: 0.8em;
+      color: #1d6a86;
+      font-style: italic;
+    }
     &.permission {
       border-bottom: 1px solid rgba(#6d9eb0,0.1);
     }

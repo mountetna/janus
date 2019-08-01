@@ -91,6 +91,15 @@ const cancelNewUser = function(e) {
       <div id='janus-group'>
         <div class='project'>
           <div class='title'><%= @project.project_name_full.capitalize %></div>
+          <div class='item summary'>
+            <%= [ 'administrator', 'editor', 'viewer' ].map do |role|
+              @project_roles[role] &&
+              "#{@project_roles[role].size} #{ role }#{ @project_roles[role].size == 1 ? '' : 's' }"
+            end.compact.join(', ')
+          %>,
+
+          <%= @project.permissions.count(&:privileged?) %> privileged user<%= @project.permissions.count(&:privileged?) == 1 ? '' : 's' %>
+          </div>
           <div class='item header'>
             <div class='cell'>Name</div>
             <div class='cell'>Email</div>
