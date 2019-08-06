@@ -4,26 +4,63 @@
   <%= erb_partial(:header) %>
   <script type='text/javascript'>
 
-const show = function(...elements) { elements.forEach( e => e.style = 'display:inline;'); }
-const hide = function(...elements) { elements.forEach( e => e.style = 'display:none;'); }
+const show = (form) => form.querySelectorAll('i').forEach(
+  e => e.style = 'display:inline;'
+);
+const hide = (form) => form.querySelectorAll('i').forEach(
+  e => e.style = 'display:none;'
+);
+
+const INPUTS = {
+  select: {
+    selector: (name) => `select[name="${name}"]`,
+    changed: (input, original) => original ? (input.value != original.value) : (input.value != 'none'),
+    reset: (input, original) => input.value = original ? original.value : 'none'
+  },
+  text: {
+    selector: (name) => `input[type="text"][name="${name}"]`,
+    changed: (input, original) => original ? (input.value != original.value) : (input.value.length > 0),
+    reset: (input, original) => input.value = original ? original.value : ''
+  },
+  checkbox: {
+    selector: (name) => `input[type="checkbox"][name="${name}"]`,
+    changed: (input, original) => input.checked.toString() != original.value,
+    reset: (input, original) => input.checked = original.value == 'true'
+  }
+};
+
+const inputsChanged = (form, inputs) =>
+  Object.keys(inputs).some(type =>
+    inputs[type].some(name =>
+      INPUTS[type].changed(
+        form.querySelector(INPUTS[type].selector(name)),
+        form.querySelector(`input[name="original_${name}"]`)
+      )
+    )
+  );
+
+const resetInputs = (form, inputs) =>
+  Object.keys(inputs).forEach(type =>
+    inputs[type].forEach(name =>
+      INPUTS[type].reset(
+        form.querySelector(INPUTS[type].selector(name)),
+        form.querySelector(`input[name="original_${name}"]`)
+      )
+    )
+  );
+
+const PERMISSION_INPUTS = {
+  select: [ 'role' ],
+  checkbox: [ 'privileged' ],
+  text: [ 'affiliation' ]
+};
 
 const updatePermission = function(e) {
   let select = e.target;
   let form = select.closest('.item');
 
-  let role = form.querySelector('select[name="role"]');
-  let original_role = form.querySelector('input[name="original_role"]');
-  let privileged = form.querySelector('input[type="checkbox"][name="privileged"]');
-  let original_privileged = form.querySelector('input[name="original_privileged"]');
-
-  let approve = form.querySelector('.approve');
-  let cancel = form.querySelector('.cancel');
-
-  if ((role && original_role.value != role.value) || original_privileged.value != privileged.checked.toString()) {
-    show(approve,cancel);
-  } else {
-    hide(approve,cancel);
-  }
+  if (inputsChanged(form, PERMISSION_INPUTS)) show(form);
+  else hide(form);
 }
 
 const approveForm = function(e) {
@@ -37,52 +74,29 @@ const cancelPermission = function(e) {
   let select = e.target;
   let form = select.closest('.item');
 
-  let role = form.querySelector('select[name="role"]');
-  let original_role = form.querySelector('input[name="original_role"]');
-  let privileged = form.querySelector('input[type="checkbox"][name="privileged"]');
-  let original_privileged = form.querySelector('input[name="original_privileged"]');
-
-  let approve = form.querySelector('.approve');
-  let cancel = form.querySelector('.cancel');
-
-  role.value = original_role.value;
-  privileged.checked = original_privileged.value == 'true';
-  hide(approve,cancel);
+  resetInputs(form, PERMISSION_INPUTS);
+  hide(form);
 }
+
+const NEWUSER_INPUTS = {
+  select: [ 'role' ],
+  text: [ 'name', 'email' ]
+};
 
 const updateNewUser = function(e) {
   let select = e.target;
   let form = select.closest('.item');
 
-  let name = form.querySelector('input[name="name"]');
-  let email = form.querySelector('input[name="email"]');
-  let role = form.querySelector('select[name="role"]');
-
-  let approve = form.querySelector('.approve');
-  let cancel = form.querySelector('.cancel');
-
-  if (role.value != 'none' && name.value.length > 0 && email.value.match(/.+\@.+\..+/)) {
-    show(approve,cancel);
-  } else {
-    hide(approve,cancel);
-  }
+  if (inputsChanged(form, NEWUSER_INPUTS)) show(form);
+  else hide(form);
 }
 
 const cancelNewUser = function(e) {
   let select = e.target;
   let form = select.closest('.item');
 
-  let name = form.querySelector('input[name="name"]');
-  let email = form.querySelector('input[name="email"]');
-  let role = form.querySelector('select[name="role"]');
-
-  let approve = form.querySelector('.approve');
-  let cancel = form.querySelector('.cancel');
-
-  name.value = '';
-  email.value = '';
-  role.value = 'none';
-  hide(approve,cancel);
+  resetInputs(form, NEWUSER_INPUTS);
+  hide(form);
 }
   </script>
   <body>
@@ -104,6 +118,7 @@ const cancelNewUser = function(e) {
             <div class='cell'>Name</div>
             <div class='cell'>Email</div>
             <div class='cell'>Role</div>
+            <div class='cell'>Affiliation</div>
             <div class='cell'>Privileged</div>
             <div class='cell submit'></div>
           </div>
@@ -122,11 +137,19 @@ const cancelNewUser = function(e) {
                 <% unless @roles.include?(permission.role) %>
                   <%= permission.role %>
                 <% else %>
-                  <select name='role' onchange='updatePermission(event)'>
+                  <select name='role' oninput='updatePermission(event)'>
                     <% @roles.each do |role| %>
                       <option value='<%= role %>' <%= role == permission.role.to_s ? 'selected' : '' %>><%= role %></option>
                     <% end %>
                   </select>
+                <% end %>
+              </div>
+              <div class='cell'>
+                <% if !@static %>
+                  <input type='hidden' name='original_affiliation' value='<%= permission.affiliation %>'>
+                  <input type='text' name='affiliation' value='<%= permission.affiliation %>' oninput='updatePermission(event)'>
+                <% else %>
+                  <%= permission.affiliation %>
                 <% end %>
               </div>
               <div class='cell'>
@@ -135,7 +158,7 @@ const cancelNewUser = function(e) {
                 <% else %>
                   <input type='hidden' name='original_privileged' value='<%= permission.privileged? ? 'true' : 'false' %>'>
                   <input type='hidden' name='privileged' value='false'>
-                  <input type='checkbox' name='privileged' value='true' <%= permission.privileged? ? 'checked' : '' %> onchange='updatePermission(event)'>
+                  <input type='checkbox' name='privileged' value='true' <%= permission.privileged? ? 'checked' : '' %> oninput='updatePermission(event)'>
                 <% end %>
               </div>
               <div class='cell submit'>
@@ -147,15 +170,16 @@ const cancelNewUser = function(e) {
           <% if !@static %>
             <div class='new'>New User</div>
             <form method='post' action='/add_user/<%= @project.project_name %>' class='item'>
-              <div class='cell'><input type='text' onchange='updateNewUser(event)' placeholder='Name' name='name'></div>
-              <div class='cell'><input type='text' onchange='updateNewUser(event)' placeholder='Email' name='email'></div>
+              <div class='cell'><input type='text' oninput='updateNewUser(event)' placeholder='Name' name='name'></div>
+              <div class='cell'><input type='text' oninput='updateNewUser(event)' placeholder='Email' name='email'></div>
               <div class='cell'>
-                <select onchange='updateNewUser(event)' name='role'>
+                <select oninput='updateNewUser(event)' name='role'>
                   <option selected value='none'>Role</option>
                   <option value='viewer'>Viewer</option>
                   <option value='editor'>Editor</option>
                 </select>
               </div>
+              <div class='cell'><input type='text' oninput='updateNewUser(event)' placeholder='Affiliation' name='affiliation'></div>
               <div class='cell'></div>
               <div class='cell submit'>
                 <i class='approve fa fa-fw fa-save' style='display:none;' onclick='approveForm(event)'> </i>
