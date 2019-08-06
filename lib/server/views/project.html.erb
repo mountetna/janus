@@ -4,12 +4,10 @@
   <%= erb_partial(:header) %>
   <script type='text/javascript'>
 
-const show = (form) => form.querySelectorAll('i').forEach(
-  e => e.style = 'display:inline;'
-);
-const hide = (form) => form.querySelectorAll('i').forEach(
-  e => e.style = 'display:none;'
-);
+const show = (e,type='inline') => e.style = `display:${type};`;
+const hide = (e) => e.style = 'display:none;';
+const showForm = (form) => form.querySelectorAll('i').forEach(i =>show(i));
+const hideForm = (form) => form.querySelectorAll('i').forEach(hide);
 
 const INPUTS = {
   select: {
@@ -59,8 +57,8 @@ const updatePermission = function(e) {
   let select = e.target;
   let form = select.closest('.item');
 
-  if (inputsChanged(form, PERMISSION_INPUTS)) show(form);
-  else hide(form);
+  if (inputsChanged(form, PERMISSION_INPUTS)) showForm(form);
+  else hideForm(form);
 }
 
 const approveForm = function(e) {
@@ -75,7 +73,7 @@ const cancelPermission = function(e) {
   let form = select.closest('.item');
 
   resetInputs(form, PERMISSION_INPUTS);
-  hide(form);
+  hideForm(form);
 }
 
 const NEWUSER_INPUTS = {
@@ -87,8 +85,8 @@ const updateNewUser = function(e) {
   let select = e.target;
   let form = select.closest('.item');
 
-  if (inputsChanged(form, NEWUSER_INPUTS)) show(form);
-  else hide(form);
+  if (inputsChanged(form, NEWUSER_INPUTS)) showForm(form);
+  else hideForm(form);
 }
 
 const cancelNewUser = function(e) {
@@ -96,7 +94,23 @@ const cancelNewUser = function(e) {
   let form = select.closest('.item');
 
   resetInputs(form, NEWUSER_INPUTS);
-  hide(form);
+  hideForm(form);
+}
+
+const value = (item) => item.value || item.innerHTML;
+
+const filter = (e) => {
+  let filter = e.target.value;
+
+  let items = document.querySelectorAll('.items .item');
+  items.forEach(item => {
+    let columns = [ 'name', 'email', 'role', 'affiliation' ];
+    if (columns.some(value_class =>
+      value(item.querySelector(`.${value_class}`)).match(new RegExp(filter, 'i'))
+      )) {
+      show(item, 'flex');
+    } else hide(item);
+  })
 }
   </script>
   <body>
@@ -122,22 +136,28 @@ const cancelNewUser = function(e) {
             <div class='cell'>Privileged</div>
             <div class='cell submit'></div>
           </div>
+          <% if @project.permissions.size > 10 %>
+            <div class='item'>
+              <input class='filter' type='text' placeholder='Filter rows' name='filter' oninput='filter(event)'>
+            </div>
+          <% end %>
+          <div class='items'>
           <% @project.permissions.sort_by{|p| [ p.role, p.user.email ] }.each do |permission| %>
             <form method='post' action='/update_permission/<%= @project.project_name %>' class='item permission'>
-              <div class='cell'><%= permission.user.name %></div>
+              <div class='cell'><span class='name'><%= permission.user.name %></span></div>
               <div class='cell'>
                 <% if !@static %>
                   <input type='hidden' name='email' value='<%= permission.user.email %>'>
                 <% end %>
-                <%= permission.user.email %></div>
+                <span class='email'><%= permission.user.email %></span></div>
               <div class='cell'>
                 <% if !@static %>
                   <input type='hidden' name='original_role' value='<%= permission.role %>'>
                 <% end %>
                 <% unless @roles.include?(permission.role) %>
-                  <%= permission.role %>
+                  <span class='role'><%= permission.role %></span>
                 <% else %>
-                  <select name='role' oninput='updatePermission(event)'>
+                  <select class='role' name='role' oninput='updatePermission(event)'>
                     <% @roles.each do |role| %>
                       <option value='<%= role %>' <%= role == permission.role.to_s ? 'selected' : '' %>><%= role %></option>
                     <% end %>
@@ -147,9 +167,9 @@ const cancelNewUser = function(e) {
               <div class='cell'>
                 <% if !@static %>
                   <input type='hidden' name='original_affiliation' value='<%= permission.affiliation %>'>
-                  <input type='text' name='affiliation' value='<%= permission.affiliation %>' oninput='updatePermission(event)'>
+                  <input class='affiliation' type='text' name='affiliation' value='<%= permission.affiliation %>' oninput='updatePermission(event)'>
                 <% else %>
-                  <%= permission.affiliation %>
+                  <span class='affiliation'><%= permission.affiliation %></span>
                 <% end %>
               </div>
               <div class='cell'>
@@ -167,6 +187,7 @@ const cancelNewUser = function(e) {
               </div>
             </form>
           <% end %>
+          </div>
           <% if !@static %>
             <div class='new'>New User</div>
             <form method='post' action='/add_user/<%= @project.project_name %>' class='item'>
