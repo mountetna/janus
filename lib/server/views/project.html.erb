@@ -111,10 +111,14 @@ const cancelNewUser = function(e) {
             <form method='post' action='/update_permission/<%= @project.project_name %>' class='item permission'>
               <div class='cell'><%= permission.user.name %></div>
               <div class='cell'>
-                <input type='hidden' name='email' value='<%= permission.user.email %>'>
+                <% if !@static %>
+                  <input type='hidden' name='email' value='<%= permission.user.email %>'>
+                <% end %>
                 <%= permission.user.email %></div>
               <div class='cell'>
-                <input type='hidden' name='original_role' value='<%= permission.role %>'>
+                <% if !@static %>
+                  <input type='hidden' name='original_role' value='<%= permission.role %>'>
+                <% end %>
                 <% unless @roles.include?(permission.role) %>
                   <%= permission.role %>
                 <% else %>
@@ -126,9 +130,13 @@ const cancelNewUser = function(e) {
                 <% end %>
               </div>
               <div class='cell'>
-                <input type='hidden' name='original_privileged' value='<%= permission.privileged? ? 'true' : 'false' %>'>
-                <input type='hidden' name='privileged' value='false'>
-                <input type='checkbox' name='privileged' value='true' <%= permission.privileged? ? 'checked' : '' %> onchange='updatePermission(event)'>
+                <% if @static %>
+                  <%= permission.privileged? ? 'Yes' : '' %>
+                <% else %>
+                  <input type='hidden' name='original_privileged' value='<%= permission.privileged? ? 'true' : 'false' %>'>
+                  <input type='hidden' name='privileged' value='false'>
+                  <input type='checkbox' name='privileged' value='true' <%= permission.privileged? ? 'checked' : '' %> onchange='updatePermission(event)'>
+                <% end %>
               </div>
               <div class='cell submit'>
                 <i class='approve fa fa-fw fa-save' style='display:none;' onclick='approveForm(event)'> </i>
@@ -136,23 +144,25 @@ const cancelNewUser = function(e) {
               </div>
             </form>
           <% end %>
-          <div class='new'>New User</div>
-          <form method='post' action='/add_user/<%= @project.project_name %>' class='item'>
-            <div class='cell'><input type='text' onchange='updateNewUser(event)' placeholder='Name' name='name'></div>
-            <div class='cell'><input type='text' onchange='updateNewUser(event)' placeholder='Email' name='email'></div>
-            <div class='cell'>
-              <select onchange='updateNewUser(event)' name='role'>
-                <option selected value='none'>Role</option>
-                <option value='viewer'>Viewer</option>
-                <option value='editor'>Editor</option>
-              </select>
-            </div>
-            <div class='cell'></div>
-            <div class='cell submit'>
-              <i class='approve fa fa-fw fa-save' style='display:none;' onclick='approveForm(event)'> </i>
-              <i class='cancel fa fa-fw fa-ban' style='display:none;' onclick='cancelNewUser(event)'> </i>
-            </div>
-          </form>
+          <% if !@static %>
+            <div class='new'>New User</div>
+            <form method='post' action='/add_user/<%= @project.project_name %>' class='item'>
+              <div class='cell'><input type='text' onchange='updateNewUser(event)' placeholder='Name' name='name'></div>
+              <div class='cell'><input type='text' onchange='updateNewUser(event)' placeholder='Email' name='email'></div>
+              <div class='cell'>
+                <select onchange='updateNewUser(event)' name='role'>
+                  <option selected value='none'>Role</option>
+                  <option value='viewer'>Viewer</option>
+                  <option value='editor'>Editor</option>
+                </select>
+              </div>
+              <div class='cell'></div>
+              <div class='cell submit'>
+                <i class='approve fa fa-fw fa-save' style='display:none;' onclick='approveForm(event)'> </i>
+                <i class='cancel fa fa-fw fa-ban' style='display:none;' onclick='cancelNewUser(event)'> </i>
+              </div>
+            </form>
+          <% end %>
         </div>
       </div>
     </div>

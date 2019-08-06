@@ -6,7 +6,16 @@ class AdminController < Janus::Controller
 
   def project
     @project = Project[project_name: @params[:project_name]]
-    @roles = @user.is_superuser? ? [ 'administrator', 'viewer', 'editor', 'disabled' ] : [ 'viewer', 'editor', 'disabled' ]
+    @static = nil
+    if @user.is_superuser?
+      @roles = [ 'administrator', 'viewer', 'editor', 'disabled' ]
+    elsif @user.is_admin?(@params[:project_name])
+      @roles = [ 'viewer', 'editor', 'disabled' ]
+    else
+      @roles = []
+      @static = true
+    end
+
     @project_roles = @project.permissions.group_by(&:role)
     erb_view(:project)
   end

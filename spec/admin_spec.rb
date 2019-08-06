@@ -53,13 +53,26 @@ describe AdminController do
       expect(last_response.status).to eq(200)
     end
 
-    it 'forbids the project view to non-admins' do
+    it 'shows a static project view to editors' do
       user = create(:user, first_name: 'Portunus', email: 'portunus@two-faces.org')
 
       door = create(:project, project_name: 'door', project_name_full: 'Door')
       perm = create(:permission, project: door, user: user, role: 'editor')
 
       auth_header(:portunus)
+      get('/project/door')
+
+      expect(last_response.status).to eq(200)
+      expect(html_body.css('input')).to be_empty
+    end
+
+    it 'forbids the project view to viewers' do
+      user = create(:user, first_name: 'Lar', last_name: 'Familiaris', email: 'lar@two-faces.org')
+
+      door = create(:project, project_name: 'door', project_name_full: 'Door')
+      perm = create(:permission, project: door, user: user, role: 'viewer')
+
+      auth_header(:lar)
       get('/project/door')
 
       expect(last_response.status).to eq(403)

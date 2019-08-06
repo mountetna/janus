@@ -20,7 +20,7 @@ class Janus
 
     get '/', action: 'admin#main'
 
-    get '/project/:project_name', action: 'admin#project', auth: { user: { is_admin?: :project_name } }
+    get '/project/:project_name', action: 'admin#project', auth: { user: { can_edit?: :project_name } }
 
     post '/update_permission/:project_name', action: 'admin#update_permission', auth: { user: { is_admin?: :project_name } }
 
