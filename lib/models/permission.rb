@@ -8,6 +8,7 @@ class Permission < Sequel::Model
       user_id: user_id,
       project_id: project_id,
       role: role,
+      affiliation: affiliation,
       project_name: project.project_name,
       user_email: user.email,
       group_id: project.group_id,

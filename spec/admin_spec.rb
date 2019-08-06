@@ -122,6 +122,24 @@ describe AdminController do
       expect(perm2.role).to eq('viewer')
     end
 
+    it 'allows an admin to update an affiliation' do
+      user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
+      user2 = create(:user, first_name: 'Portunus', email: 'portunus@two-faces.org')
+
+      door = create(:project, project_name: 'door', project_name_full: 'Door')
+      perm = create(:permission, project: door, user: user, role: 'administrator', privileged: true)
+      perm2 = create(:permission, project: door, user: user2, role: 'editor')
+
+      auth_header(:janus)
+      json_post('update_permission/door', email: 'portunus@two-faces.org', affiliation: 'ILWU')
+
+      expect(last_response.status).to eq(302)
+      expect(last_response.headers['Location']).to eq('/project/door')
+
+      perm2.refresh
+      expect(perm2.affiliation).to eq('ILWU')
+    end
+
     it 'allows an admin to grant privilege' do
       user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
       user2 = create(:user, first_name: 'Portunus', email: 'portunus@two-faces.org')
@@ -156,6 +174,40 @@ describe AdminController do
 
       perm2.refresh
       expect(perm2).not_to be_privileged
+    end
+
+    it 'forbids a non-admin from updating roles' do
+      user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
+      user2 = create(:user, first_name: 'Portunus', email: 'portunus@two-faces.org')
+
+      door = create(:project, project_name: 'door', project_name_full: 'Door')
+      perm = create(:permission, project: door, user: user, role: 'administrator', privileged: true)
+      perm2 = create(:permission, project: door, user: user2, role: 'editor')
+
+      auth_header(:portunus)
+      json_post('update_permission/door', email: 'portunus@two-faces.org', role: 'viewer')
+
+      expect(last_response.status).to eq(403)
+
+      perm2.refresh
+      expect(perm2.role).to eq('editor')
+    end
+
+    it 'forbids a non-admin from updating affiliation' do
+      user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
+      user2 = create(:user, first_name: 'Portunus', email: 'portunus@two-faces.org')
+
+      door = create(:project, project_name: 'door', project_name_full: 'Door')
+      perm = create(:permission, project: door, user: user, role: 'administrator', privileged: true)
+      perm2 = create(:permission, project: door, user: user2, role: 'editor')
+
+      auth_header(:portunus)
+      json_post('update_permission/door', email: 'portunus@two-faces.org', affiliation: 'ILWU')
+
+      expect(last_response.status).to eq(403)
+
+      perm2.refresh
+      expect(perm2.affiliation).to be_nil
     end
 
     it 'forbids a non-admin from updating privileges' do
@@ -254,7 +306,7 @@ describe AdminController do
       perm = create(:permission, project: door, user: user, role: 'administrator', privileged: true)
 
       auth_header(:janus)
-      json_post('add_user/door', email: 'portunus@two-faces.org', name: 'Portunus', role: 'editor')
+      json_post('add_user/door', email: 'portunus@two-faces.org', name: 'Portunus', role: 'editor', affiliation: "ILWU")
 
       expect(last_response.status).to eq(302)
       expect(last_response.headers['Location']).to eq('/project/door')
@@ -268,6 +320,7 @@ describe AdminController do
       expect(perm2.user).to eq(user2)
       expect(perm2.project).to eq(door)
       expect(perm2.role).to eq('editor')
+      expect(perm2.affiliation).to eq('ILWU')
 
       expect(user2.name).to eq('Portunus')
       expect(user2.email).to eq('portunus@two-faces.org')

@@ -42,6 +42,7 @@ class AdminController < Janus::Controller
     else
       permission.role = @params[:role] if @params[:role]
       permission.privileged = @params[:privileged] if [true,false].include?(@params[:privileged])
+      permission.affiliation = @params[:affiliation] if @params[:affiliation]
       permission.save
     end
 
@@ -75,6 +76,7 @@ class AdminController < Janus::Controller
     permission = Permission.create(project: @project, user: user, role: @params[:role])
     permission.role = @params[:role] if [ 'viewer', 'editor' ].include?(@params[:role])
     permission.privileged = false
+    permission.affiliation = @params[:affiliation]
     permission.save
 
     @response.redirect("/project/#{@params[:project_name]}")
