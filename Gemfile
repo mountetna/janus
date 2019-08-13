@@ -15,6 +15,7 @@ group :test do
   gem 'rack-test', require: "rack/test"
   gem 'factory_bot'
   gem 'simplecov'
+  gem 'nokogiri'
   gem 'pry'
   gem 'database_cleaner'
 end

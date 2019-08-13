@@ -29,6 +29,14 @@
     padding: 15px 7px 0px 7px;
     font-size: 0.9em;
   }
+
+  .filter {
+    width: 400px;
+  }
+  .items {
+    max-height: 410px;
+    overflow: auto;
+  }
   .item {
     display: flex;
     align-items: center;

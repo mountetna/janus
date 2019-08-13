@@ -15,7 +15,7 @@
           <div class='title'>Your Projects</div>
           <% @janus_user.permissions.sort_by{|p| p.role[0] + p.project.project_name_full.capitalize }.each do |permission| %>
             <div class='item'>
-              <% if permission.admin? || @janus_user.superuser? %>
+              <% if permission.editor? || @janus_user.superuser? %>
                 <a href='/project/<%= permission.project.project_name %>'>
                   <%= permission.project.project_name_full.capitalize %>
                 </a>

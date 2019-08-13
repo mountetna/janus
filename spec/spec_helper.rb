@@ -6,6 +6,7 @@ require 'factory_bot'
 require 'database_cleaner'
 require 'simplecov'
 require 'timecop'
+require 'nokogiri'
 
 require_relative '../lib/janus'
 require_relative '../lib/server'
@@ -21,6 +22,9 @@ AUTH_USERS.update(
   },
   portunus: {
     email: 'portunus@two-faces.org', first: 'Portunus', perm: 'e:door'
+  },
+  lar: {
+    email: 'lar@two-faces.org', first: 'Lar', last: 'Familiaris', perm: 'v:door'
   }
 
 )
@@ -181,6 +185,10 @@ end
 
 def json_body(response=nil)
   JSON.parse((response || last_response).body, symbolize_names: true)
+end
+
+def html_body(response=nil)
+  Nokogiri::HTML((response ||last_response).body)
 end
 
 def json_post endpoint, hash

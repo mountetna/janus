@@ -6,7 +6,16 @@ class AdminController < Janus::Controller
 
   def project
     @project = Project[project_name: @params[:project_name]]
-    @roles = @user.is_superuser? ? [ 'administrator', 'viewer', 'editor', 'disabled' ] : [ 'viewer', 'editor', 'disabled' ]
+    @static = nil
+    if @user.is_superuser?
+      @roles = [ 'administrator', 'viewer', 'editor', 'disabled' ]
+    elsif @user.is_admin?(@params[:project_name])
+      @roles = [ 'viewer', 'editor', 'disabled' ]
+    else
+      @roles = []
+      @static = true
+    end
+
     @project_roles = @project.permissions.group_by(&:role)
     erb_view(:project)
   end
@@ -33,6 +42,7 @@ class AdminController < Janus::Controller
     else
       permission.role = @params[:role] if @params[:role]
       permission.privileged = @params[:privileged] if [true,false].include?(@params[:privileged])
+      permission.affiliation = @params[:affiliation] if @params[:affiliation]
       permission.save
     end
 
@@ -66,6 +76,7 @@ class AdminController < Janus::Controller
     permission = Permission.create(project: @project, user: user, role: @params[:role])
     permission.role = @params[:role] if [ 'viewer', 'editor' ].include?(@params[:role])
     permission.privileged = false
+    permission.affiliation = @params[:affiliation]
     permission.save
 
     @response.redirect("/project/#{@params[:project_name]}")
