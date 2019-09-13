@@ -138,7 +138,9 @@ class AuthorizationController < Janus::Controller
       value: token,
       path: '/',
       domain: Janus.instance.config(:token_domain),
-      expires: expire_time
+      expires: expire_time,
+      secure: true,
+      same_site: :strict
     )
 
     return @response.finish

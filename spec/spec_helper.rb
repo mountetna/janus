@@ -30,7 +30,10 @@ AUTH_USERS.update(
 )
 
 Janus.instance.configure(YAML.load(File.read('config.yml')))
-# Doing this will load the config.yml into the application
+
+JANUS_HOST="janus.#{Janus.instance.config(:token_domain)}"
+JANUS_URL="https://#{JANUS_HOST}"
+
 OUTER_APP = Rack::Builder.new do
   use Etna::ParseBody
   use Etna::SymbolizeParams
@@ -179,6 +182,21 @@ FactoryBot.define do
   end
 end
 
+
+class Rack::Test::Session
+  alias_method :real_default_env, :default_env
+
+  def default_env
+    real_default_env.merge('HTTPS' => 'on')
+  end
+end
+
+module Rack::Test::Methods
+  def build_rack_mock_session
+    Rack::MockSession.new(app, JANUS_HOST)
+  end
+end
+
 def fixture name
   File.join(File.dirname(__FILE__),"fixtures/#{name}.txt")
 end
@@ -203,7 +221,7 @@ end
 
 def form_post endpoint, hash
   post(
-    "http://#{Janus.instance.config(:token_domain)}/#{endpoint}",
+    "#{JANUS_URL}/#{endpoint}",
     URI.encode_www_form(hash),
     {
       'CONTENT_TYPE' => 'application/x-www-form-urlencoded'
