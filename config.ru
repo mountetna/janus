@@ -7,6 +7,7 @@ Bundler.require(:default, ENV["JANUS_ENV"].to_sym)
 require_relative './lib/janus'
 require_relative './lib/server'
 require_relative './lib/server/throttle'
+require_relative './lib/server/refresh_token'
 
 
 Janus.instance.configure(YAML.load(File.read('config.yml')))
@@ -16,4 +17,5 @@ use Rack::Static, urls: ['/css', '/js', '/fonts', '/img'], root: 'lib/client'
 use Etna::Auth
 
 use Janus::Throttle, max: 100
+use Janus::RefreshToken
 run Janus::Server.new

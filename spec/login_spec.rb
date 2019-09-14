@@ -4,14 +4,11 @@ describe AuthorizationController do
   def app
     OUTER_APP
   end
-  before(:each) do
-    @client = create(:app, app_name: 'test', app_key: 'THE KEY')
-  end
 
   context 'password login' do
     before(:each) do
       clear_cookies
-      @refer = "https://#{Janus.instance.config(:token_domain)}"
+      @refer = JANUS_URL
       @password = 'password'
       @user = create(
         :user,
@@ -70,7 +67,6 @@ describe AuthorizationController do
         'validate-login', 
         email: @user.email,
         password: 'bassboard',
-        app_key: @client.app_key,
         refer: @refer
       )
       expect(last_response.status).to eq(422)
@@ -81,13 +77,26 @@ describe AuthorizationController do
         'validate-login', 
         email: @user.email,
         password: 'password',
-        app_key: @client.app_key,
         refer: @refer
       )
       expect(last_response.status).to eq(302)
       cookies = parse_cookie(last_response.headers['Set-Cookie'])
+
+      # a valid token is present under the token name
       token = cookies[Janus.instance.config(:token_name)]
       expect{Janus.instance.sign.jwt_decode(token)}.not_to raise_error
+
+      # the cookie is restricted to the token domain
+      expect(cookies["domain"]).to eq(Janus.instance.config(:token_domain))
+
+      # the cookie is secure (https only)
+      expect(cookies.has_key?("secure")).to be_truthy
+
+      # the cookie is accessible to javascript
+      expect(cookies.has_key?("HttpOnly")).to be_falsy
+
+      # the cookie is restricted to the same site
+      expect(cookies["SameSite"]).to eq('Strict')
     end
 
     context 'cookie expiration time' do
@@ -96,7 +105,6 @@ describe AuthorizationController do
           'validate-login', 
           email: @user.email,
           password: 'password',
-          app_key: @client.app_key,
           refer: @refer
         )
         cookies = parse_cookie(last_response.headers['Set-Cookie'])
@@ -120,7 +128,6 @@ describe AuthorizationController do
           'validate-login', 
           email: @user.email,
           password: 'password',
-          app_key: @client.app_key,
           refer: @refer
         )
         cookies = parse_cookie(last_response.headers['Set-Cookie'])
@@ -136,7 +143,6 @@ describe AuthorizationController do
         'validate-login', 
         email: @user.email,
         password: @password,
-        app_key: @client.app_key,
         refer: @refer
       )
 
@@ -145,12 +151,11 @@ describe AuthorizationController do
     end
 
     it 'sets a cookie with credentials' do
-      refer = "https://#{Janus.instance.config(:token_domain)}"
+      refer = JANUS_URL
       form_post(
         'validate-login', 
         email: @user.email,
         password: @password,
-        app_key: @client.app_key,
         refer: refer
       )
       expect(rack_mock_session.cookie_jar[Janus.instance.config(:token_name)]).not_to be_empty
@@ -163,7 +168,7 @@ describe AuthorizationController do
       allow(Janus.instance).to receive(:config).and_call_original
       allow(Janus.instance).to receive(:config).with(:auth_method).and_return('shibboleth')
 
-      @refer = "https://#{Janus.instance.config(:token_domain)}"
+      @refer = JANUS_URL
     end
 
     after(:each) do

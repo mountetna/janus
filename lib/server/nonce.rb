@@ -1,5 +1,11 @@
+require 'openssl'
+
 class Janus
   class Nonce
+    def self.nonce_key
+      @nonce_key ||= OpenSSL::PKey::RSA.new(2048)
+    end
+
     def self.valid?(nonce)
       timestamp, nonce_sig = Base64.decode64(nonce).split(/\./)
 
@@ -22,8 +28,8 @@ class Janus
     end
 
     def to_s
-      # sign the time with our private key
-      signature = Janus.instance.sign.private_key.sign(
+      # sign the time with our nonce key
+      signature = Janus::Nonce.nonce_key.sign(
         OpenSSL::Digest::SHA256.new,
         @timestamp
       )
