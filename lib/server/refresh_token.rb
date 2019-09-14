@@ -25,11 +25,15 @@ class Janus
 
         janus_user = User[email: request.env['etna.user'].email]
 
-        return [ 401, { 'Content-Type' => 'application/json' }, [ { error: 'Unknown user in token' }.to_json ] ] unless janus_user
+        begin
+          raise unless janus_user
 
-        payload = JSON.parse(
-          Base64.decode64(existing_token.split(/\./)[1]), symbolize_names: true
-        ).reject{|k|k == :exp}
+          payload, header = Janus.instance.sign.jwt_decode(existing_token)
+        rescue
+          return [ 401, { 'Content-Type' => 'application/json' }, [ { error: 'Invalid token' }.to_json ] ]
+        end
+
+        payload = payload.map{|k,v| [ k.to_sym, v ] }.to_h.reject{|k|k == :exp}
 
         return @app.call(env) if payload == janus_user.jwt_payload
 
