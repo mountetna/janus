@@ -11,6 +11,7 @@ require 'nokogiri'
 require_relative '../lib/janus'
 require_relative '../lib/server'
 require_relative '../lib/server/throttle'
+require_relative '../lib/server/refresh_token'
 
 ENV['JANUS_ENV'] = 'test'
 
@@ -37,10 +38,11 @@ JANUS_URL="https://#{JANUS_HOST}"
 OUTER_APP = Rack::Builder.new do
   use Etna::ParseBody
   use Etna::SymbolizeParams
+  use Etna::TestAuth
   use Rack::Static, urls: ['/css', '/js', '/fonts', '/img'], root: 'lib/client'
 
   use Janus::Throttle, max: 100
-  use Etna::TestAuth
+  use Janus::RefreshToken
   run Janus::Server.new
 end
 
@@ -235,6 +237,6 @@ def config
   Janus.instance.instance_variable_get("@config")
 end
 
-def parse_cookie set_cookie
+def parse_cookie(set_cookie='')
   Hash[set_cookie.split(/; /).map { |param| param.split(/=/) }]
 end

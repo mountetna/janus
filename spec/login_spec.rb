@@ -4,9 +4,6 @@ describe AuthorizationController do
   def app
     OUTER_APP
   end
-  before(:each) do
-    @client = create(:app, app_name: 'test', app_key: 'THE KEY')
-  end
 
   context 'password login' do
     before(:each) do
@@ -70,7 +67,6 @@ describe AuthorizationController do
         'validate-login', 
         email: @user.email,
         password: 'bassboard',
-        app_key: @client.app_key,
         refer: @refer
       )
       expect(last_response.status).to eq(422)
@@ -81,7 +77,6 @@ describe AuthorizationController do
         'validate-login', 
         email: @user.email,
         password: 'password',
-        app_key: @client.app_key,
         refer: @refer
       )
       expect(last_response.status).to eq(302)
@@ -110,7 +105,6 @@ describe AuthorizationController do
           'validate-login', 
           email: @user.email,
           password: 'password',
-          app_key: @client.app_key,
           refer: @refer
         )
         cookies = parse_cookie(last_response.headers['Set-Cookie'])
@@ -134,7 +128,6 @@ describe AuthorizationController do
           'validate-login', 
           email: @user.email,
           password: 'password',
-          app_key: @client.app_key,
           refer: @refer
         )
         cookies = parse_cookie(last_response.headers['Set-Cookie'])
@@ -150,7 +143,6 @@ describe AuthorizationController do
         'validate-login', 
         email: @user.email,
         password: @password,
-        app_key: @client.app_key,
         refer: @refer
       )
 
@@ -164,7 +156,6 @@ describe AuthorizationController do
         'validate-login', 
         email: @user.email,
         password: @password,
-        app_key: @client.app_key,
         refer: refer
       )
       expect(rack_mock_session.cookie_jar[Janus.instance.config(:token_name)]).not_to be_empty

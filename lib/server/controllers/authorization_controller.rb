@@ -123,26 +123,7 @@ class AuthorizationController < Janus::Controller
     # Set redirect.
     @response.redirect(refer, 302)
 
-    # Tear apart token to get expire time
-    expire_time = Time.at(
-      JSON.parse(
-        Base64.decode64(
-          token.split('.')[1]
-        )
-      )["exp"]
-    )
-
-    # Set cookie
-    @response.set_cookie(
-      Janus.instance.config(:token_name),
-      value: token,
-      path: '/',
-      domain: Janus.instance.config(:token_domain),
-      expires: expire_time,
-      secure: true,
-      same_site: :strict
-    )
-
+    Janus.instance.set_token_cookie(@response,token)
     return @response.finish
   end
 
