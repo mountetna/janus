@@ -58,3 +58,114 @@ describe User do
     Timecop.return
   end
 end
+
+describe UserController do
+  include Rack::Test::Methods
+
+  def app
+    OUTER_APP
+  end
+
+  context '#update_key' do
+    it 'updates a key' do
+      user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
+      rsa_key = OpenSSL::PKey::RSA.generate(2048)
+
+      auth_header(:janus)
+      post('/update_key', pem: rsa_key.public_key.to_s)
+
+      user.refresh
+      expect(last_response.status).to eq(200)
+      expect(user.public_key).to eq(rsa_key.public_key.to_s)
+    end
+
+    it 'complains if the key is not in PEM format' do
+      user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
+
+      auth_header(:janus)
+      post('/update_key', pem: 'I am the very model of a modern major-general')
+
+      # Janus complains
+      expect(last_response.status).to eq(422)
+      expect(json_body[:error]).to eq('Improperly formatted key')
+
+      # The user's key is unset
+      user.refresh
+      expect(user.public_key).to be_nil
+    end
+
+    it 'complains if the key is not 2048 bits' do
+      user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
+      rsa_key = OpenSSL::PKey::RSA.generate(1024)
+
+      auth_header(:janus)
+      post('/update_key', pem: rsa_key.public_key.to_s)
+
+      # Janus complains
+      expect(last_response.status).to eq(422)
+      expect(json_body[:error]).to eq('Key must be 2048 bits')
+
+      # The user's key is unset
+      user.refresh
+      expect(user.public_key).to be_nil
+    end
+
+    it 'complains if the key is not RSA' do
+      user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
+      dsa_key = OpenSSL::PKey::DSA.generate(2048)
+
+      auth_header(:janus)
+      post('/update_key', pem: dsa_key.public_key.to_s)
+
+      # Janus complains
+      expect(last_response.status).to eq(422)
+      expect(json_body[:error]).to eq('Key must be RSA')
+
+      # The user's key is unset
+      user.refresh
+      expect(user.public_key).to be_nil
+    end
+
+    it 'complains if the key is private' do
+      user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
+      rsa_key = OpenSSL::PKey::RSA.generate(2048)
+
+      auth_header(:janus)
+      post('/update_key', pem: rsa_key.to_s)
+
+      # Janus complains
+      expect(last_response.status).to eq(422)
+      expect(json_body[:error]).to eq('Cannot use a private key')
+
+      # The user's key is unset
+      user.refresh
+      expect(user.public_key).to be_nil
+    end
+
+    it 'complains if the user is non-existent' do
+      rsa_key = OpenSSL::PKey::RSA.generate(2048)
+
+      auth_header(:janus)
+      post('/update_key', pem: rsa_key.public_key.to_s)
+
+      # Janus complains
+      expect(last_response.status).to eq(403)
+      expect(json_body[:error]).to eq('User not found')
+    end
+
+    it 'requires authorization' do
+      user = create(:user, first_name: 'Janus', last_name: 'Bifrons', email: 'janus@two-faces.org')
+      rsa_key = OpenSSL::PKey::RSA.generate(2048)
+
+      post('/update_key', pem: rsa_key.public_key.to_s)
+
+      # Janus complains
+      expect(last_response.status).to eq(401)
+      expect(last_response.body).to eq('Authorization header missing')
+
+      # The user's key is unset
+      user.refresh
+      expect(user.public_key).to be_nil
+    end
+  end
+end
