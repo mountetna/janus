@@ -20,10 +20,7 @@ a {
   color: #999;
 }
 
-#janus-group {
-  padding: 10px;
-  margin: 0;
-}
+$janus-color: #333366;
 
 @mixin janus-box {
   padding-bottom: 10px;
@@ -39,5 +36,29 @@ a {
     border-bottom: 1px solid rgba(#6d9eb0,0.1);
     padding: 7px;
     font-size: 1.0em;
+  }
+}
+
+@mixin janus-button {
+  border-radius: 1px;
+  border: 1px solid rgba($janus-color,0.1);
+  background: rgba($janus-color,0.1);
+  padding: 2px;
+  cursor: pointer;
+  color: $janus-color;
+  &:hover {
+    border: 1px solid $janus-color;
+    background: rgba($janus-color, 0.2);
+  }
+  &:active {
+    background: rgba($janus-color, 0.3);
+  }
+}
+
+#janus-group {
+  padding: 10px;
+  margin: 0;
+  button {
+    @include janus-button;
   }
 }

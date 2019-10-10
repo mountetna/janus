@@ -17,6 +17,6 @@ class UserController < Janus::Controller
     @janus_user.public_key = @params[:pem]
     @janus_user.save
 
-    success_json('Key updated')
+    success('User Public Key updated')
   end
 end

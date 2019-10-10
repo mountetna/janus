@@ -2,6 +2,58 @@
 <meta charset='utf-8'/>
 <html>
   <%= erb_partial(:header) %>
+  <script type='text/javascript'>
+
+const copyToken = (e) => {
+  let token = decodeURIComponent(
+    document.cookie.replace(
+      new RegExp("(?:(?:^|.*;)\\s*<%= Janus.instance.config(:token_name) %>\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1"
+    )
+  ) || null;
+  if (token) {
+    let input = document.createElement('input');
+    input.value = token;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy',false);
+    input.remove();
+  }
+}
+
+const setError = (msg) => {
+  let error = document.querySelector('#error');
+  error.innerHTML = `Error: ${msg}`;
+  error.style = 'display: block';
+}
+
+const uploadKey = (e) => {
+  let input = document.querySelector('#pem');
+  fetch('/update_key', {
+    method: 'POST',
+    mode: 'same-origin',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ pem: input.value })
+  }).then( response => {
+    if (response.status == 200)
+      window.location.href = '/'
+    else {
+      let error = new Error();
+      error.response = response;
+      throw error;
+    }
+  }).catch( error => {
+    if (error.response) {
+      error.response.json().then(
+        ({error}) => setError(error)
+      )
+    } else throw error;
+  })
+}
+
+  </script>
   <body>
     <div id='ui-group'>
       <%= erb_partial(:nav) %>
@@ -10,6 +62,7 @@
           <div class='title'>Your Identity</div>
           <div class='item'><%= @janus_user.name %></div>
           <div class='item'><%= @janus_user.email %></div>
+          <div class='item'><button onclick='copyToken(event)'>Copy Token</button></div>
         </div>
         <div id='projects-group'>
           <div class='title'>Your Projects</div>
@@ -37,6 +90,13 @@
               No registered keys
             </div>
           <% end %>
+          <div class='item'>
+            <textarea
+              id='pem'
+              placeholder='Paste 2048+ bit RSA key in PEM format'></textarea>
+            <span style='display: none;' id='error'></span>
+            <button onclick='uploadKey(event)'>Upload Key</button>
+          </div>
         </div>
       </div>
     </div>
