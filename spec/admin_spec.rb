@@ -435,4 +435,48 @@ describe AdminController do
       expect(Permission.first.user).to eq(user)
     end
   end
+
+  context 'add_project' do
+    it 'allows a superuser to add a new project' do
+      auth_header(:superuser)
+      json_post('add_project', project_name: 'door', project_name_full: "Doors")
+
+      expect(last_response.status).to eq(302)
+      expect(last_response.headers['Location']).to eq('/')
+
+      expect(Project.count).to eq(1)
+      project = Project.first
+
+      expect(project.project_name).to eq('door')
+    end
+
+    it 'does not allow admins to add a new project' do
+      auth_header(:janus)
+      json_post('add_project', project_name: 'door', project_name_full: "Doors")
+
+      expect(last_response.status).to eq(403)
+
+      expect(Project.count).to eq(0)
+    end
+
+    it 'requires a well-formed project_name' do
+      auth_header(:superuser)
+      json_post('add_project', project_name: 'Door', project_name_full: "Doors")
+
+      expect(last_response.status).to eq(422)
+      expect(json_body[:error]).to match(/project_name should be like/)
+
+      expect(Project.count).to eq(0)
+    end
+
+    it 'requires some project_name_full' do
+      auth_header(:superuser)
+      json_post('add_project', project_name: 'door', project_name_full: '')
+
+      expect(last_response.status).to eq(422)
+      expect(json_body[:error]).to eq('project_name_full cannot be empty')
+
+      expect(Project.count).to eq(0)
+    end
+  end
 end

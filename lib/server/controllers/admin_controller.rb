@@ -82,4 +82,24 @@ class AdminController < Janus::Controller
     @response.redirect("/project/#{@params[:project_name]}")
     @response.finish
   end
+
+  def add_project
+    require_params(:project_name, :project_name_full)
+
+    raise Etna::BadRequest, "project_name should be like #{Project::PROJECT_NAME_MATCH.source}" unless Project.valid_name?(@params[:project_name])
+
+    raise Etna::BadRequest, 'project_name_full cannot be empty' if @params[:project_name_full].nil? || @params[:project_name_full].empty?
+
+    project = Project[project_name: @params[:project_name]]
+
+    raise Etna::BadRequest, 'Duplicate project_name' if project
+
+    project = Project.create(
+      project_name: @params[:project_name],
+      project_name_full: @params[:project_name_full]
+    )
+
+    @response.redirect('/')
+    @response.finish
+  end
 end
