@@ -39,6 +39,16 @@ $janus-color: #333366;
   }
 }
 
+@mixin janus-icon($color) {
+  font-size: 1.4em;
+  color: gray;
+  cursor: pointer;
+  &:hover {
+    color: $color;
+  }
+}
+
+
 @mixin janus-button {
   border-radius: 1px;
   border: 1px solid rgba($janus-color,0.1);
@@ -53,6 +63,14 @@ $janus-color: #333366;
   &:active {
     background: rgba($janus-color, 0.3);
   }
+}
+
+@mixin janus-input {
+  border: 1px solid rgba(#6d9eb0, 0.5);
+  padding: 0px 3px;
+  color: black;
+  background: none;
+  font-size: 1.0em;
 }
 
 #janus-group {
