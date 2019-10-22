@@ -9,7 +9,7 @@
       <%= @user.name %>
       <% if @params[:project_name] %>
         <% if @user.is_superuser? %>
-          <i class="icon fa fa-fw fa-user-astronaut" title="admin"></i>
+          <i class="icon fa fa-fw fa-user-ninja" title="admin"></i>
         <% else %>
           <% case @user.permissions[@params[:project_name]][:role]
             when :admin %>
