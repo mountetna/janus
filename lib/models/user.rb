@@ -63,7 +63,7 @@ class User < Sequel::Model
     @superuser ||= permissions.any? do |permission|
       permission.role == 'administrator' &&
         permission.project &&
-        permission.project.project_name == 'Administration'
+        permission.project.project_name == 'administration'
     end
   end
 end

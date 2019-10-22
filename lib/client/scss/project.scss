@@ -2,27 +2,14 @@
   @include janus-box;
 
   select, input {
-    border: 1px solid rgba(#6d9eb0, 0.5);
-    padding: 0px 3px;
-    color: black;
-    background: none;
-    font-size: 1.0em;
-  }
-
-  @mixin button($color) {
-    font-size: 1.4em;
-    color: gray;
-    cursor: pointer;
-    &:hover {
-      color: $color;
-    }
+    @include janus-input;
   }
 
   .approve {
-    @include button(dodgerblue);
+    @include janus-icon(dodgerblue);
   }
   .cancel {
-    @include button(forestgreen);
+    @include janus-icon(forestgreen);
   }
 
   .new {

@@ -1,6 +1,7 @@
 # This class handles the http request and routing
 require_relative './server/controllers/janus_controller'
 require_relative './server/controllers/admin_controller'
+require_relative './server/controllers/user_controller'
 require_relative './server/controllers/authorization_controller'
 
 class Janus
@@ -25,6 +26,10 @@ class Janus
     post '/update_permission/:project_name', action: 'admin#update_permission', auth: { user: { is_admin?: :project_name } }
 
     post '/add_user/:project_name', action: 'admin#add_user', auth: { user: { is_admin?: :project_name } }
+
+    post '/add_project', action: 'admin#add_project', auth: { user: { is_superuser?: true } }
+
+    post '/update_key', action: 'user#update_key'
 
     def initialize
       super
