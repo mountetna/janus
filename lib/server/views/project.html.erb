@@ -147,12 +147,12 @@ const filter = (e) => {
               <div class='cell'><span class='name'><%= permission.user.name %></span></div>
               <div class='cell'>
                 <% if !@static %>
-                  <input type='hidden' name='email' value='<%= permission.user.email %>'>
+                  <input type='hidden' name='email' value='<%= h(permission.user.email) %>'>
                 <% end %>
                 <span class='email'><%= permission.user.email %></span></div>
               <div class='cell'>
                 <% if !@static %>
-                  <input type='hidden' name='original_role' value='<%= permission.role %>'>
+                  <input type='hidden' name='original_role' value='<%= h(permission.role) %>'>
                 <% end %>
                 <% unless @roles.include?(permission.role) %>
                   <span class='role'><%= permission.role %></span>
@@ -166,10 +166,10 @@ const filter = (e) => {
               </div>
               <div class='cell'>
                 <% if !@static %>
-                  <input type='hidden' name='original_affiliation' value='<%= permission.affiliation %>'>
-                  <input class='affiliation' type='text' name='affiliation' value='<%= permission.affiliation %>' oninput='updatePermission(event)'>
+                  <input type='hidden' name='original_affiliation' value='<%= h(permission.affiliation) %>'>
+                  <input class='affiliation' type='text' name='affiliation' value='<%= h(permission.affiliation) %>' oninput='updatePermission(event)'>
                 <% else %>
-                  <span class='affiliation'><%= permission.affiliation %></span>
+                  <span class='affiliation'><%= h(permission.affiliation) %></span>
                 <% end %>
               </div>
               <div class='cell'>

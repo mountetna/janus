@@ -13,6 +13,10 @@ class Janus
       success(hash.to_json, 'application/json')
     end
 
+    def h(s)
+      ERB::Util.html_escape(s)
+    end
+
     # Quick check that the email is in a somewhat valid format.
     def email_valid?(eml)
       eml =~ /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/
