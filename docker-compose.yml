@@ -1,5 +1,7 @@
 version: "3.4"
 volumes:
+  data-dir:
+    driver: local
   janus-app-gems:
     driver: local
   janus-db-data:
@@ -61,10 +63,12 @@ services:
       - 5432
     container_name: janus_db_1
 
-  caddy:
-    image: "abiosoft/caddy:latest"
+  apache:
+    image: "library/httpd:2.4.43"
     volumes:
       - ./certs:/root/certs
-      - ./Caddyfile:/etc/Caddyfile
+      - ./docker-httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - data-dir:/app/data:rw
     ports:
-      - "443:2015"
+      - "443:443"
+      - "80:80"

@@ -174,9 +174,9 @@ you'll need to edit one of `dnsmasq`, `/etc/hosts`, `systemd-resolved` or `c:\wi
 
 You'll want entries for `janus.development.local` and `metis.development.local` pointing to localhost.
 
-docker-compose will run the `caddy` webserver to provide ssl to inside the docker services.
+docker-compose will run the `httpd` webserver to provide ssl to inside the docker services.
 However, ssl is provided via self signed certificates.  You'll need to add the `certs/rootCA.pem` file
 to your system's trusted root CA store, or add an exception to your browser.
 
 Adding new services involves using `mkcert` to create new domain certs into the `certs` directory,
-and adding a new entry to `Caddyfile` tying the cert, the subdomain, and the docker-internal url.
+and adding a new virtualhost entry to the bottom of `docker-httpd.conf` tying the cert, the subdomain, and the docker-internal url.

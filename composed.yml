@@ -1,12 +1,15 @@
 services:
-  caddy:
-    image: abiosoft/caddy:latest
+  apache:
+    image: library/httpd:2.4.43
     ports:
+    - published: 80
+      target: 80
     - published: 443
-      target: 2015
+      target: 443
     volumes:
-    - /home/home/janus/Caddyfile:/etc/Caddyfile:rw
+    - data-dir:/app/data:rw
     - /home/home/janus/certs:/root/certs:rw
+    - /home/home/janus/docker-httpd.conf:/usr/local/apache2/conf/httpd.conf:rw
   janus_app:
     build:
       context: /home/home/janus
@@ -66,6 +69,7 @@ services:
     command: ./docker/app/puma.sh
     depends_on:
     - metis_db
+    entrypoint: docker/app/docker-entrypoint.sh
     environment:
       COVERAGE: "true"
       DATABASE_HOST: db
@@ -99,6 +103,7 @@ services:
       context: /home/home/metis
       dockerfile: docker/app/Dockerfile.development
     command: npm run webpack
+    entrypoint: docker/app/docker-entrypoint.sh
     environment:
       COVERAGE: "true"
       DATABASE_HOST: db
