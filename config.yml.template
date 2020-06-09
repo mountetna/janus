@@ -2,17 +2,17 @@
 :development:
   :db:
     :adapter: postgres
-    :host: localhost
-    :database: janus
+    :host: janus_db
+    :database: janus_development
     :user: developer
     :password: password
-  :auth_redirect: https://janus-dev.etna-development.org
+  :auth_redirect: https://localhost:3001
   :pass_algo: sha256
   :pass_salt: 
   :token_algo: RS256
   :token_salt: qwerty
   :token_name: JANUS_DEV_TOKEN
-  :token_domain: etna-development.org
+  :token_domain: localhost
   :token_seed_length: 128
   :token_life: 86400
   :rsa_public: |
@@ -58,7 +58,7 @@
 :test:
   :db:
     :adapter: postgres
-    :host: localhost
+    :host: janus_db
     :database: janus_test
     :user: developer
     :password: password

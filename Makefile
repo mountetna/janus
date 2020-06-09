@@ -22,17 +22,22 @@ tmp/docker-build-mark: $(wildcard docker/**/*) docker-compose.yml
 config.yml:
 				cp config.yml.template config.yml
 
+composed.yml: docker-compose.yml ../metis/docker-compose.yml
+				@ docker-compose -f docker-compose.yml config > /tmp/janus.yml
+				@ docker-compose -f ../metis/docker-compose.yml config > /tmp/metis.yml
+				@ docker-compose -f /tmp/janus.yml -f /tmp/metis.yml config > composed.yml
+
 .PHONY: up
-up: config.yml ## Starts up the database, worker, and webservers of janus in the background.
-				@ docker-compose up -d
+up: config.yml composed.yml ## Starts up the database, worker, and webservers of janus in the background.
+				@ docker-compose -f composed.yml up -d
 
 .PHONY: down
-down: ## Ends background janus processes
-				@ docker-compose down
+down: composed.yml ## Ends background janus processes
+				@ docker-compose -f composed.yml down --remove-orphans
 
 .PHONY: ps
 ps: ## Lists status of running janus processes
-				@ docker-compose ps
+				@ docker-compose -f composed.yml ps
 
 .PHONY: bundle
 bundle: ## Executes a bundle install inside of the janus app context.
@@ -40,24 +45,24 @@ bundle: ## Executes a bundle install inside of the janus app context.
 
 .PHONY: build
 build: ## Rebuilds the janus docker environment.  Does not clear volumes or databases, just rebuilds code components.
-				@ docker-compose build
+				@ docker-compose -f composed.yml build
 
 .PHONY: console
 console: ## Starts an irb console inside of the janus app context.
-				docker-compose run --rm janus_app bundle exec irb
+				docker exec -ti "$$(docker ps --format '{{.Names}}' | grep janus_app)" bundle exec irb
 
 .PHONY: migrate
 migrate: ## Executes dev and test migrations inside of the janus app context.
 				@ docker-compose run --rm janus_app ./bin/janus migrate
-				@ docker-compose run -e janus_ENV=test --rm janus_app ./bin/janus migrate
+				@ docker-compose run -e JANUS_ENV=test --rm janus_app ./bin/janus migrate
 
 .PHONY: test
 test: ## Execute (all) rspec tests inside of the janus app context.
-				@ docker-compose run -e janus_ENV=test --rm janus_app bundle exec rspec
+				@ docker-compose run -e JANUS_ENV=test --rm janus_app bundle exec rspec
 
 .PHONY: bash
 bash: ## Start a bash shell inside of the app context.
-				@docker-compose exec janus_app bash
+				@docker exec -ti "$$(docker ps --format '{{.Names}}' | grep janus_app)" bash
 
 .PHONY: db-port
 db-port: ## Print the db port associated with the app.

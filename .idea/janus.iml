@@ -5,7 +5,43 @@
   </component>
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Remote: ruby-2.5.1-p57 (2)" jdkType="RUBY_SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="PROVIDED" name="activesupport (v6.0.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="bundler (v1.16.6, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="coderay (v1.1.2, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="concurrent-ruby (v1.1.5, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="connection_pool (v2.2.2, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="database_cleaner (v1.7.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="diff-lcs (v1.3, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="docile (v1.3.2, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="etna (v0.1.11, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="factory_bot (v5.1.1, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="i18n (v1.7.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="json (v2.2.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="jwt (v2.2.1, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="method_source (v0.9.2, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="mini_portile2 (v2.4.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="minitest (v5.12.2, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="multipart-post (v2.1.1, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="net-http-persistent (v3.1.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="nokogiri (v1.10.4, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="pg (v1.1.4, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="pry (v0.12.2, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rack (v2.0.7, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rack-test (v1.1.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rack-throttle (v0.7.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec (v3.9.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-core (v3.9.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-expectations (v3.9.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-mocks (v3.9.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-support (v3.9.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="sequel (v5.25.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="simplecov (v0.17.1, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="simplecov-html (v0.10.2, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="thread_safe (v0.3.6, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="timecop (v0.9.1, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="tzinfo (v1.2.5, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="zeitwerk (v2.2.0, Remote: ruby-2.5.1-p57 (2)) [gem]" level="application" />
   </component>
 </module>

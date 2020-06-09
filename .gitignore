@@ -16,3 +16,5 @@ public
 spec/examples.txt
 *.swp
 package-lock.json
+.bundle
+.idea

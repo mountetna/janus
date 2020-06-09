@@ -150,3 +150,33 @@ Each user has a permission for a project. You may add a permission using the `pe
 ## Via web portal
 
 Project permissions may be managed for each user by browsing to `JANUS_HOST/project/:project_name`, e.g. https://janus.example.org/project/my_project. This page includes forms to alter roles and privileged data access for each user in your project, disable a user's access to your project, or add a new user to the project with a given role.
+
+## Development with Docker
+
+Most mountetna projects include docker-compose files that run their respective services in isolation, but janus
+is unique in that *it composes* all the other mountetna docker-compose files and runs them all as one group.
+
+This all works through the `Makefile`'s management of the `composed.yml` file.
+
+### Useful commands
+
+* `make help` shows all make file commands.
+* `make up` brings up any services not currently running.  Requires `metis` to be checked out next to the `janus` folder.
+* `make down` bring all services down.
+* `make logs`  shows recent logs in all services
+* `make console` opens an irb session in the janus app context
+* `make bash` opens a bash session in the janus bash context.
+
+### Local DNS / config.yml
+
+To make authorization redirects and ssl work, you'll need to adjust your system's `hosts` resolution.  Depending on what type of system you have
+you'll need to edit one of `dnsmasq`, `/etc/hosts`, `systemd-resolved` or `c:\windows\system32\drivers\etc\hosts`
+
+You'll want entries for `janus.development.local` and `metis.development.local` pointing to localhost.
+
+docker-compose will run the `caddy` webserver to provide ssl to inside the docker services.
+However, ssl is provided via self signed certificates.  You'll need to add the `certs/rootCA.pem` file
+to your system's trusted root CA store, or add an exception to your browser.
+
+Adding new services involves using `mkcert` to create new domain certs into the `certs` directory,
+and adding a new entry to `Caddyfile` tying the cert, the subdomain, and the docker-internal url.

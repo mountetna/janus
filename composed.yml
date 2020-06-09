@@ -1,0 +1,146 @@
+services:
+  caddy:
+    image: abiosoft/caddy:latest
+    ports:
+    - published: 443
+      target: 2015
+    volumes:
+    - /home/home/janus/Caddyfile:/etc/Caddyfile:rw
+    - /home/home/janus/certs:/root/certs:rw
+  janus_app:
+    build:
+      context: /home/home/janus
+      dockerfile: docker/app/Dockerfile.development
+    command: ./docker/app/puma.sh
+    environment:
+      COVERAGE: "true"
+      DATABASE_HOST: janus_db
+      JANUS_ENV: development
+    ports:
+    - published: 3001
+      target: 3000
+    volumes:
+    - /home/home/janus:/app:cached
+    - janus-data-dir:/app/data:rw
+    - janus-log-dir:/app/log:rw
+    - janus-node-modules:/app/node_modules:rw
+    - janus-public-dir:/app/public:rw
+    - janus-tmp-dir:/app/tmp:rw
+    - janus-app-gems:/app/vendor/bundle:rw
+  janus_db:
+    build:
+      context: /home/home/janus
+      dockerfile: docker/db/Dockerfile
+    container_name: janus_db_1
+    environment:
+      POSTGRES_DB: janus_development
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: developer
+    ports:
+    - target: 5432
+    volumes:
+    - janus-db-data:/var/lib/postgresql/data:rw
+  janus_webpack:
+    build:
+      context: /home/home/janus
+      dockerfile: docker/app/Dockerfile.development
+    command: sass --watch lib/client/scss/janus.scss:lib/client/css/janus.css
+    environment:
+      COVERAGE: "true"
+      DATABASE_HOST: janus_db
+      JANUS_ENV: development
+      RUN_NPM_INSTALL: "true"
+      SKIP_RUBY_SETUP: "true"
+    volumes:
+    - /home/home/janus:/app:cached
+    - janus-data-dir:/app/data:rw
+    - janus-log-dir:/app/log:rw
+    - janus-node-modules:/app/node_modules:rw
+    - janus-public-dir:/app/public:rw
+    - janus-tmp-dir:/app/tmp:rw
+    - janus-app-gems:/app/vendor/bundle:rw
+  metis_app:
+    build:
+      context: /home/home/metis
+      dockerfile: docker/app/Dockerfile.development
+    command: ./docker/app/puma.sh
+    depends_on:
+    - metis_db
+    environment:
+      COVERAGE: "true"
+      DATABASE_HOST: db
+      METIS_ENV: development
+    ports:
+    - published: 3000
+      target: 3000
+    volumes:
+    - /home/home/metis:/app:cached
+    - data-dir:/app/data:rw
+    - log-dir:/app/log:rw
+    - node-modules:/app/node_modules:rw
+    - public-dir:/app/public:rw
+    - tmp-dir:/app/tmp:rw
+    - app-gems:/app/vendor/bundle:rw
+  metis_db:
+    build:
+      context: /home/home/metis
+      dockerfile: docker/db/Dockerfile
+    container_name: metis_db_1
+    environment:
+      POSTGRES_DB: metis_development
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: developer
+    ports:
+    - target: 5432
+    volumes:
+    - db-data:/var/lib/postgresql/data:rw
+  metis_webpack:
+    build:
+      context: /home/home/metis
+      dockerfile: docker/app/Dockerfile.development
+    command: npm run webpack
+    environment:
+      COVERAGE: "true"
+      DATABASE_HOST: db
+      METIS_ENV: development
+      RUN_NPM_INSTALL: "true"
+      SKIP_RUBY_SETUP: "true"
+    volumes:
+    - /home/home/metis:/app:cached
+    - data-dir:/app/data:rw
+    - log-dir:/app/log:rw
+    - node-modules:/app/node_modules:rw
+    - public-dir:/app/public:rw
+    - tmp-dir:/app/tmp:rw
+    - app-gems:/app/vendor/bundle:rw
+version: '3.4'
+volumes:
+  app-gems:
+    driver: local
+  data-dir:
+    driver: local
+  db-data:
+    driver: local
+  janus-app-gems:
+    driver: local
+  janus-data-dir:
+    driver: local
+  janus-db-data:
+    driver: local
+  janus-log-dir:
+    driver: local
+  janus-node-modules:
+    driver: local
+  janus-public-dir:
+    driver: local
+  janus-tmp-dir:
+    driver: local
+  log-dir:
+    driver: local
+  node-modules:
+    driver: local
+  public-dir:
+    driver: local
+  tmp-dir:
+    driver: local
+
