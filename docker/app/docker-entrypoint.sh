@@ -11,13 +11,7 @@ if [ -z "$SKIP_RUBY_SETUP" ]; then
   rm -f tmp/pids/*.pid
   if [ -z "$SKIP_DB_WAIT" ]; then
     dockerize -wait tcp://janus_db:5432 -timeout 60s
-    if ! [ -e tmp/.migrated ]; then
-      ./bin/janus migrate
-#      cat /var/example_seed.sql | sed -e 's/private/public/g' > $HOME/example_seed.public.sql
-#      export PGPASSWORD=password
-#      psql -v ON_ERROR_STOP=1 --host janus_db --username developer --dbname janus_development -f $HOME/example_seed.public.sql
-#      touch tmp/.migrated
-    fi
+    ./bin/janus migrate
   fi
 else
   while ! bundle check >/dev/null 2>&1; do

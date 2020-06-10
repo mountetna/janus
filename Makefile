@@ -13,11 +13,11 @@ vendor/bundle: Gemfile Gemfile.lock docker/app/Dockerfile
 				@ $(MAKE) bundle
 				@ touch vendor/bundle
 
-tmp/docker-build-mark: $(wildcard docker/**/*) docker-compose.yml
+.docker-build-mark: $(wildcard docker/**/*) docker-compose.yml
 				docker-compose rm -f janus_db
 				docker-compose pull janus_db
-				docker-compose build janus_app
-				@ touch tmp/docker-build-mark
+				docker-compose build
+				@ touch .docker-build-mark
 
 config.yml:
 				cp config.yml.template config.yml
@@ -28,7 +28,7 @@ composed.yml: docker-compose.yml ../metis/docker-compose.yml
 				@ docker-compose -f /tmp/janus.yml -f /tmp/metis.yml config > composed.yml
 
 .PHONY: up
-up: config.yml composed.yml ## Starts up the database, worker, and webservers of janus in the background.
+up: config.yml composed.yml .docker-build-mark ## Starts up the database, worker, and webservers of janus in the background.
 				@ docker-compose -f composed.yml up -d
 
 .PHONY: down
@@ -70,7 +70,7 @@ db-port: ## Print the db port associated with the app.
 
 .PHONY: psql
 psql: ## Start a psql shell conntected to the janus development db
-				@ PGPASSWORD=password psql -h localhost -p $(DB_PORT) -U developer -d janus_development
+				@ docker exec -ti -e PGPASSWORD=password "$$(docker ps --format '{{.Names}}' | grep janus_app)" psql -h janus_db -U developer -d janus_development
 
 .PHONY: logs
 logs: ## Follow logs of running containers

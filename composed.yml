@@ -69,7 +69,6 @@ services:
     command: ./docker/app/puma.sh
     depends_on:
     - metis_db
-    entrypoint: docker/app/docker-entrypoint.sh
     environment:
       COVERAGE: "true"
       DATABASE_HOST: db
@@ -103,7 +102,6 @@ services:
       context: /home/home/metis
       dockerfile: docker/app/Dockerfile.development
     command: npm run webpack
-    entrypoint: docker/app/docker-entrypoint.sh
     environment:
       COVERAGE: "true"
       DATABASE_HOST: db

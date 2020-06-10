@@ -18,3 +18,4 @@ spec/examples.txt
 package-lock.json
 .bundle
 .idea
+.docker-build-mark
